@@ -2,152 +2,152 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Golang on N3bu74&#39;s Blog</title>
-    <link>https://N3bu74.github.io/tags/golang/</link>
+    <link>https://n3bu74.github.io/tags/golang/</link>
     <description>Recent content in Golang on N3bu74&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 23 Dec 2022 22:59:14 +0800</lastBuildDate><atom:link href="https://N3bu74.github.io/tags/golang/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 23 Dec 2022 22:59:14 +0800</lastBuildDate><atom:link href="https://n3bu74.github.io/tags/golang/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Golang 处理并发错误</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_concurrent_error/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_concurrent_error/</link>
       <pubDate>Fri, 23 Dec 2022 22:59:14 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_concurrent_error/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_concurrent_error/</guid>
       <description>Golang基础十六之 处理并发错误</description>
     </item>
     
     <item>
       <title>Golang 并发</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_concurrency/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_concurrency/</link>
       <pubDate>Fri, 23 Dec 2022 22:58:50 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_concurrency/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_concurrency/</guid>
       <description>Golang基础十五之 并发</description>
     </item>
     
     <item>
       <title>Golang 反射与断言</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_reflect_assert/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_reflect_assert/</link>
       <pubDate>Fri, 23 Dec 2022 22:58:38 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_reflect_assert/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_reflect_assert/</guid>
       <description>Golang基础十四之 反射与断言</description>
     </item>
     
     <item>
       <title>Golang 错误处理</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_error/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_error/</link>
       <pubDate>Fri, 23 Dec 2022 22:58:27 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_error/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_error/</guid>
       <description>Golang基础十三之 Error接口和错误处理</description>
     </item>
     
     <item>
       <title>Golang 接口</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_interface/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_interface/</link>
       <pubDate>Fri, 23 Dec 2022 22:58:17 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_interface/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_interface/</guid>
       <description>Golang基础十二之 接口</description>
     </item>
     
     <item>
       <title>Golang 包</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_package/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_package/</link>
       <pubDate>Fri, 23 Dec 2022 22:58:02 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_package/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_package/</guid>
       <description>Golang基础十一之 包与依赖管理</description>
     </item>
     
     <item>
       <title>Golang 结构体</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_struct/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_struct/</link>
       <pubDate>Fri, 23 Dec 2022 22:56:56 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_struct/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_struct/</guid>
       <description>Golang基础十之 结构体</description>
     </item>
     
     <item>
       <title>Golang 指针</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_pointer/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_pointer/</link>
       <pubDate>Fri, 23 Dec 2022 22:47:06 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_pointer/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_pointer/</guid>
       <description>Golang基础九之 指针</description>
     </item>
     
     <item>
       <title>Golang函数</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_function/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_function/</link>
       <pubDate>Fri, 23 Dec 2022 22:37:35 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_function/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_function/</guid>
       <description>Golang基础八之 函数</description>
     </item>
     
     <item>
       <title>Golang map</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_map/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_map/</link>
       <pubDate>Fri, 23 Dec 2022 22:35:43 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_map/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_map/</guid>
       <description>Golang基础七之 Map</description>
     </item>
     
     <item>
       <title>Golang切片</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_slice/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_slice/</link>
       <pubDate>Fri, 23 Dec 2022 22:27:01 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_slice/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_slice/</guid>
       <description>Golang基础六之 切片</description>
     </item>
     
     <item>
       <title>Golang数组</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_array/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_array/</link>
       <pubDate>Fri, 23 Dec 2022 22:23:40 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_array/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_array/</guid>
       <description>Golang基础五之 数组</description>
     </item>
     
     <item>
       <title>Golang流程控制</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_flow_control/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_flow_control/</link>
       <pubDate>Fri, 23 Dec 2022 22:20:19 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_flow_control/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_flow_control/</guid>
       <description>Golang基础四之 流程控制</description>
     </item>
     
     <item>
       <title>Golang运算符</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_operator/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_operator/</link>
       <pubDate>Fri, 23 Dec 2022 22:14:59 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_operator/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_operator/</guid>
       <description>Golang基础三之 运算符</description>
     </item>
     
     <item>
       <title>Golang基本数据类型</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_datatype/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_datatype/</link>
       <pubDate>Fri, 23 Dec 2022 21:41:14 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_datatype/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_datatype/</guid>
       <description>Golang基础二之 基本数据类型</description>
     </item>
     
     <item>
       <title>Golang 变量与常量</title>
-      <link>https://N3bu74.github.io/posts/tech/golang_variables_const/</link>
+      <link>https://n3bu74.github.io/posts/tech/golang_variables_const/</link>
       <pubDate>Fri, 23 Dec 2022 21:24:34 +0800</pubDate>
       
-      <guid>https://N3bu74.github.io/posts/tech/golang_variables_const/</guid>
+      <guid>https://n3bu74.github.io/posts/tech/golang_variables_const/</guid>
       <description>Golang基础一之 变量与常量</description>
     </item>
     
