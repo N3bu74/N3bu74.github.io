@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Golang切片 | N3bu74&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Golang基础六之 切片">
+<meta name="author" content="
+🙍‍♂️&nbsp;N3bu74">
+<link rel="canonical" href="https://N3bu74.github.io/posts/tech/golang_slice/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f5f7976b0695bcc912cd3f9e0715cf7d38944601dc8250a8f2f117625f16e974.css" integrity="sha256-9feXawaVvMkSzT&#43;eBxXPfTiURgHcglCo8vEXYl8W6XQ=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="apple-touch-icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="mask-icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<meta property="og:title" content="Golang切片" />
+<meta property="og:description" content="Golang基础六之 切片" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://N3bu74.github.io/posts/tech/golang_slice/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-12-23T22:27:01+08:00" />
+<meta property="article:modified_time" content="2022-12-23T22:27:01+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Golang切片"/>
+<meta name="twitter:description" content="Golang基础六之 切片"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+
+        {
+          "@type": "ListItem",
+          "position":  2 ,
+          "name": "📚文章",
+          "item": "https://N3bu74.github.io/posts/"
+        },
+
+        {
+          "@type": "ListItem",
+          "position":  3 ,
+          "name": "👨🏻‍💻 技术",
+          "item": "https://N3bu74.github.io/posts/tech/"
+        }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "Golang切片",
+      "item": "https://N3bu74.github.io/posts/tech/golang_slice/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Golang切片",
+  "name": "Golang切片",
+  "description": "Golang基础六之 切片",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "本文主要介绍Go语言中切片（slice）及它的基本使用。\n1.引子 因为数组的长度是固定的并且数组长度属于类型的一部分，所以数组有很多的局限性。 例如：\nfunc arraySum(x [3]int) int{ sum := 0 for _, v := range x{ sum = sum + v } return sum } 这个求和函数只能接受[3]int类型，其他的都不支持。 再比如，\na := [3]int{1, 2, 3} 数组a中已经有三个元素了，我们不能再继续往数组a中添加新元素了。\n2.切片 切片（Slice）是一个拥有相同类型元素的可变长度的序列。它是基于数组类型做的一层封装。它非常灵活，支持自动扩容。\n切片是一个引用类型，它的内部结构包含地址、长度和容量。切片一般用于快速地操作一块数据集合。\n2.1 切片的定义 声明切片类型的基本语法如下：\nvar name []T 其中，\nname:表示变量名 T:表示切片中的元素类型 举个例子：\nfunc main() { // 声明切片类型 var a []string //声明一个字符串切片 var b = []int{} //声明一个整型切片并初始化 var c = []bool{false, true} //声明一个布尔切片并初始化 var d = []bool{false, true} //声明一个布尔切片并初始化 fmt.Println(a) //[] fmt.Println(b) //[] fmt.Println(c) //[false true] fmt.Println(a == nil) //true fmt.Println(b == nil) //false fmt.Println(c == nil) //false // fmt.Println(c == d) //切片是引用类型，不支持直接比较，只能和nil比较 } 2.1.1 切片的长度和容量 切片拥有自己的长度和容量，我们可以通过使用内置的len()函数求长度，使用内置的cap()函数求切片的容量。\n2.1.2 切片表达式 切片表达式从字符串、数组、指向数组或切片的指针构造子字符串或切片。它有两种变体：一种指定low和high两个索引界限值的简单的形式，另一种是除了low和high索引界限值外还指定容量的完整的形式。\n2.1.2.1 简单切片表达式 切片的底层就是一个数组，所以我们可以基于数组通过切片表达式得到切片。 切片表达式中的low和high表示一个索引范围（左包含，右不包含），也就是下面代码中从数组a中选出1\u003c=索引值\u003c4的元素组成切片s，得到的切片长度=high-low，容量等于得到的切片的底层数组的容量。\nfunc main() { a := [5]int{1, 2, 3, 4, 5} s := a[1:3] // s := a[low:high] fmt.Printf(\"s:%v len(s):%v cap(s):%v\\n\", s, len(s), cap(s)) } 输出：\ns:[2 3] len(s):2 cap(s):4 为了方便起见，可以省略切片表达式中的任何索引。省略了low则默认为0；省略了high则默认为切片操作数的长度:\na[2:] // 等同于 a[2:len(a)] a[:3] // 等同于 a[0:3] a[:] // 等同于 a[0:len(a)] 注意：\n对于数组或字符串，如果0 \u003c= low \u003c= high \u003c= len(a)，则索引合法，否则就会索引越界（out of range）。\n对切片再执行切片表达式时（切片再切片），high的上限边界是切片的容量cap(a)，而不是长度。常量索引必须是非负的，并且可以用int类型的值表示;对于数组或常量字符串，常量索引也必须在有效范围内。如果low和high两个指标都是常数，它们必须满足low \u003c= high。如果索引在运行时超出范围，就会发生运行时panic。\nfunc main() { a := [5]int{1, 2, 3, 4, 5} s := a[1:3] // s := a[low:high] fmt.Printf(\"s:%v len(s):%v cap(s):%v\\n\", s, len(s), cap(s)) s2 := s[3:4] // 索引的上限是cap(s)而不是len(s) fmt.Printf(\"s2:%v len(s2):%v cap(s2):%v\\n\", s2, len(s2), cap(s2)) } 输出：\ns:[2 3] len(s):2 cap(s):4 s2:[5] len(s2):1 cap(s2):1 2.1.2.2 完整切片表达式 对于数组，指向数组的指针，或切片a(注意不能是字符串)支持完整切片表达式：\na[low : high : max] 上面的代码会构造与简单切片表达式a[low: high]相同类型、相同长度和元素的切片。另外，它会将得到的结果切片的容量设置为max-low。在完整切片表达式中只有第一个索引值（low）可以省略；它默认为0。\nfunc main() { a := [5]int{1, 2, 3, 4, 5} t := a[1:3:5] fmt.Printf(\"t:%v len(t):%v cap(t):%v\\n\", t, len(t), cap(t)) } 输出结果：\nt:[2 3] len(t):2 cap(t):4 完整切片表达式需要满足的条件是0 \u003c= low \u003c= high \u003c= max \u003c= cap(a)，其他条件和简单切片表达式相同。\n2.1.3 使用make()函数构造切片 我们上面都是基于数组来创建的切片，如果需要动态的创建一个切片，我们就需要使用内置的make()函数，格式如下：\nmake([]T, size, cap) 其中：\nT:切片的元素类型 size:切片中元素的数量 cap:切片的容量 举个例子：\nfunc main() { a := make([]int, 2, 10) fmt.Println(a) //[0 0] fmt.Println(len(a)) //2 fmt.Println(cap(a)) //10 } 上面代码中a的内部存储空间已经分配了10个，但实际上只用了2个。 容量并不会影响当前元素的个数，所以len(a)返回2，cap(a)则返回该切片的容量。\n2.1.4 切片的本质 切片的本质就是对底层数组的封装，它包含了三个信息：底层数组的指针、切片的长度（len）和切片的容量（cap）。\n举个例子，现在有一个数组a := [8]int{0, 1, 2, 3, 4, 5, 6, 7}，切片s1 := a[:5]，相应示意图如下。\n切片s2 := a[3:6]，相应示意图如下：\n2.1.5 判断切片是否为空 要检查切片是否为空，请始终使用len(s) == 0来判断，而不应该使用s == nil来判断。\n2.2 切片不能直接比较 切片之间是不能比较的，我们不能使用==操作符来判断两个切片是否含有全部相等元素。 切片唯一合法的比较操作是和nil比较。 一个nil值的切片并没有底层数组，一个nil值的切片的长度和容量都是0。但是我们不能说一个长度和容量都是0的切片一定是nil，例如下面的示例：\nvar s1 []int //len(s1)=0;cap(s1)=0;s1==nil s2 := []int{} //len(s2)=0;cap(s2)=0;s2!=nil s3 := make([]int, 0) //len(s3)=0;cap(s3)=0;s3!=nil 所以要判断一个切片是否是空的，要是用len(s) == 0来判断，不应该使用s == nil来判断。\n2.3 切片的赋值拷贝 下面的代码中演示了拷贝前后两个变量共享底层数组，对一个切片的修改会影响另一个切片的内容，这点需要特别注意。\nfunc main() { s1 := make([]int, 3) //[0 0 0] s2 := s1 //将s1直接赋值给s2，s1和s2共用一个底层数组 s2[0] = 100 fmt.Println(s1) //[100 0 0] fmt.Println(s2) //[100 0 0] } 2.4 切片遍历 切片的遍历方式和数组是一致的，支持索引遍历和for range遍历。\nfunc main() { s := []int{1, 3, 5} for i := 0; i \u003c len(s); i++ { fmt.Println(i, s[i]) } for index, value := range s { fmt.Println(index, value) } } 2.5 append()方法为切片添加元素 Go语言的内建函数append()可以为切片动态添加元素。 可以一次添加一个元素，可以添加多个元素，也可以添加另一个切片中的元素（后面加…）。\nfunc main(){ var s []int s = append(s, 1) // [1] s = append(s, 2, 3, 4) // [1 2 3 4] s2 := []int{5, 6, 7} s = append(s, s2...) // [1 2 3 4 5 6 7] } **注意：**通过var声明的零值切片可以在append()函数直接使用，无需初始化。\nvar s []int s = append(s, 1, 2, 3) 没有必要像下面的代码一样初始化一个切片再传入append()函数使用，\ns := []int{} // 没有必要初始化 s = append(s, 1, 2, 3) var s = make([]int) // 没有必要初始化 s = append(s, 1, 2, 3) 每个切片会指向一个底层数组，这个数组的容量够用就添加新增元素。当底层数组不能容纳新增的元素时，切片就会自动按照一定的策略进行“扩容”，此时该切片指向的底层数组就会更换。“扩容”操作往往发生在append()函数调用时，所以我们通常都需要用原变量接收append函数的返回值。\n举个例子：\nfunc main() { //append()添加元素和切片扩容 var numSlice []int for i := 0; i \u003c 10; i++ { numSlice = append(numSlice, i) fmt.Printf(\"%v len:%d cap:%d ptr:%p\\n\", numSlice, len(numSlice), cap(numSlice), numSlice) } } 输出：\n[0] len:1 cap:1 ptr:0xc0000a8000 [0 1] len:2 cap:2 ptr:0xc0000a8040 [0 1 2] len:3 cap:4 ptr:0xc0000b2020 [0 1 2 3] len:4 cap:4 ptr:0xc0000b2020 [0 1 2 3 4] len:5 cap:8 ptr:0xc0000b6000 [0 1 2 3 4 5] len:6 cap:8 ptr:0xc0000b6000 [0 1 2 3 4 5 6] len:7 cap:8 ptr:0xc0000b6000 [0 1 2 3 4 5 6 7] len:8 cap:8 ptr:0xc0000b6000 [0 1 2 3 4 5 6 7 8] len:9 cap:16 ptr:0xc0000b8000 [0 1 2 3 4 5 6 7 8 9] len:10 cap:16 ptr:0xc0000b8000 从上面的结果可以看出：\nappend()函数将元素追加到切片的最后并返回该切片。 切片numSlice的容量按照1，2，4，8，16这样的规则自动进行扩容，每次扩容后都是扩容前的2倍。 append()函数还支持一次性追加多个元素。 例如：\nvar citySlice []string // 追加一个元素 citySlice = append(citySlice, \"北京\") // 追加多个元素 citySlice = append(citySlice, \"上海\", \"广州\", \"深圳\") // 追加切片 a := []string{\"成都\", \"重庆\"} citySlice = append(citySlice, a...) fmt.Println(citySlice) //[北京 上海 广州 深圳 成都 重庆] 2.6 切片的扩容策略 可以通过查看$GOROOT/src/runtime/slice.go源码，其中扩容相关代码如下：\nnewcap := old.cap doublecap := newcap + newcap if cap \u003e doublecap { newcap = cap } else { if old.len \u003c 1024 { newcap = doublecap } else { // Check 0 \u003c newcap to detect overflow // and prevent an infinite loop. for 0 \u003c newcap \u0026\u0026 newcap \u003c cap { newcap += newcap / 4 } // Set newcap to the requested cap when // the newcap calculation overflowed. if newcap \u003c= 0 { newcap = cap } } } 从上面的代码可以看出以下内容：\n首先判断，如果新申请容量（cap）大于2倍的旧容量（old.cap），最终容量（newcap）就是新申请的容量（cap）。 否则判断，如果旧切片的长度小于1024，则最终容量(newcap)就是旧容量(old.cap)的两倍，即（newcap=doublecap）， 否则判断，如果旧切片长度大于等于1024，则最终容量（newcap）从旧容量（old.cap）开始循环增加原来的1/4，即（newcap=old.cap,for {newcap += newcap/4}）直到最终容量（newcap）大于等于新申请的容量(cap)，即（newcap \u003e= cap） 如果最终容量（cap）计算值溢出，则最终容量（cap）就是新申请容量（cap）。 需要注意的是，切片扩容还会根据切片中元素的类型不同而做不同的处理，比如int和string类型的处理方式就不一样。\n2.7 使用copy()函数复制切片 首先我们来看一个问题：\nfunc main() { a := []int{1, 2, 3, 4, 5} b := a fmt.Println(a) //[1 2 3 4 5] fmt.Println(b) //[1 2 3 4 5] b[0] = 1000 fmt.Println(a) //[1000 2 3 4 5] fmt.Println(b) //[1000 2 3 4 5] } 由于切片是引用类型，所以a和b其实都指向了同一块内存地址。修改b的同时a的值也会发生变化。\nGo语言内建的copy()函数可以迅速地将一个切片的数据复制到另外一个切片空间中，copy()函数的使用格式如下：\ncopy(destSlice, srcSlice []T) 其中：\nsrcSlice: 数据来源切片 destSlice: 目标切片 举个例子：\nfunc main() { // copy()复制切片 a := []int{1, 2, 3, 4, 5} c := make([]int, 5, 5) copy(c, a) //使用copy()函数将切片a中的元素复制到切片c fmt.Println(a) //[1 2 3 4 5] fmt.Println(c) //[1 2 3 4 5] c[0] = 1000 fmt.Println(a) //[1 2 3 4 5] fmt.Println(c) //[1000 2 3 4 5] } 2.8 从切片中删除元素 Go语言中并没有删除切片元素的专用方法，我们可以使用切片本身的特性来删除元素。 代码如下：\nfunc main() { // 从切片中删除元素 a := []int{30, 31, 32, 33, 34, 35, 36, 37} // 要删除索引为2的元素 a = append(a[:2], a[3:]...) fmt.Println(a) //[30 31 33 34 35 36 37] } 总结一下就是：要从切片a中删除索引为index的元素，操作方法是a = append(a[:index], a[index+1:]...)\n3.练习题 1.请写出下面代码的输出结果。\nfunc main() { var a = make([]string, 5, 10) for i := 0; i \u003c 10; i++ { a = append(a, fmt.Sprintf(\"%v\", i)) } fmt.Println(a) } [\"\" \"\" \"\" \"\" ““0 1 2 3 4 5 6 7 8 9]\n2.请使用内置的sort包对数组var a = [...]int{3, 7, 8, 9, 1}进行排序（附加题，自行查资料解答）。\npackage main import ( \"fmt\" \"sort\" ) func main() { var a = [...]int{3, 7, 8, 9, 1} // convert from fixed array to slice a_slice := a[:] // sort slice by built-in sort function sort.Ints(a_slice) // output sorted result fmt.Println(a_slice) } ",
+  "wordCount" : "3987",
+  "inLanguage": "en",
+  "datePublished": "2022-12-23T22:27:01+08:00",
+  "dateModified": "2022-12-23T22:27:01+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "N3bu74"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://N3bu74.github.io/posts/tech/golang_slice/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "N3bu74's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://N3bu74.github.io/img/N3bu74.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://N3bu74.github.io" accesskey="h" title="N3bu74&#39;s Blog (Alt + H)">
+            <img src="https://N3bu74.github.io/img/Q.gif" alt="logo" aria-label="logo"
+                 height="35">N3bu74&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://N3bu74.github.io/search" title="🔍 搜索 (Alt &#43; /)" accesskey=/>
+                <span>🔍 搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/posts" title="📚 文章">
+                <span>📚 文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/categories/" title="📦 分类">
+                <span>📦 分类</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/tags" title="🧩 标签">
+                <span>🧩 标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/archives/" title="⏱️ 时间轴">
+                <span>⏱️ 时间轴</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://N3bu74.github.io">主页</a>&nbsp;»&nbsp;<a href="https://N3bu74.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://N3bu74.github.io/posts/tech/">👨🏻‍💻 技术</a></div>
+            <h1 class="post-title">
+                Golang切片
+            </h1>
+            <div class="post-description">
+                Golang基础六之 切片
+            </div>
+            <div class="post-meta">📅&nbsp;<span title='2022-12-23 22:27:01 +0800 CST'>2022-12-23</span>&nbsp; &nbsp;⏰&nbsp;2022-12-23&nbsp; &nbsp;📃:&nbsp;3987字&nbsp; &nbsp;⏳&nbsp;8分钟&nbsp; &nbsp;
+🙍‍♂️&nbsp;N3bu74
+
+
+
+                &nbsp; &nbsp; 🧩 &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://N3bu74.github.io/tags/golang/">Golang</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp; 👁‍🗨 <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#1%e5%bc%95%e5%ad%90" aria-label="1.引子">1.引子</a></li>
+                <li>
+                    <a href="#2%e5%88%87%e7%89%87" aria-label="2.切片">2.切片</a><ul>
+                        
+                <li>
+                    <a href="#21-%e5%88%87%e7%89%87%e7%9a%84%e5%ae%9a%e4%b9%89" aria-label="2.1 切片的定义">2.1 切片的定义</a><ul>
+                        
+                <li>
+                    <a href="#211-%e5%88%87%e7%89%87%e7%9a%84%e9%95%bf%e5%ba%a6%e5%92%8c%e5%ae%b9%e9%87%8f" aria-label="2.1.1 切片的长度和容量">2.1.1 切片的长度和容量</a></li>
+                <li>
+                    <a href="#212-%e5%88%87%e7%89%87%e8%a1%a8%e8%be%be%e5%bc%8f" aria-label="2.1.2 切片表达式">2.1.2 切片表达式</a><ul>
+                        
+                <li>
+                    <a href="#2121-%e7%ae%80%e5%8d%95%e5%88%87%e7%89%87%e8%a1%a8%e8%be%be%e5%bc%8f" aria-label="2.1.2.1 简单切片表达式">2.1.2.1 简单切片表达式</a></li>
+                <li>
+                    <a href="#2122-%e5%ae%8c%e6%95%b4%e5%88%87%e7%89%87%e8%a1%a8%e8%be%be%e5%bc%8f" aria-label="2.1.2.2 完整切片表达式">2.1.2.2 完整切片表达式</a></li></ul>
+                </li>
+                <li>
+                    <a href="#213-%e4%bd%bf%e7%94%a8make%e5%87%bd%e6%95%b0%e6%9e%84%e9%80%a0%e5%88%87%e7%89%87" aria-label="2.1.3 使用make()函数构造切片">2.1.3 使用make()函数构造切片</a></li>
+                <li>
+                    <a href="#214-%e5%88%87%e7%89%87%e7%9a%84%e6%9c%ac%e8%b4%a8" aria-label="2.1.4 切片的本质">2.1.4 切片的本质</a></li>
+                <li>
+                    <a href="#215-%e5%88%a4%e6%96%ad%e5%88%87%e7%89%87%e6%98%af%e5%90%a6%e4%b8%ba%e7%a9%ba" aria-label="2.1.5 判断切片是否为空">2.1.5 判断切片是否为空</a></li></ul>
+                </li>
+                <li>
+                    <a href="#22-%e5%88%87%e7%89%87%e4%b8%8d%e8%83%bd%e7%9b%b4%e6%8e%a5%e6%af%94%e8%be%83" aria-label="2.2 切片不能直接比较">2.2 切片不能直接比较</a></li>
+                <li>
+                    <a href="#23-%e5%88%87%e7%89%87%e7%9a%84%e8%b5%8b%e5%80%bc%e6%8b%b7%e8%b4%9d" aria-label="2.3 切片的赋值拷贝">2.3 切片的赋值拷贝</a></li>
+                <li>
+                    <a href="#24-%e5%88%87%e7%89%87%e9%81%8d%e5%8e%86" aria-label="2.4 切片遍历">2.4 切片遍历</a></li>
+                <li>
+                    <a href="#25-append%e6%96%b9%e6%b3%95%e4%b8%ba%e5%88%87%e7%89%87%e6%b7%bb%e5%8a%a0%e5%85%83%e7%b4%a0" aria-label="2.5 append()方法为切片添加元素">2.5 append()方法为切片添加元素</a></li>
+                <li>
+                    <a href="#26-%e5%88%87%e7%89%87%e7%9a%84%e6%89%a9%e5%ae%b9%e7%ad%96%e7%95%a5" aria-label="2.6 切片的扩容策略">2.6 切片的扩容策略</a></li>
+                <li>
+                    <a href="#27-%e4%bd%bf%e7%94%a8copy%e5%87%bd%e6%95%b0%e5%a4%8d%e5%88%b6%e5%88%87%e7%89%87" aria-label="2.7 使用copy()函数复制切片">2.7 使用copy()函数复制切片</a></li>
+                <li>
+                    <a href="#28-%e4%bb%8e%e5%88%87%e7%89%87%e4%b8%ad%e5%88%a0%e9%99%a4%e5%85%83%e7%b4%a0" aria-label="2.8 从切片中删除元素">2.8 从切片中删除元素</a></li></ul>
+                </li>
+                <li>
+                    <a href="#3%e7%bb%83%e4%b9%a0%e9%a2%98" aria-label="3.练习题">3.练习题</a>
+                </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><p>本文主要介绍Go语言中切片（slice）及它的基本使用。</p>
+<h2 id="1引子">1.引子<a hidden class="anchor" aria-hidden="true" href="#1引子">#</a></h2>
+<p>因为数组的长度是固定的并且数组长度属于类型的一部分，所以数组有很多的局限性。 例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">arraySum</span>(<span style="color:#a6e22e">x</span> [<span style="color:#ae81ff">3</span>]<span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">int</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">sum</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">v</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">x</span>{
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">sum</span> = <span style="color:#a6e22e">sum</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">v</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">sum</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>这个求和函数只能接受<code>[3]int</code>类型，其他的都不支持。 再比如，</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">3</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>}
+</span></span></code></pre></div><p>数组a中已经有三个元素了，我们不能再继续往数组a中添加新元素了。</p>
+<h2 id="2切片">2.切片<a hidden class="anchor" aria-hidden="true" href="#2切片">#</a></h2>
+<p>切片（Slice）是一个拥有相同类型元素的可变长度的序列。它是基于数组类型做的一层封装。它非常灵活，支持自动扩容。</p>
+<p>切片是一个引用类型，它的内部结构包含<code>地址</code>、<code>长度</code>和<code>容量</code>。切片一般用于快速地操作一块数据集合。</p>
+<h3 id="21-切片的定义">2.1 切片的定义<a hidden class="anchor" aria-hidden="true" href="#21-切片的定义">#</a></h3>
+<p>声明切片类型的基本语法如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">name</span> []<span style="color:#a6e22e">T</span>
+</span></span></code></pre></div><p>其中，</p>
+<ul>
+<li>name:表示变量名</li>
+<li>T:表示切片中的元素类型</li>
+</ul>
+<p>举个例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 声明切片类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> []<span style="color:#66d9ef">string</span>              <span style="color:#75715e">//声明一个字符串切片
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">b</span> = []<span style="color:#66d9ef">int</span>{}             <span style="color:#75715e">//声明一个整型切片并初始化
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c</span> = []<span style="color:#66d9ef">bool</span>{<span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">true</span>} <span style="color:#75715e">//声明一个布尔切片并初始化
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">d</span> = []<span style="color:#66d9ef">bool</span>{<span style="color:#66d9ef">false</span>, <span style="color:#66d9ef">true</span>} <span style="color:#75715e">//声明一个布尔切片并初始化
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>)              <span style="color:#75715e">//[]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">b</span>)              <span style="color:#75715e">//[]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">c</span>)              <span style="color:#75715e">//[false true]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span>)       <span style="color:#75715e">//true
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">b</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span>)       <span style="color:#75715e">//false
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">c</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span>)       <span style="color:#75715e">//false
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">// fmt.Println(c == d)   //切片是引用类型，不支持直接比较，只能和nil比较
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><h4 id="211-切片的长度和容量">2.1.1 切片的长度和容量<a hidden class="anchor" aria-hidden="true" href="#211-切片的长度和容量">#</a></h4>
+<p>切片拥有自己的长度和容量，我们可以通过使用内置的<code>len()</code>函数求长度，使用内置的<code>cap()</code>函数求切片的容量。</p>
+<h4 id="212-切片表达式">2.1.2 切片表达式<a hidden class="anchor" aria-hidden="true" href="#212-切片表达式">#</a></h4>
+<p>切片表达式从字符串、数组、指向数组或切片的指针构造子字符串或切片。它有两种变体：一种指定low和high两个索引界限值的简单的形式，另一种是除了low和high索引界限值外还指定容量的完整的形式。</p>
+<h5 id="2121-简单切片表达式">2.1.2.1 简单切片表达式<a hidden class="anchor" aria-hidden="true" href="#2121-简单切片表达式">#</a></h5>
+<p>切片的底层就是一个数组，所以我们可以基于数组通过切片表达式得到切片。 切片表达式中的<code>low</code>和<code>high</code>表示一个索引范围（左包含，右不包含），也就是下面代码中从数组a中选出<code>1&lt;=索引值&lt;4</code>的元素组成切片s，得到的切片<code>长度=high-low</code>，容量等于得到的切片的底层数组的容量。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">5</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">a</span>[<span style="color:#ae81ff">1</span>:<span style="color:#ae81ff">3</span>]  <span style="color:#75715e">// s := a[low:high]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;s:%v len(s):%v cap(s):%v\n&#34;</span>, <span style="color:#a6e22e">s</span>, len(<span style="color:#a6e22e">s</span>), cap(<span style="color:#a6e22e">s</span>))
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>输出：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>s:<span style="color:#f92672">[</span><span style="color:#ae81ff">2</span> 3<span style="color:#f92672">]</span> len<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span>:2 cap<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span>:4
+</span></span></code></pre></div><p>为了方便起见，可以省略切片表达式中的任何索引。省略了<code>low</code>则默认为0；省略了<code>high</code>则默认为切片操作数的长度:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">a</span>[<span style="color:#ae81ff">2</span>:]  <span style="color:#75715e">// 等同于 a[2:len(a)]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">a</span>[:<span style="color:#ae81ff">3</span>]  <span style="color:#75715e">// 等同于 a[0:3]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">a</span>[:]   <span style="color:#75715e">// 等同于 a[0:len(a)]
+</span></span></span></code></pre></div><p><strong>注意：</strong></p>
+<p>对于数组或字符串，如果<code>0 &lt;= low &lt;= high &lt;= len(a)</code>，则索引合法，否则就会索引越界（out of range）。</p>
+<p>对切片再执行切片表达式时（切片再切片），<code>high</code>的上限边界是切片的容量<code>cap(a)</code>，而不是长度。<strong>常量索引</strong>必须是非负的，并且可以用int类型的值表示;对于数组或常量字符串，常量索引也必须在有效范围内。如果<code>low</code>和<code>high</code>两个指标都是常数，它们必须满足<code>low &lt;= high</code>。如果索引在运行时超出范围，就会发生运行时<code>panic</code>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">5</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">a</span>[<span style="color:#ae81ff">1</span>:<span style="color:#ae81ff">3</span>]  <span style="color:#75715e">// s := a[low:high]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;s:%v len(s):%v cap(s):%v\n&#34;</span>, <span style="color:#a6e22e">s</span>, len(<span style="color:#a6e22e">s</span>), cap(<span style="color:#a6e22e">s</span>))
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">s2</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s</span>[<span style="color:#ae81ff">3</span>:<span style="color:#ae81ff">4</span>]  <span style="color:#75715e">// 索引的上限是cap(s)而不是len(s)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;s2:%v len(s2):%v cap(s2):%v\n&#34;</span>, <span style="color:#a6e22e">s2</span>, len(<span style="color:#a6e22e">s2</span>), cap(<span style="color:#a6e22e">s2</span>))
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>输出：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>s:<span style="color:#f92672">[</span><span style="color:#ae81ff">2</span> 3<span style="color:#f92672">]</span> len<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span>:2 cap<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span>:4
+</span></span><span style="display:flex;"><span>s2:<span style="color:#f92672">[</span>5<span style="color:#f92672">]</span> len<span style="color:#f92672">(</span>s2<span style="color:#f92672">)</span>:1 cap<span style="color:#f92672">(</span>s2<span style="color:#f92672">)</span>:1
+</span></span></code></pre></div><h5 id="2122-完整切片表达式">2.1.2.2 完整切片表达式<a hidden class="anchor" aria-hidden="true" href="#2122-完整切片表达式">#</a></h5>
+<p>对于数组，指向数组的指针，或切片a(<strong>注意不能是字符串</strong>)支持完整切片表达式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">a</span>[<span style="color:#a6e22e">low</span> : <span style="color:#a6e22e">high</span> : <span style="color:#a6e22e">max</span>]
+</span></span></code></pre></div><p>上面的代码会构造与简单切片表达式<code>a[low: high]</code>相同类型、相同长度和元素的切片。另外，它会将得到的结果切片的容量设置为<code>max-low</code>。在完整切片表达式中只有第一个索引值（low）可以省略；它默认为0。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> [<span style="color:#ae81ff">5</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">t</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">a</span>[<span style="color:#ae81ff">1</span>:<span style="color:#ae81ff">3</span>:<span style="color:#ae81ff">5</span>]
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;t:%v len(t):%v cap(t):%v\n&#34;</span>, <span style="color:#a6e22e">t</span>, len(<span style="color:#a6e22e">t</span>), cap(<span style="color:#a6e22e">t</span>))
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>输出结果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>t:<span style="color:#f92672">[</span><span style="color:#ae81ff">2</span> 3<span style="color:#f92672">]</span> len<span style="color:#f92672">(</span>t<span style="color:#f92672">)</span>:2 cap<span style="color:#f92672">(</span>t<span style="color:#f92672">)</span>:4
+</span></span></code></pre></div><p>完整切片表达式需要满足的条件是<code>0 &lt;= low &lt;= high &lt;= max &lt;= cap(a)</code>，其他条件和简单切片表达式相同。</p>
+<h4 id="213-使用make函数构造切片">2.1.3 使用make()函数构造切片<a hidden class="anchor" aria-hidden="true" href="#213-使用make函数构造切片">#</a></h4>
+<p>我们上面都是基于数组来创建的切片，如果需要动态的创建一个切片，我们就需要使用内置的<code>make()</code>函数，格式如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>make<span style="color:#f92672">([]</span>T, size, cap<span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>其中：</p>
+<ul>
+<li>T:切片的元素类型</li>
+<li>size:切片中元素的数量</li>
+<li>cap:切片的容量</li>
+</ul>
+<p>举个例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>)      <span style="color:#75715e">//[0 0]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(len(<span style="color:#a6e22e">a</span>)) <span style="color:#75715e">//2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(cap(<span style="color:#a6e22e">a</span>)) <span style="color:#75715e">//10
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>上面代码中<code>a</code>的内部存储空间已经分配了10个，但实际上只用了2个。 容量并不会影响当前元素的个数，所以<code>len(a)</code>返回2，<code>cap(a)</code>则返回该切片的容量。</p>
+<h4 id="214-切片的本质">2.1.4 切片的本质<a hidden class="anchor" aria-hidden="true" href="#214-切片的本质">#</a></h4>
+<p>切片的本质就是对底层数组的封装，它包含了三个信息：底层数组的指针、切片的长度（len）和切片的容量（cap）。</p>
+<p>举个例子，现在有一个数组<code>a := [8]int{0, 1, 2, 3, 4, 5, 6, 7}</code>，切片<code>s1 := a[:5]</code>，相应示意图如下。</p>
+<p><img loading="lazy" src="slice_01.png" alt="slice_01"  />
+</p>
+<p>切片<code>s2 := a[3:6]</code>，相应示意图如下：</p>
+<p><img loading="lazy" src="slice_02.png" alt="slice_02"  />
+</p>
+<h4 id="215-判断切片是否为空">2.1.5 判断切片是否为空<a hidden class="anchor" aria-hidden="true" href="#215-判断切片是否为空">#</a></h4>
+<p>要检查切片是否为空，请始终使用<code>len(s) == 0</code>来判断，而不应该使用<code>s == nil</code>来判断。</p>
+<h3 id="22-切片不能直接比较">2.2 切片不能直接比较<a hidden class="anchor" aria-hidden="true" href="#22-切片不能直接比较">#</a></h3>
+<p>切片之间是不能比较的，我们不能使用<code>==</code>操作符来判断两个切片是否含有全部相等元素。 切片唯一合法的比较操作是和<code>nil</code>比较。 一个<code>nil</code>值的切片并没有底层数组，一个<code>nil</code>值的切片的长度和容量都是0。但是我们不能说一个长度和容量都是0的切片一定是<code>nil</code>，例如下面的示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s1</span> []<span style="color:#66d9ef">int</span>         <span style="color:#75715e">//len(s1)=0;cap(s1)=0;s1==nil
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">s2</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{}        <span style="color:#75715e">//len(s2)=0;cap(s2)=0;s2!=nil
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">s3</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">0</span>) <span style="color:#75715e">//len(s3)=0;cap(s3)=0;s3!=nil
+</span></span></span></code></pre></div><p>所以要判断一个切片是否是空的，要是用<code>len(s) == 0</code>来判断，不应该使用<code>s == nil</code>来判断。</p>
+<h3 id="23-切片的赋值拷贝">2.3 切片的赋值拷贝<a hidden class="anchor" aria-hidden="true" href="#23-切片的赋值拷贝">#</a></h3>
+<p>下面的代码中演示了拷贝前后两个变量共享底层数组，对一个切片的修改会影响另一个切片的内容，这点需要特别注意。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">s1</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">3</span>) <span style="color:#75715e">//[0 0 0]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">s2</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">s1</span>             <span style="color:#75715e">//将s1直接赋值给s2，s1和s2共用一个底层数组
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">s2</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s1</span>) <span style="color:#75715e">//[100 0 0]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">s2</span>) <span style="color:#75715e">//[100 0 0]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><h3 id="24-切片遍历">2.4 切片遍历<a hidden class="anchor" aria-hidden="true" href="#24-切片遍历">#</a></h3>
+<p>切片的遍历方式和数组是一致的，支持索引遍历和<code>for range</code>遍历。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">5</span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">s</span>); <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">s</span>[<span style="color:#a6e22e">i</span>])
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">index</span>, <span style="color:#a6e22e">value</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">s</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">index</span>, <span style="color:#a6e22e">value</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="25-append方法为切片添加元素">2.5 append()方法为切片添加元素<a hidden class="anchor" aria-hidden="true" href="#25-append方法为切片添加元素">#</a></h3>
+<p>Go语言的内建函数<code>append()</code>可以为切片动态添加元素。 可以一次添加一个元素，可以添加多个元素，也可以添加另一个切片中的元素（后面加…）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>(){
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s</span> []<span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#ae81ff">1</span>)        <span style="color:#75715e">// [1]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>)  <span style="color:#75715e">// [1 2 3 4]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">s2</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">7</span>}  
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#a6e22e">s2</span><span style="color:#f92672">...</span>)    <span style="color:#75715e">// [1 2 3 4 5 6 7]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>**注意：**通过var声明的零值切片可以在<code>append()</code>函数直接使用，无需初始化。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s</span> []<span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>)
+</span></span></code></pre></div><p>没有必要像下面的代码一样初始化一个切片再传入<code>append()</code>函数使用，</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">s</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{}  <span style="color:#75715e">// 没有必要初始化
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s</span> = make([]<span style="color:#66d9ef">int</span>)  <span style="color:#75715e">// 没有必要初始化
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">s</span> = append(<span style="color:#a6e22e">s</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>)
+</span></span></code></pre></div><p>每个切片会指向一个底层数组，这个数组的容量够用就添加新增元素。当底层数组不能容纳新增的元素时，切片就会自动按照一定的策略进行“扩容”，此时该切片指向的底层数组就会更换。“扩容”操作往往发生在<code>append()</code>函数调用时，所以我们通常都需要用原变量接收append函数的返回值。</p>
+<p>举个例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//append()添加元素和切片扩容
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">numSlice</span> []<span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#ae81ff">10</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">numSlice</span> = append(<span style="color:#a6e22e">numSlice</span>, <span style="color:#a6e22e">i</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%v  len:%d  cap:%d  ptr:%p\n&#34;</span>, <span style="color:#a6e22e">numSlice</span>, len(<span style="color:#a6e22e">numSlice</span>), cap(<span style="color:#a6e22e">numSlice</span>), <span style="color:#a6e22e">numSlice</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>输出：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">[</span>0<span style="color:#f92672">]</span>  len:1  cap:1  ptr:0xc0000a8000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">0</span> 1<span style="color:#f92672">]</span>  len:2  cap:2  ptr:0xc0000a8040
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> 2<span style="color:#f92672">]</span>  len:3  cap:4  ptr:0xc0000b2020
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> 3<span style="color:#f92672">]</span>  len:4  cap:4  ptr:0xc0000b2020
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> 4<span style="color:#f92672">]</span>  len:5  cap:8  ptr:0xc0000b6000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> 5<span style="color:#f92672">]</span>  len:6  cap:8  ptr:0xc0000b6000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> 6<span style="color:#f92672">]</span>  len:7  cap:8  ptr:0xc0000b6000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> 7<span style="color:#f92672">]</span>  len:8  cap:8  ptr:0xc0000b6000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> 8<span style="color:#f92672">]</span>  len:9  cap:16  ptr:0xc0000b8000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">0</span> <span style="color:#ae81ff">1</span> <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span> <span style="color:#ae81ff">4</span> <span style="color:#ae81ff">5</span> <span style="color:#ae81ff">6</span> <span style="color:#ae81ff">7</span> <span style="color:#ae81ff">8</span> 9<span style="color:#f92672">]</span>  len:10  cap:16  ptr:0xc0000b8000
+</span></span></code></pre></div><p>从上面的结果可以看出：</p>
+<ol>
+<li><code>append()</code>函数将元素追加到切片的最后并返回该切片。</li>
+<li>切片numSlice的容量按照1，2，4，8，16这样的规则自动进行扩容，每次扩容后都是扩容前的2倍。</li>
+</ol>
+<p>append()函数还支持一次性追加多个元素。 例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">citySlice</span> []<span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 追加一个元素
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">citySlice</span> = append(<span style="color:#a6e22e">citySlice</span>, <span style="color:#e6db74">&#34;北京&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 追加多个元素
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">citySlice</span> = append(<span style="color:#a6e22e">citySlice</span>, <span style="color:#e6db74">&#34;上海&#34;</span>, <span style="color:#e6db74">&#34;广州&#34;</span>, <span style="color:#e6db74">&#34;深圳&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 追加切片
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">string</span>{<span style="color:#e6db74">&#34;成都&#34;</span>, <span style="color:#e6db74">&#34;重庆&#34;</span>}
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">citySlice</span> = append(<span style="color:#a6e22e">citySlice</span>, <span style="color:#a6e22e">a</span><span style="color:#f92672">...</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">citySlice</span>) <span style="color:#75715e">//[北京 上海 广州 深圳 成都 重庆]
+</span></span></span></code></pre></div><h3 id="26-切片的扩容策略">2.6 切片的扩容策略<a hidden class="anchor" aria-hidden="true" href="#26-切片的扩容策略">#</a></h3>
+<p>可以通过查看<code>$GOROOT/src/runtime/slice.go</code>源码，其中扩容相关代码如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">newcap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">cap</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">doublecap</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">newcap</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#a6e22e">cap</span> &gt; <span style="color:#a6e22e">doublecap</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">cap</span>
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">old</span>.<span style="color:#a6e22e">len</span> &lt; <span style="color:#ae81ff">1024</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">doublecap</span>
+</span></span><span style="display:flex;"><span>	} <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#75715e">// Check 0 &lt; newcap to detect overflow
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#75715e">// and prevent an infinite loop.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#66d9ef">for</span> <span style="color:#ae81ff">0</span> &lt; <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">newcap</span> &lt; <span style="color:#a6e22e">cap</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">newcap</span> <span style="color:#f92672">+=</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">/</span> <span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		<span style="color:#75715e">// Set newcap to the requested cap when
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#75715e">// the newcap calculation overflowed.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">newcap</span> <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">0</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">newcap</span> = <span style="color:#a6e22e">cap</span>
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>从上面的代码可以看出以下内容：</p>
+<ul>
+<li>首先判断，如果新申请容量（cap）大于2倍的旧容量（old.cap），最终容量（newcap）就是新申请的容量（cap）。</li>
+<li>否则判断，如果旧切片的长度小于1024，则最终容量(newcap)就是旧容量(old.cap)的两倍，即（newcap=doublecap），</li>
+<li>否则判断，如果旧切片长度大于等于1024，则最终容量（newcap）从旧容量（old.cap）开始循环增加原来的1/4，即（newcap=old.cap,for {newcap += newcap/4}）直到最终容量（newcap）大于等于新申请的容量(cap)，即（newcap &gt;= cap）</li>
+<li>如果最终容量（cap）计算值溢出，则最终容量（cap）就是新申请容量（cap）。</li>
+</ul>
+<p>需要注意的是，切片扩容还会根据切片中元素的类型不同而做不同的处理，比如<code>int</code>和<code>string</code>类型的处理方式就不一样。</p>
+<h3 id="27-使用copy函数复制切片">2.7 使用copy()函数复制切片<a hidden class="anchor" aria-hidden="true" href="#27-使用copy函数复制切片">#</a></h3>
+<p>首先我们来看一个问题：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">a</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>) <span style="color:#75715e">//[1 2 3 4 5]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">b</span>) <span style="color:#75715e">//[1 2 3 4 5]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">b</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">1000</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>) <span style="color:#75715e">//[1000 2 3 4 5]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">b</span>) <span style="color:#75715e">//[1000 2 3 4 5]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>由于切片是引用类型，所以a和b其实都指向了同一块内存地址。修改b的同时a的值也会发生变化。</p>
+<p>Go语言内建的<code>copy()</code>函数可以迅速地将一个切片的数据复制到另外一个切片空间中，<code>copy()</code>函数的使用格式如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>copy<span style="color:#f92672">(</span>destSlice, srcSlice <span style="color:#f92672">[]</span>T<span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>其中：</p>
+<ul>
+<li>srcSlice: 数据来源切片</li>
+<li>destSlice: 目标切片</li>
+</ul>
+<p>举个例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// copy()复制切片
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make([]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">5</span>)
+</span></span><span style="display:flex;"><span>	copy(<span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">a</span>)     <span style="color:#75715e">//使用copy()函数将切片a中的元素复制到切片c
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>) <span style="color:#75715e">//[1 2 3 4 5]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">c</span>) <span style="color:#75715e">//[1 2 3 4 5]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">c</span>[<span style="color:#ae81ff">0</span>] = <span style="color:#ae81ff">1000</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>) <span style="color:#75715e">//[1 2 3 4 5]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">c</span>) <span style="color:#75715e">//[1000 2 3 4 5]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><h3 id="28-从切片中删除元素">2.8 从切片中删除元素<a hidden class="anchor" aria-hidden="true" href="#28-从切片中删除元素">#</a></h3>
+<p>Go语言中并没有删除切片元素的专用方法，我们可以使用切片本身的特性来删除元素。 代码如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 从切片中删除元素
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">31</span>, <span style="color:#ae81ff">32</span>, <span style="color:#ae81ff">33</span>, <span style="color:#ae81ff">34</span>, <span style="color:#ae81ff">35</span>, <span style="color:#ae81ff">36</span>, <span style="color:#ae81ff">37</span>}
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 要删除索引为2的元素
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">a</span> = append(<span style="color:#a6e22e">a</span>[:<span style="color:#ae81ff">2</span>], <span style="color:#a6e22e">a</span>[<span style="color:#ae81ff">3</span>:]<span style="color:#f92672">...</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>) <span style="color:#75715e">//[30 31 33 34 35 36 37]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>总结一下就是：要从切片a中删除索引为<code>index</code>的元素，操作方法是<code>a = append(a[:index], a[index+1:]...)</code></p>
+<h2 id="3练习题">3.练习题<a hidden class="anchor" aria-hidden="true" href="#3练习题">#</a></h2>
+<p>1.请写出下面代码的输出结果。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> = make([]<span style="color:#66d9ef">string</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#ae81ff">10</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">a</span> = append(<span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%v&#34;</span>, <span style="color:#a6e22e">i</span>))
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><blockquote>
+<p>[&quot;&quot; &quot;&quot; &quot;&quot; &quot;&quot; &ldquo;&ldquo;0 1 2 3 4 5 6 7 8 9]</p>
+</blockquote>
+<p>2.请使用内置的<code>sort</code>包对数组<code>var a = [...]int{3, 7, 8, 9, 1}</code>进行排序（附加题，自行查资料解答）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;sort&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> = [<span style="color:#f92672">...</span>]<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">1</span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// convert from fixed array to slice
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">a_slice</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">a</span>[:]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// sort slice by built-in sort function
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">sort</span>.<span style="color:#a6e22e">Ints</span>(<span style="color:#a6e22e">a_slice</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// output sorted result
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a_slice</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div>
+
+        </div>
+        <div class="post-reward">
+            <div style="padding: 0 0 0 0; margin: 0 0 0 0; width: 100%; font-size:16px; text-align: center;">
+                <div id="QR" style="opacity: 0;">
+                    <div id="wechat" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="wechat_qr" src="https://N3bu74.github.io/img/wechat_pay.png" alt="wechat_pay"></a>
+                        <p>微信</p>
+                    </div>
+                    <div id="alipay" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="alipay_qr" src="https://N3bu74.github.io/img/wechat_pay.png" alt="alipay"></a>
+                        <p>支付宝</p>
+                    </div>
+                </div>
+                <button id="rewardButton"
+                        onclick="
+                    var qr = document.getElementById('QR');
+                    if (qr.style.opacity === '0') {
+                        qr.style.opacity='1';
+                    } else {
+                        qr.style.opacity='0'
+                    }"
+                >
+                    <span>🧧 鼓励</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://N3bu74.github.io/posts/tech/golang_map/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>Golang map</span>
+  </a>
+  <a class="next" href="https://N3bu74.github.io/posts/tech/golang_array/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>Golang数组</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://N3bu74.github.io" style="color:#939393;">N3bu74&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "N3bu74's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>

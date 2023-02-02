@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Golang 变量与常量 | N3bu74&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Golang基础一之 变量与常量">
+<meta name="author" content="
+🙍‍♂️&nbsp;N3bu74">
+<link rel="canonical" href="https://N3bu74.github.io/posts/tech/1.%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E9%87%8F/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f5f7976b0695bcc912cd3f9e0715cf7d38944601dc8250a8f2f117625f16e974.css" integrity="sha256-9feXawaVvMkSzT&#43;eBxXPfTiURgHcglCo8vEXYl8W6XQ=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="apple-touch-icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="mask-icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<meta property="og:title" content="Golang 变量与常量" />
+<meta property="og:description" content="Golang基础一之 变量与常量" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://N3bu74.github.io/posts/tech/1.%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E9%87%8F/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-12-23T21:24:34+08:00" />
+<meta property="article:modified_time" content="2022-12-23T21:24:34+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Golang 变量与常量"/>
+<meta name="twitter:description" content="Golang基础一之 变量与常量"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+
+        {
+          "@type": "ListItem",
+          "position":  2 ,
+          "name": "📚文章",
+          "item": "https://N3bu74.github.io/posts/"
+        },
+
+        {
+          "@type": "ListItem",
+          "position":  3 ,
+          "name": "👨🏻‍💻 技术",
+          "item": "https://N3bu74.github.io/posts/tech/"
+        }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "Golang 变量与常量",
+      "item": "https://N3bu74.github.io/posts/tech/1.%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E9%87%8F/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Golang 变量与常量",
+  "name": "Golang 变量与常量",
+  "description": "Golang基础一之 变量与常量",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "1.标识符与关键字 1.1 标识符 在编程语言中标识符就是程序员定义的具有特殊意义的词，比如变量名、常量名、函数名等等。 Go语言中标识符由字母数字和`_`(下划线）组成，并且只能以字母和`_`开头。 举几个例子：`abc`, `_`, `_123`, `a123`。\r1.2 关键字 关键字是指编程语言中预先定义好的具有特殊含义的标识符。 关键字和保留字都不建议用作变量名。\rGolang中有25个关键字：\nbreak default func interface select case defer go map struct chan else goto package switch const fallthrough if range type continue for import return var 此外，Golang中还有37个保留字。\nConstants: true false iota nil Types: int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 uintptr float32 float64 complex128 complex64 bool byte rune string error Functions: make len cap new append copy close delete complex real imag panic recover 2.变量 2.1 标准声明 声明一个变量 ，值为该数据类型的默认值\nvar 变量名 变量类型\nvar a int fmt.Println(\"a = \", a) fmt.Printf(\"type of a = %T\\n\", a) //printf中的f表示格式化输出 2.2 批量声明 每声明一个变量就需要写 var关键字会比较繁琐，go语言中还支持批量变量声明：\nvar ( a string b int c bool d float32 ) 2.3 变量的初始化 Go语言在声明变量的时候，会自动对变量对应的内存区域进行初始化操作。每个变量会被初始化成其类型的默认值。\r例如： 整型和浮点型变量的默认值为0。 字符串变量的默认值为空字符串。 布尔型变量默认为false。 切片、函数、指针变量的默认为nil。\n2.3.1 标准初始化 当然我们也可在声明变量的时候为其指定初始值。变量初始化的标准格式如下：\nvar 变量名 类型 = 表达式\n举个栗子\nvar name string = \"Nebula\" var age int = 18 或者一次初始化多个变量\nvar name, age = \"Nebula\", 20 2.3.2 类型推导 有时候我们会将变量的类型省略，这个时候编译器会根据等号右边的值来推导变量的类型完成初始化。\rvar name = \"Nebula\" var age = 18 2.3.3 短变量声明(常用) 在 函数内部，可以使用更简略的 := 方式声明并初始化变量。（:= 不能用于声明全局变量）\n注意 := 左侧的变量不应该是已经声明过的，否则会导致编译错误\npackage main import ( \"fmt\" ) // 全局变量m var m = 100 func main() { n := 10 m := 200 // 此处声明局部变量m fmt.Println(m, n) } 2.3.4 匿名变量 在使用多重赋值时，如果想要忽略某个值，可以使用匿名变量（anonymous variable）。 匿名变量用一个下划线_表示，例如：\nfunc foo() (int, string) { return 18, \"Nebula\" } func main() { x, _ := foo() _, y := foo() fmt.Println(\"x=\", x) fmt.Println(\"y=\", y) } 匿名变量不占用命名空间，不会分配内存，所以匿名变量之间不存在重复声明。 (在Lua等编程语言里，匿名变量也被叫做哑元变量。)\n注意事项：\n函数外的每个语句都必须以关键字开始（var、const、func等） :=不能使用在函数外。 _多用于占位，表示忽略值。 3.常量 3.1 常量 使用 const 定义常量\n​\t相对于变量，常量是恒定不变的值，多用于定义程序运行期间不会改变的那些值。 常量的声明和变量声明非常类似，只是把var换成了const，常量在定义的时候必须赋值。\nconst pi = 3.1415 const e = 2.7182 声明了pi和e这两个常量之后，在整个程序运行期间它们的值都不能再发生变化了。\n多个常量也可以一起声明：\nconst ( pi = 3.1415 e = 2.7182 ) const同时声明多个常量时，如果省略了值则表示和上面一行的值相同。 例如：\nconst ( n1 = 100 n2 n3 ) 上面示例中，常量n1、n2、n3的值都是100。\n3.2 iota iota是go语言的常量计数器，只能在常量的表达式中使用。\n可以在const() 添加一个关键字 iota ，每行的iota都会累加1，第一行的iota的默认值为0\n使用iota能简化定义，在定义枚举时很有用。\nconst ( BEIJING = 10 * iota //iota =0 SHANGHAI //iota =1 SHENZHEN //iota =2 ) const ( a, b = iota + 1, iota + 2 //iota = 0, a= iota + 1，b =iota +2, a = 1, b = 2 c, d //iota = 1, c= iota + 1, d =iota +2, c = 2, d = 3 e, f //iota = 2, e =iota + 1, f =iota +2, e = 3, f = 4 g, h = iota * 2, iota * 3 //iota = 3, g =iota*2, h =iota *3 ,g =6 ,h = 9 i, k //iota = 4, i =iota*2, k =iota *3 ,i =8 ,k = 12 ) 3.2.1 几个常见的 iota示例: 使用_跳过某些值\nconst ( n1 = iota //0 n2 //1 _ n4 //3 ) iota声明中间插队\nconst ( n1 = iota //0 n2 = 100 //100 n3 = iota //2 n4 //3 ) const n5 = iota //0 定义数量级 （这里的\u003c\u003c表示左移操作，1\u003c\u003c10表示将1的二进制表示向左移10位，也就是由1变成了10000000000，也就是十进制的1024。同理2\u003c\u003c2表示将2的二进制表示向左移2位，也就是由10变成了1000，也就是十进制的8。）\nconst ( _ = iota KB = 1 \u003c\u003c (10 * iota) MB = 1 \u003c\u003c (10 * iota) GB = 1 \u003c\u003c (10 * iota) TB = 1 \u003c\u003c (10 * iota) PB = 1 \u003c\u003c (10 * iota) ) 多个iota定义在一行\nconst ( a, b = iota + 1, iota + 2 //1,2 c, d //2,3 e, f //3,4 ) ",
+  "wordCount" : "1699",
+  "inLanguage": "en",
+  "datePublished": "2022-12-23T21:24:34+08:00",
+  "dateModified": "2022-12-23T21:24:34+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "N3bu74"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://N3bu74.github.io/posts/tech/1.%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E9%87%8F/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "N3bu74's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://N3bu74.github.io/img/N3bu74.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://N3bu74.github.io" accesskey="h" title="N3bu74&#39;s Blog (Alt + H)">
+            <img src="https://N3bu74.github.io/img/Q.gif" alt="logo" aria-label="logo"
+                 height="35">N3bu74&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://N3bu74.github.io/search" title="🔍 搜索 (Alt &#43; /)" accesskey=/>
+                <span>🔍 搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/posts" title="📚 文章">
+                <span>📚 文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/categories/" title="📦 分类">
+                <span>📦 分类</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/tags" title="🧩 标签">
+                <span>🧩 标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/archives/" title="⏱️ 时间轴">
+                <span>⏱️ 时间轴</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://N3bu74.github.io">主页</a>&nbsp;»&nbsp;<a href="https://N3bu74.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://N3bu74.github.io/posts/tech/">👨🏻‍💻 技术</a></div>
+            <h1 class="post-title">
+                Golang 变量与常量
+            </h1>
+            <div class="post-description">
+                Golang基础一之 变量与常量
+            </div>
+            <div class="post-meta">📅&nbsp;<span title='2022-12-23 21:24:34 +0800 CST'>2022-12-23</span>&nbsp; &nbsp;⏰&nbsp;2022-12-23&nbsp; &nbsp;📃:&nbsp;1699字&nbsp; &nbsp;⏳&nbsp;4分钟&nbsp; &nbsp;
+🙍‍♂️&nbsp;N3bu74
+
+
+
+                &nbsp; &nbsp; 🧩 &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://N3bu74.github.io/tags/golang/">Golang</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp; 👁‍🗨 <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#1%e6%a0%87%e8%af%86%e7%ac%a6%e4%b8%8e%e5%85%b3%e9%94%ae%e5%ad%97" aria-label="1.标识符与关键字">1.标识符与关键字</a><ul>
+                        
+                <li>
+                    <a href="#11-%e6%a0%87%e8%af%86%e7%ac%a6" aria-label="1.1 标识符">1.1 标识符</a></li>
+                <li>
+                    <a href="#12-%e5%85%b3%e9%94%ae%e5%ad%97" aria-label="1.2 关键字">1.2 关键字</a></li></ul>
+                </li>
+                <li>
+                    <a href="#2%e5%8f%98%e9%87%8f" aria-label="2.变量">2.变量</a><ul>
+                        
+                <li>
+                    <a href="#21-%e6%a0%87%e5%87%86%e5%a3%b0%e6%98%8e" aria-label="2.1 标准声明">2.1 标准声明</a></li>
+                <li>
+                    <a href="#22-%e6%89%b9%e9%87%8f%e5%a3%b0%e6%98%8e" aria-label="2.2 批量声明">2.2 批量声明</a></li>
+                <li>
+                    <a href="#23-%e5%8f%98%e9%87%8f%e7%9a%84%e5%88%9d%e5%a7%8b%e5%8c%96" aria-label="2.3 变量的初始化">2.3 变量的初始化</a><ul>
+                        
+                <li>
+                    <a href="#231-%e6%a0%87%e5%87%86%e5%88%9d%e5%a7%8b%e5%8c%96" aria-label="2.3.1 标准初始化">2.3.1 标准初始化</a></li>
+                <li>
+                    <a href="#232-%e7%b1%bb%e5%9e%8b%e6%8e%a8%e5%af%bc" aria-label="2.3.2 类型推导">2.3.2 类型推导</a></li>
+                <li>
+                    <a href="#233-%e7%9f%ad%e5%8f%98%e9%87%8f%e5%a3%b0%e6%98%8e%e5%b8%b8%e7%94%a8" aria-label="2.3.3 短变量声明(常用)">2.3.3 短变量声明(常用)</a></li>
+                <li>
+                    <a href="#234-%e5%8c%bf%e5%90%8d%e5%8f%98%e9%87%8f" aria-label="2.3.4 匿名变量">2.3.4 匿名变量</a></li></ul>
+                </li></ul>
+                </li>
+                <li>
+                    <a href="#3%e5%b8%b8%e9%87%8f" aria-label="3.常量">3.常量</a><ul>
+                        
+                <li>
+                    <a href="#31-%e5%b8%b8%e9%87%8f" aria-label="3.1 常量">3.1 常量</a></li>
+                <li>
+                    <a href="#32-iota" aria-label="3.2 iota">3.2 iota</a><ul>
+                        
+                <li>
+                    <a href="#321-%e5%87%a0%e4%b8%aa%e5%b8%b8%e8%a7%81%e7%9a%84-iota%e7%a4%ba%e4%be%8b" aria-label="3.2.1 几个常见的 iota示例:">3.2.1 几个常见的 iota示例:</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><h2 id="1标识符与关键字">1.标识符与关键字<a hidden class="anchor" aria-hidden="true" href="#1标识符与关键字">#</a></h2>
+<h3 id="11-标识符">1.1 标识符<a hidden class="anchor" aria-hidden="true" href="#11-标识符">#</a></h3>
+<blockquote>
+<pre><code>  在编程语言中标识符就是程序员定义的具有特殊意义的词，比如变量名、常量名、函数名等等。 Go语言中标识符由字母数字和`_`(下划线）组成，并且只能以字母和`_`开头。 举几个例子：`abc`, `_`, `_123`, `a123`。
+</code></pre>
+</blockquote>
+<h3 id="12-关键字">1.2 关键字<a hidden class="anchor" aria-hidden="true" href="#12-关键字">#</a></h3>
+<blockquote>
+<pre><code>  关键字是指编程语言中预先定义好的具有特殊含义的标识符。 关键字和保留字都不建议用作变量名。
+</code></pre>
+</blockquote>
+<p>Golang中有25个关键字：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span>    <span style="color:#66d9ef">break</span>        <span style="color:#66d9ef">default</span>      <span style="color:#66d9ef">func</span>         <span style="color:#66d9ef">interface</span>    <span style="color:#66d9ef">select</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span>         <span style="color:#66d9ef">defer</span>        <span style="color:#66d9ef">go</span>           <span style="color:#66d9ef">map</span>          <span style="color:#66d9ef">struct</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">chan</span>         <span style="color:#66d9ef">else</span>         <span style="color:#66d9ef">goto</span>         <span style="color:#f92672">package</span>      <span style="color:#66d9ef">switch</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span>        <span style="color:#66d9ef">fallthrough</span>  <span style="color:#66d9ef">if</span>           <span style="color:#66d9ef">range</span>        <span style="color:#66d9ef">type</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">continue</span>     <span style="color:#66d9ef">for</span>          <span style="color:#f92672">import</span>       <span style="color:#66d9ef">return</span>       <span style="color:#66d9ef">var</span>
+</span></span></code></pre></div><p>此外，Golang中还有37个保留字。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>    Constants:    true  false  iota  nil
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        Types:    int  int8  int16  int32  int64  
+</span></span><span style="display:flex;"><span>                  uint  uint8  uint16  uint32  uint64  uintptr
+</span></span><span style="display:flex;"><span>                  float32  float64  complex128  complex64
+</span></span><span style="display:flex;"><span>                  bool  byte  rune  string  error
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Functions:   make  len  cap  new  append  copy  close  delete
+</span></span><span style="display:flex;"><span>                 complex  real  imag
+</span></span><span style="display:flex;"><span>                 panic  recover
+</span></span></code></pre></div><h2 id="2变量">2.变量<a hidden class="anchor" aria-hidden="true" href="#2变量">#</a></h2>
+<h3 id="21-标准声明">2.1 标准声明<a hidden class="anchor" aria-hidden="true" href="#21-标准声明">#</a></h3>
+<blockquote>
+<p>声明一个变量 ，值为该数据类型的默认值</p>
+<p>var 变量名 变量类型</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> <span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;a = &#34;</span>, <span style="color:#a6e22e">a</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;type of a = %T\n&#34;</span>, <span style="color:#a6e22e">a</span>) <span style="color:#75715e">//printf中的f表示格式化输出
+</span></span></span></code></pre></div><h3 id="22-批量声明">2.2 批量声明<a hidden class="anchor" aria-hidden="true" href="#22-批量声明">#</a></h3>
+<blockquote>
+<p>每声明一个变量就需要写 <code>var</code>关键字会比较繁琐，go语言中还支持批量变量声明：</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">a</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">b</span> <span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">c</span> <span style="color:#66d9ef">bool</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">d</span> <span style="color:#66d9ef">float32</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><h3 id="23-变量的初始化">2.3 变量的初始化<a hidden class="anchor" aria-hidden="true" href="#23-变量的初始化">#</a></h3>
+<blockquote>
+<pre><code>  Go语言在声明变量的时候，会自动对变量对应的内存区域进行初始化操作。每个变量会被初始化成其类型的默认值。
+</code></pre>
+<p>例如： 整型和浮点型变量的默认值为<code>0</code>。 字符串变量的默认值为<code>空字符串</code>。 布尔型变量默认为<code>false</code>。 切片、函数、指针变量的默认为<code>nil</code>。</p>
+</blockquote>
+<h4 id="231-标准初始化">2.3.1 标准初始化<a hidden class="anchor" aria-hidden="true" href="#231-标准初始化">#</a></h4>
+<blockquote>
+<p>当然我们也可在声明变量的时候为其指定初始值。变量初始化的标准格式如下：</p>
+<p>var 变量名 类型 = 表达式</p>
+</blockquote>
+<p>举个栗子</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">name</span> <span style="color:#66d9ef">string</span> = <span style="color:#e6db74">&#34;Nebula&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">age</span> <span style="color:#66d9ef">int</span> = <span style="color:#ae81ff">18</span>
+</span></span></code></pre></div><p>或者一次初始化多个变量</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">name</span>, <span style="color:#a6e22e">age</span> = <span style="color:#e6db74">&#34;Nebula&#34;</span>, <span style="color:#ae81ff">20</span>
+</span></span></code></pre></div><h4 id="232-类型推导">2.3.2 类型推导<a hidden class="anchor" aria-hidden="true" href="#232-类型推导">#</a></h4>
+<blockquote>
+<pre><code>  有时候我们会将变量的类型省略，这个时候编译器会根据等号右边的值来推导变量的类型完成初始化。
+</code></pre>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">name</span> = <span style="color:#e6db74">&#34;Nebula&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">age</span> = <span style="color:#ae81ff">18</span>
+</span></span></code></pre></div><h4 id="233-短变量声明常用">2.3.3 短变量声明(常用)<a hidden class="anchor" aria-hidden="true" href="#233-短变量声明常用">#</a></h4>
+<blockquote>
+<p>在 <code>函数内部</code>，可以使用更简略的 := 方式声明并初始化变量。（:= 不能用于声明全局变量）</p>
+<p>注意 := 左侧的变量不应该是已经声明过的，否则会导致编译错误</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 全局变量m
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">m</span> = <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">n</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">m</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">200</span> <span style="color:#75715e">// 此处声明局部变量m
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">m</span>, <span style="color:#a6e22e">n</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="234-匿名变量">2.3.4 匿名变量<a hidden class="anchor" aria-hidden="true" href="#234-匿名变量">#</a></h4>
+<blockquote>
+<p>在使用多重赋值时，如果想要忽略某个值，可以使用<code>匿名变量（anonymous variable）</code>。 匿名变量用一个下划线<code>_</code>表示，例如：</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">foo</span>() (<span style="color:#66d9ef">int</span>, <span style="color:#66d9ef">string</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#ae81ff">18</span>, <span style="color:#e6db74">&#34;Nebula&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">x</span>, <span style="color:#a6e22e">_</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">foo</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">y</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">foo</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;x=&#34;</span>, <span style="color:#a6e22e">x</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;y=&#34;</span>, <span style="color:#a6e22e">y</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>匿名变量不占用命名空间，不会分配内存，所以匿名变量之间不存在重复声明。 (在<code>Lua</code>等编程语言里，匿名变量也被叫做哑元变量。)</p>
+<p>注意事项：</p>
+<ol>
+<li>函数外的每个语句都必须以关键字开始（var、const、func等）</li>
+<li><code>:=</code>不能使用在函数外。</li>
+<li><code>_</code>多用于占位，表示忽略值。</li>
+</ol>
+<h2 id="3常量">3.常量<a hidden class="anchor" aria-hidden="true" href="#3常量">#</a></h2>
+<h3 id="31-常量">3.1 常量<a hidden class="anchor" aria-hidden="true" href="#31-常量">#</a></h3>
+<p>使用 const 定义常量</p>
+<blockquote>
+<p>​	相对于变量，常量是恒定不变的值，多用于定义程序运行期间不会改变的那些值。 常量的声明和变量声明非常类似，只是把<code>var</code>换成了<code>const</code>，常量在定义的时候必须赋值。</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">pi</span> = <span style="color:#ae81ff">3.1415</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">e</span> = <span style="color:#ae81ff">2.7182</span>
+</span></span></code></pre></div><p>声明了<code>pi</code>和<code>e</code>这两个常量之后，在整个程序运行期间它们的值都不能再发生变化了。</p>
+<p>多个常量也可以一起声明：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">pi</span> = <span style="color:#ae81ff">3.1415</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">e</span> = <span style="color:#ae81ff">2.7182</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>const同时声明多个常量时，如果省略了值则表示和上面一行的值相同。 例如：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> (
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">n1</span> = <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">n2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">n3</span>
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>上面示例中，常量<code>n1</code>、<code>n2</code>、<code>n3</code>的值都是100。</p>
+<h3 id="32-iota">3.2 iota<a hidden class="anchor" aria-hidden="true" href="#32-iota">#</a></h3>
+<blockquote>
+<p><code>iota</code>是go语言的常量计数器，只能在常量的表达式中使用。</p>
+<p>可以在const() 添加一个关键字 iota ，每行的iota都会累加1，第一行的iota的默认值为0</p>
+<p>使用iota能简化定义，在定义枚举时很有用。</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">BEIJING</span>  = <span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">iota</span> <span style="color:#75715e">//iota =0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">SHANGHAI</span>             <span style="color:#75715e">//iota =1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">SHENZHEN</span>             <span style="color:#75715e">//iota =2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span> = <span style="color:#66d9ef">iota</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, <span style="color:#66d9ef">iota</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span> <span style="color:#75715e">//iota = 0, a= iota + 1，b =iota +2, a = 1, b = 2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">d</span>                      <span style="color:#75715e">//iota = 1, c= iota + 1, d =iota +2, c = 2, d = 3
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">e</span>, <span style="color:#a6e22e">f</span>                      <span style="color:#75715e">//iota = 2, e =iota + 1, f =iota +2, e = 3, f = 4
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">g</span>, <span style="color:#a6e22e">h</span> = <span style="color:#66d9ef">iota</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">2</span>, <span style="color:#66d9ef">iota</span> <span style="color:#f92672">*</span> <span style="color:#ae81ff">3</span> <span style="color:#75715e">//iota = 3, g =iota*2, h =iota *3 ,g =6 ,h = 9
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">k</span>                      <span style="color:#75715e">//iota = 4, i =iota*2, k =iota *3 ,i =8 ,k = 12
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>)
+</span></span></code></pre></div><h4 id="321-几个常见的-iota示例">3.2.1 几个常见的 iota示例:<a hidden class="anchor" aria-hidden="true" href="#321-几个常见的-iota示例">#</a></h4>
+<p>使用<code>_</code>跳过某些值</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> (
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">n1</span> = <span style="color:#66d9ef">iota</span> <span style="color:#75715e">//0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#a6e22e">n2</span>        <span style="color:#75715e">//1
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#a6e22e">_</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">n4</span>        <span style="color:#75715e">//3
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	)
+</span></span></code></pre></div><p><code>iota</code>声明中间插队</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> (
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">n1</span> = <span style="color:#66d9ef">iota</span> <span style="color:#75715e">//0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#a6e22e">n2</span> = <span style="color:#ae81ff">100</span>  <span style="color:#75715e">//100
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#a6e22e">n3</span> = <span style="color:#66d9ef">iota</span> <span style="color:#75715e">//2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#a6e22e">n4</span>        <span style="color:#75715e">//3
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">n5</span> = <span style="color:#66d9ef">iota</span> <span style="color:#75715e">//0
+</span></span></span></code></pre></div><p>定义数量级 （这里的<code>&lt;&lt;</code>表示左移操作，<code>1&lt;&lt;10</code>表示将1的二进制表示向左移10位，也就是由<code>1</code>变成了<code>10000000000</code>，也就是十进制的1024。同理<code>2&lt;&lt;2</code>表示将2的二进制表示向左移2位，也就是由<code>10</code>变成了<code>1000</code>，也就是十进制的8。）</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> (
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">_</span>  = <span style="color:#66d9ef">iota</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">KB</span> = <span style="color:#ae81ff">1</span> <span style="color:#f92672">&lt;&lt;</span> (<span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">iota</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">MB</span> = <span style="color:#ae81ff">1</span> <span style="color:#f92672">&lt;&lt;</span> (<span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">iota</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">GB</span> = <span style="color:#ae81ff">1</span> <span style="color:#f92672">&lt;&lt;</span> (<span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">iota</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">TB</span> = <span style="color:#ae81ff">1</span> <span style="color:#f92672">&lt;&lt;</span> (<span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">iota</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">PB</span> = <span style="color:#ae81ff">1</span> <span style="color:#f92672">&lt;&lt;</span> (<span style="color:#ae81ff">10</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">iota</span>)
+</span></span><span style="display:flex;"><span>	)
+</span></span></code></pre></div><p>多个<code>iota</code>定义在一行</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> (
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">b</span> = <span style="color:#66d9ef">iota</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, <span style="color:#66d9ef">iota</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span> <span style="color:#75715e">//1,2
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#a6e22e">c</span>, <span style="color:#a6e22e">d</span>                      <span style="color:#75715e">//2,3
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#a6e22e">e</span>, <span style="color:#a6e22e">f</span>                      <span style="color:#75715e">//3,4
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	)
+</span></span></code></pre></div>
+
+        </div>
+        <div class="post-reward">
+            <div style="padding: 0 0 0 0; margin: 0 0 0 0; width: 100%; font-size:16px; text-align: center;">
+                <div id="QR" style="opacity: 0;">
+                    <div id="wechat" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="wechat_qr" src="https://N3bu74.github.io/img/wechat_pay.png" alt="wechat_pay"></a>
+                        <p>微信</p>
+                    </div>
+                    <div id="alipay" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="alipay_qr" src="https://N3bu74.github.io/img/wechat_pay.png" alt="alipay"></a>
+                        <p>支付宝</p>
+                    </div>
+                </div>
+                <button id="rewardButton"
+                        onclick="
+                    var qr = document.getElementById('QR');
+                    if (qr.style.opacity === '0') {
+                        qr.style.opacity='1';
+                    } else {
+                        qr.style.opacity='0'
+                    }"
+                >
+                    <span>🧧 鼓励</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://N3bu74.github.io/posts/tech/2.%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>Golang基本数据类型</span>
+  </a>
+  <a class="next" href="https://N3bu74.github.io/posts/blog/hugostart/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>HugoStart</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://N3bu74.github.io" style="color:#939393;">N3bu74&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "N3bu74's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>

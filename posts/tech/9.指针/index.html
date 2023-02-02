@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Golang 指针 | N3bu74&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Golang基础九之 指针">
+<meta name="author" content="
+🙍‍♂️&nbsp;N3bu74">
+<link rel="canonical" href="https://N3bu74.github.io/posts/tech/9.%E6%8C%87%E9%92%88/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f5f7976b0695bcc912cd3f9e0715cf7d38944601dc8250a8f2f117625f16e974.css" integrity="sha256-9feXawaVvMkSzT&#43;eBxXPfTiURgHcglCo8vEXYl8W6XQ=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="apple-touch-icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="mask-icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<meta property="og:title" content="Golang 指针" />
+<meta property="og:description" content="Golang基础九之 指针" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://N3bu74.github.io/posts/tech/9.%E6%8C%87%E9%92%88/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-12-23T22:47:06+08:00" />
+<meta property="article:modified_time" content="2022-12-23T22:47:06+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Golang 指针"/>
+<meta name="twitter:description" content="Golang基础九之 指针"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+
+        {
+          "@type": "ListItem",
+          "position":  2 ,
+          "name": "📚文章",
+          "item": "https://N3bu74.github.io/posts/"
+        },
+
+        {
+          "@type": "ListItem",
+          "position":  3 ,
+          "name": "👨🏻‍💻 技术",
+          "item": "https://N3bu74.github.io/posts/tech/"
+        }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "Golang 指针",
+      "item": "https://N3bu74.github.io/posts/tech/9.%E6%8C%87%E9%92%88/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Golang 指针",
+  "name": "Golang 指针",
+  "description": "Golang基础九之 指针",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "Golang指针 区别于C/C++中的指针，Go语言中的指针不能进行偏移和运算，是安全指针。\n要搞明白Go语言中的指针需要先知道3个概念：指针地址、指针类型和指针取值。\n1 Go语言中的指针 任何程序数据载入内存后，在内存都有他们的地址，这就是指针。而为了保存一个数据在内存中的地址，我们就需要指针变量。\n比如，“永远不要高估自己”这句话是我的座右铭，我想把它写入程序中，程序一启动这句话是要加载到内存（假设内存地址0x123456），我在程序中把这段话赋值给变量A，把内存地址赋值给变量B。这时候变量B就是一个指针变量。通过变量A和变量B都能找到我的座右铭。\nGo语言中的指针不能进行偏移和运算，因此Go语言中的指针操作非常简单，我们只需要记住两个符号：\u0026（取地址）和*（根据地址取值）。\n1.1 指针地址和指针类型 每个变量在运行时都拥有一个地址，这个地址代表变量在内存中的位置。Go语言中使用\u0026字符放在变量前面对变量进行“取地址”操作。 Go语言中的值类型（int、float、bool、string、array、struct）都有对应的指针类型，如：*int、*int64、*string等。\n取变量指针的语法如下：\nptr := \u0026v // v的类型为T 其中：\nv:代表被取地址的变量，类型为T ptr:用于接收地址的变量，ptr的类型就为*T，称做T的指针类型。*代表指针。 举个例子：\nfunc main() { a := 10 b := \u0026a fmt.Printf(\"a:%d ptr:%p\\n\", a, \u0026a) // a:10 ptr:0xc00001a078 fmt.Printf(\"b:%p type:%T\\n\", b, b) // b:0xc00001a078 type:*int fmt.Println(\u0026b) // 0xc00000e018 } 我们来看一下b := \u0026a的图示：\n1.2 指针取值 在对普通变量使用\u0026操作符取地址后会获得这个变量的指针，然后可以对指针使用*操作，也就是指针取值，代码如下。\nfunc main() { //指针取值 a := 10 b := \u0026a // 取变量a的地址，将指针保存到b中 fmt.Printf(\"type of b:%T\\n\", b) c := *b // 指针取值（根据指针去内存取值） fmt.Printf(\"type of c:%T\\n\", c) fmt.Printf(\"value of c:%v\\n\", c) } 输出如下：\ntype of b:*int type of c:int value of c:10 总结： 取地址操作符\u0026和取值操作符*是一对互补操作符，\u0026取出地址，*根据地址取出地址指向的值。\n变量、指针地址、指针变量、取地址、取值的相互关系和特性如下：\n对变量进行取地址（\u0026）操作，可以获得这个变量的指针变量。 指针变量的值是指针地址。 对指针变量进行取值（*）操作，可以获得指针变量指向的原变量的值。 指针传值示例：\nfunc modify1(x int) { x = 100 } func modify2(x *int) { *x = 100 } func main() { a := 10 modify1(a) fmt.Println(a) // 10 modify2(\u0026a) fmt.Println(a) // 100 } 1.3 new和make 我们先来看一个例子：\nfunc main() { var a *int *a = 100 fmt.Println(*a) var b map[string]int b[\"沙河娜扎\"] = 100 fmt.Println(b) } 执行上面的代码会引发panic，为什么呢？ 在Go语言中对于引用类型的变量，我们在使用的时候不仅要声明它，还要为它分配内存空间，否则我们的值就没办法存储。而对于值类型的声明不需要分配内存空间，是因为它们在声明的时候已经默认分配好了内存空间。要分配内存，就引出来今天的new和make。 Go语言中new和make是内建的两个函数，主要用来分配内存。\n1.3.1 new new是一个内置的函数，它的函数签名如下：\nfunc new(Type) *Type 其中，\nType表示类型，new函数只接受一个参数，这个参数是一个类型 *Type表示类型指针，new函数返回一个指向该类型内存地址的指针。 new函数不太常用，使用new函数得到的是一个类型的指针，并且该指针对应的值为该类型的零值。举个例子：\nfunc main() { a := new(int) b := new(bool) fmt.Printf(\"%T\\n\", a) // *int fmt.Printf(\"%T\\n\", b) // *bool fmt.Println(*a) // 0 fmt.Println(*b) // false }\t本节开始的示例代码中var a *int只是声明了一个指针变量a但是没有初始化，指针作为引用类型需要初始化后才会拥有内存空间，才可以给它赋值。应该按照如下方式使用内置的new函数对a进行初始化之后就可以正常对其赋值了：\nfunc main() { var a *int a = new(int) *a = 10 fmt.Println(*a) } 1.3.2 make make也是用于内存分配的，区别于new，它只用于slice、map以及channel的内存创建，而且它返回的类型就是这三个类型本身，而不是他们的指针类型，因为这三种类型就是引用类型，所以就没有必要返回他们的指针了。make函数的函数签名如下：\nfunc make(t Type, size ...IntegerType) Type make函数是无可替代的，我们在使用slice、map以及channel的时候，都需要使用make进行初始化，然后才可以对它们进行操作。这个我们在上一章中都有说明，关于channel我们会在后续的章节详细说明。\n本节开始的示例中var b map[string]int只是声明变量b是一个map类型的变量，需要像下面的示例代码一样使用make函数进行初始化操作之后，才能对其进行键值对赋值：\nfunc main() { var b map[string]int b = make(map[string]int, 10) b[\"沙河娜扎\"] = 100 fmt.Println(b) } 1.3.3 new与make的区别 二者都是用来做内存分配的。 make只用于slice、map以及channel的初始化，返回的还是这三个引用类型本身； 而new用于类型的内存分配，并且内存对应的值为类型零值，返回的是指向类型的指针。 ",
+  "wordCount" : "1941",
+  "inLanguage": "en",
+  "datePublished": "2022-12-23T22:47:06+08:00",
+  "dateModified": "2022-12-23T22:47:06+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "N3bu74"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://N3bu74.github.io/posts/tech/9.%E6%8C%87%E9%92%88/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "N3bu74's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://N3bu74.github.io/img/N3bu74.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://N3bu74.github.io" accesskey="h" title="N3bu74&#39;s Blog (Alt + H)">
+            <img src="https://N3bu74.github.io/img/Q.gif" alt="logo" aria-label="logo"
+                 height="35">N3bu74&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://N3bu74.github.io/search" title="🔍 搜索 (Alt &#43; /)" accesskey=/>
+                <span>🔍 搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/posts" title="📚 文章">
+                <span>📚 文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/categories/" title="📦 分类">
+                <span>📦 分类</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/tags" title="🧩 标签">
+                <span>🧩 标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/archives/" title="⏱️ 时间轴">
+                <span>⏱️ 时间轴</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://N3bu74.github.io">主页</a>&nbsp;»&nbsp;<a href="https://N3bu74.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://N3bu74.github.io/posts/tech/">👨🏻‍💻 技术</a></div>
+            <h1 class="post-title">
+                Golang 指针
+            </h1>
+            <div class="post-description">
+                Golang基础九之 指针
+            </div>
+            <div class="post-meta">📅&nbsp;<span title='2022-12-23 22:47:06 +0800 CST'>2022-12-23</span>&nbsp; &nbsp;⏰&nbsp;2022-12-23&nbsp; &nbsp;📃:&nbsp;1941字&nbsp; &nbsp;⏳&nbsp;4分钟&nbsp; &nbsp;
+🙍‍♂️&nbsp;N3bu74
+
+
+
+                &nbsp; &nbsp; 🧩 &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://N3bu74.github.io/tags/golang/">Golang</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp; 👁‍🗨 <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#golang%e6%8c%87%e9%92%88" aria-label="Golang指针">Golang指针</a><ul>
+                        
+                <li>
+                    <a href="#1-go%e8%af%ad%e8%a8%80%e4%b8%ad%e7%9a%84%e6%8c%87%e9%92%88" aria-label="1 Go语言中的指针">1 Go语言中的指针</a><ul>
+                        
+                <li>
+                    <a href="#11-%e6%8c%87%e9%92%88%e5%9c%b0%e5%9d%80%e5%92%8c%e6%8c%87%e9%92%88%e7%b1%bb%e5%9e%8b" aria-label="1.1 指针地址和指针类型">1.1 指针地址和指针类型</a></li>
+                <li>
+                    <a href="#12-%e6%8c%87%e9%92%88%e5%8f%96%e5%80%bc" aria-label="1.2 指针取值">1.2 指针取值</a></li>
+                <li>
+                    <a href="#13-new%e5%92%8cmake" aria-label="1.3 new和make">1.3 new和make</a><ul>
+                        
+                <li>
+                    <a href="#131-new" aria-label="1.3.1 new">1.3.1 new</a></li>
+                <li>
+                    <a href="#132-make" aria-label="1.3.2 make">1.3.2 make</a></li>
+                <li>
+                    <a href="#133-new%e4%b8%8emake%e7%9a%84%e5%8c%ba%e5%88%ab" aria-label="1.3.3 new与make的区别">1.3.3 new与make的区别</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><h1 id="golang指针">Golang指针<a hidden class="anchor" aria-hidden="true" href="#golang指针">#</a></h1>
+<p>区别于C/C++中的指针，Go语言中的指针不能进行偏移和运算，是安全指针。</p>
+<p>要搞明白Go语言中的指针需要先知道3个概念：指针地址、指针类型和指针取值。</p>
+<h2 id="1-go语言中的指针">1 Go语言中的指针<a hidden class="anchor" aria-hidden="true" href="#1-go语言中的指针">#</a></h2>
+<p>任何程序数据载入内存后，在内存都有他们的地址，这就是指针。而为了保存一个数据在内存中的地址，我们就需要指针变量。</p>
+<p>比如，“永远不要高估自己”这句话是我的座右铭，我想把它写入程序中，程序一启动这句话是要加载到内存（假设内存地址0x123456），我在程序中把这段话赋值给变量<code>A</code>，把内存地址赋值给变量<code>B</code>。这时候变量<code>B</code>就是一个指针变量。通过变量<code>A</code>和变量<code>B</code>都能找到我的座右铭。</p>
+<p>Go语言中的指针不能进行偏移和运算，因此Go语言中的指针操作非常简单，我们只需要记住两个符号：<code>&amp;</code>（取地址）和<code>*</code>（根据地址取值）。</p>
+<h3 id="11-指针地址和指针类型">1.1 指针地址和指针类型<a hidden class="anchor" aria-hidden="true" href="#11-指针地址和指针类型">#</a></h3>
+<p>每个变量在运行时都拥有一个地址，这个地址代表变量在内存中的位置。Go语言中使用<code>&amp;</code>字符放在变量前面对变量进行“取地址”操作。 Go语言中的值类型（int、float、bool、string、array、struct）都有对应的指针类型，如：<code>*int</code>、<code>*int64</code>、<code>*string</code>等。</p>
+<p>取变量指针的语法如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">ptr</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">v</span>    <span style="color:#75715e">// v的类型为T
+</span></span></span></code></pre></div><p>其中：</p>
+<ul>
+<li>v:代表被取地址的变量，类型为<code>T</code></li>
+<li>ptr:用于接收地址的变量，ptr的类型就为<code>*T</code>，称做T的指针类型。*代表指针。</li>
+</ul>
+<p>举个例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">a</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;a:%d ptr:%p\n&#34;</span>, <span style="color:#a6e22e">a</span>, <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">a</span>) <span style="color:#75715e">// a:10 ptr:0xc00001a078
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;b:%p type:%T\n&#34;</span>, <span style="color:#a6e22e">b</span>, <span style="color:#a6e22e">b</span>) <span style="color:#75715e">// b:0xc00001a078 type:*int
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">b</span>)                    <span style="color:#75715e">// 0xc00000e018
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>我们来看一下<code>b := &amp;a</code>的图示：</p>
+<p><img loading="lazy" src="ptr.png" alt="取变量地址图示"  />
+</p>
+<h3 id="12-指针取值">1.2 指针取值<a hidden class="anchor" aria-hidden="true" href="#12-指针取值">#</a></h3>
+<p>在对普通变量使用&amp;操作符取地址后会获得这个变量的指针，然后可以对指针使用*操作，也就是指针取值，代码如下。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">//指针取值
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">a</span> <span style="color:#75715e">// 取变量a的地址，将指针保存到b中
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;type of b:%T\n&#34;</span>, <span style="color:#a6e22e">b</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">b</span> <span style="color:#75715e">// 指针取值（根据指针去内存取值）
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;type of c:%T\n&#34;</span>, <span style="color:#a6e22e">c</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;value of c:%v\n&#34;</span>, <span style="color:#a6e22e">c</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>输出如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">of</span> <span style="color:#a6e22e">b</span>:<span style="color:#f92672">*</span><span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">of</span> <span style="color:#a6e22e">c</span>:<span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">value</span> <span style="color:#a6e22e">of</span> <span style="color:#a6e22e">c</span>:<span style="color:#ae81ff">10</span>
+</span></span></code></pre></div><p><strong>总结：</strong> 取地址操作符<code>&amp;</code>和取值操作符<code>*</code>是一对互补操作符，<code>&amp;</code>取出地址，<code>*</code>根据地址取出地址指向的值。</p>
+<p>变量、指针地址、指针变量、取地址、取值的相互关系和特性如下：</p>
+<ul>
+<li>对变量进行取地址（&amp;）操作，可以获得这个变量的指针变量。</li>
+<li>指针变量的值是指针地址。</li>
+<li>对指针变量进行取值（*）操作，可以获得指针变量指向的原变量的值。</li>
+</ul>
+<p><strong>指针传值示例：</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">modify1</span>(<span style="color:#a6e22e">x</span> <span style="color:#66d9ef">int</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">x</span> = <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">modify2</span>(<span style="color:#a6e22e">x</span> <span style="color:#f92672">*</span><span style="color:#66d9ef">int</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">*</span><span style="color:#a6e22e">x</span> = <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">modify1</span>(<span style="color:#a6e22e">a</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>) <span style="color:#75715e">// 10
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">modify2</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">a</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">a</span>) <span style="color:#75715e">// 100
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><h3 id="13-new和make">1.3 new和make<a hidden class="anchor" aria-hidden="true" href="#13-new和make">#</a></h3>
+<p>我们先来看一个例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">*</span><span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">*</span><span style="color:#a6e22e">a</span> = <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">a</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">b</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">b</span>[<span style="color:#e6db74">&#34;沙河娜扎&#34;</span>] = <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">b</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>执行上面的代码会引发panic，为什么呢？ 在Go语言中对于引用类型的变量，我们在使用的时候不仅要声明它，还要为它分配内存空间，否则我们的值就没办法存储。而对于值类型的声明不需要分配内存空间，是因为它们在声明的时候已经默认分配好了内存空间。要分配内存，就引出来今天的new和make。 Go语言中new和make是内建的两个函数，主要用来分配内存。</p>
+<h4 id="131-new">1.3.1 new<a hidden class="anchor" aria-hidden="true" href="#131-new">#</a></h4>
+<p>new是一个内置的函数，它的函数签名如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> new(<span style="color:#a6e22e">Type</span>) <span style="color:#f92672">*</span><span style="color:#a6e22e">Type</span>
+</span></span></code></pre></div><p>其中，</p>
+<ul>
+<li>Type表示类型，new函数只接受一个参数，这个参数是一个类型</li>
+<li>*Type表示类型指针，new函数返回一个指向该类型内存地址的指针。</li>
+</ul>
+<p>new函数不太常用，使用new函数得到的是一个类型的指针，并且该指针对应的值为该类型的零值。举个例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> new(<span style="color:#66d9ef">int</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> new(<span style="color:#66d9ef">bool</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%T\n&#34;</span>, <span style="color:#a6e22e">a</span>) <span style="color:#75715e">// *int
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%T\n&#34;</span>, <span style="color:#a6e22e">b</span>) <span style="color:#75715e">// *bool
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">a</span>)       <span style="color:#75715e">// 0
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">b</span>)       <span style="color:#75715e">// false
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}	
+</span></span></code></pre></div><p>本节开始的示例代码中<code>var a *int</code>只是声明了一个指针变量a但是没有初始化，指针作为引用类型需要初始化后才会拥有内存空间，才可以给它赋值。应该按照如下方式使用内置的new函数对a进行初始化之后就可以正常对其赋值了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">*</span><span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">a</span> = new(<span style="color:#66d9ef">int</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#f92672">*</span><span style="color:#a6e22e">a</span> = <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#f92672">*</span><span style="color:#a6e22e">a</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="132-make">1.3.2 make<a hidden class="anchor" aria-hidden="true" href="#132-make">#</a></h4>
+<p>make也是用于内存分配的，区别于new，它只用于slice、map以及channel的内存创建，而且它返回的类型就是这三个类型本身，而不是他们的指针类型，因为这三种类型就是引用类型，所以就没有必要返回他们的指针了。make函数的函数签名如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> make(<span style="color:#a6e22e">t</span> <span style="color:#a6e22e">Type</span>, <span style="color:#a6e22e">size</span> <span style="color:#f92672">...</span><span style="color:#a6e22e">IntegerType</span>) <span style="color:#a6e22e">Type</span>
+</span></span></code></pre></div><p>make函数是无可替代的，我们在使用slice、map以及channel的时候，都需要使用make进行初始化，然后才可以对它们进行操作。这个我们在上一章中都有说明，关于channel我们会在后续的章节详细说明。</p>
+<p>本节开始的示例中<code>var b map[string]int</code>只是声明变量b是一个map类型的变量，需要像下面的示例代码一样使用make函数进行初始化操作之后，才能对其进行键值对赋值：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">b</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">b</span> = make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">int</span>, <span style="color:#ae81ff">10</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">b</span>[<span style="color:#e6db74">&#34;沙河娜扎&#34;</span>] = <span style="color:#ae81ff">100</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">b</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="133-new与make的区别">1.3.3 new与make的区别<a hidden class="anchor" aria-hidden="true" href="#133-new与make的区别">#</a></h4>
+<ol>
+<li>二者都是用来做内存分配的。</li>
+<li>make只用于slice、map以及channel的初始化，返回的还是这三个引用类型本身；</li>
+<li>而new用于类型的内存分配，并且内存对应的值为类型零值，返回的是指向类型的指针。</li>
+</ol>
+
+
+        </div>
+        <div class="post-reward">
+            <div style="padding: 0 0 0 0; margin: 0 0 0 0; width: 100%; font-size:16px; text-align: center;">
+                <div id="QR" style="opacity: 0;">
+                    <div id="wechat" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="wechat_qr" src="https://N3bu74.github.io/img/wechat_pay.png" alt="wechat_pay"></a>
+                        <p>微信</p>
+                    </div>
+                    <div id="alipay" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="alipay_qr" src="https://N3bu74.github.io/img/wechat_pay.png" alt="alipay"></a>
+                        <p>支付宝</p>
+                    </div>
+                </div>
+                <button id="rewardButton"
+                        onclick="
+                    var qr = document.getElementById('QR');
+                    if (qr.style.opacity === '0') {
+                        qr.style.opacity='1';
+                    } else {
+                        qr.style.opacity='0'
+                    }"
+                >
+                    <span>🧧 鼓励</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://N3bu74.github.io/posts/tech/10.%E7%BB%93%E6%9E%84%E4%BD%93/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>Golang 结构体</span>
+  </a>
+  <a class="next" href="https://N3bu74.github.io/posts/tech/8.%E5%87%BD%E6%95%B0/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>Golang函数</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://N3bu74.github.io" style="color:#939393;">N3bu74&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "N3bu74's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>

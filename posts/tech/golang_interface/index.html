@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Golang 接口 | N3bu74&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Golang基础十二之 接口">
+<meta name="author" content="
+🙍‍♂️&nbsp;N3bu74">
+<link rel="canonical" href="https://N3bu74.github.io/posts/tech/golang_interface/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f5f7976b0695bcc912cd3f9e0715cf7d38944601dc8250a8f2f117625f16e974.css" integrity="sha256-9feXawaVvMkSzT&#43;eBxXPfTiURgHcglCo8vEXYl8W6XQ=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="apple-touch-icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="mask-icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<meta property="og:title" content="Golang 接口" />
+<meta property="og:description" content="Golang基础十二之 接口" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://N3bu74.github.io/posts/tech/golang_interface/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-12-23T22:58:17+08:00" />
+<meta property="article:modified_time" content="2022-12-23T22:58:17+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Golang 接口"/>
+<meta name="twitter:description" content="Golang基础十二之 接口"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+
+        {
+          "@type": "ListItem",
+          "position":  2 ,
+          "name": "📚文章",
+          "item": "https://N3bu74.github.io/posts/"
+        },
+
+        {
+          "@type": "ListItem",
+          "position":  3 ,
+          "name": "👨🏻‍💻 技术",
+          "item": "https://N3bu74.github.io/posts/tech/"
+        }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "Golang 接口",
+      "item": "https://N3bu74.github.io/posts/tech/golang_interface/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Golang 接口",
+  "name": "Golang 接口",
+  "description": "Golang基础十二之 接口",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "接口（interface）定义了一个对象的行为规范，只定义规范不实现，由具体的对象来实现规范的细节。\n本章学习目标\n了解为什么需要接口以及接口的特点 掌握接口的声明和使用 掌握接口值的概念 掌握空接口的特点及其使用场景 在Go语言中接口（interface）是一种类型，一种抽象的类型。相较于之前章节中讲到的那些具体类型（字符串、切片、结构体等）更注重“我是谁”，接口类型更注重“我能做什么”的问题。接口类型就像是一种约定——概括了一种类型应该具备哪些方法，在Go语言中提倡使用面向接口的编程方式实现解耦。\n1.接口类型 接口是一种由程序员来定义的类型，一个接口类型就是一组方法的集合，它规定了需要实现的所有方法。\n相较于使用结构体类型，当我们使用接口类型说明相比于它是什么更关心它能做什么。\n1.1 接口的定义 每个接口类型由任意个方法签名组成，接口的定义格式如下：\ntype 接口类型名 interface{ 方法名1( 参数列表1 ) 返回值列表1 方法名2( 参数列表2 ) 返回值列表2 … } 其中：\n接口类型名：Go语言的接口在命名时，一般会在单词后面添加er，如有写操作的接口叫Writer，有关闭操作的接口叫closer等。接口名最好要能突出该接口的类型含义。 方法名：当方法名首字母是大写且这个接口类型名首字母也是大写时，这个方法可以被接口所在的包（package）之外的代码访问。 参数列表、返回值列表：参数列表和返回值列表中的参数变量名可以省略。 举个例子，定义一个包含Write方法的Writer接口。\ntype Writer interface{ Write([]byte) error } 当你看到一个Writer接口类型的值时，你不知道它是什么，唯一知道的就是可以通过调用它的Write方法来做一些事情。\n1.2 实现接口的条件 接口就是规定了一个需要实现的方法列表，在 Go 语言中一个类型只要实现了接口中规定的所有方法，那么我们就称它实现了这个接口。\n我们定义的Singer接口类型，它包含一个Sing方法。\n// Singer 接口 type Singer interface { Sing() } 我们有一个Bird结构体类型如下。\ntype Bird struct {} 因为Singer接口只包含一个Sing方法，所以只需要给Bird结构体添加一个Sing方法就可以满足Singer接口的要求。\n// Sing Bird类型的Sing方法 func (b Bird) Sing() { fmt.Println(\"汪汪汪\") } 这样就称为Bird实现了Singer接口。\n1.3 为什么要使用接口？ 现在假设我们的代码世界里有很多小动物，下面的代码片段定义了猫和狗，它们饿了都会叫。\npackage main import \"fmt\" type Cat struct{} func (c Cat) Say() { fmt.Println(\"喵喵喵~\") } type Dog struct{} func (d Dog) Say() { fmt.Println(\"汪汪汪~\") } func main() { c := Cat{} c.Say() d := Dog{} d.Say() } 这个时候又跑来了一只羊，羊饿了也会发出叫声。\ntype Sheep struct{} func (s Sheep) Say() { fmt.Println(\"咩咩咩~\") } 我们接下来定义一个饿肚子的场景。\n// MakeCatHungry 猫饿了会喵喵喵~ func MakeCatHungry(c Cat) { c.Say() } // MakeSheepHungry 羊饿了会咩咩咩~ func MakeSheepHungry(s Sheep) { s.Say() } 接下来会有越来越多的小动物跑过来，我们的代码世界该怎么拓展呢？\n在饿肚子这个场景下，我们可不可以把所有动物都当成一个“会叫的类型”来处理呢？当然可以！使用接口类型就可以实现这个目标。 我们的代码其实并不关心究竟是什么动物在叫，我们只是在代码中调用它的Say()方法，这就足够了。\n我们可以约定一个Sayer类型，它必须实现一个Say()方法，只要饿肚子了，我们就调用Say()方法。\ntype Sayer interface { Say() } 然后我们定义一个通用的MakeHungry函数，接收Sayer类型的参数。\n// MakeHungry 饿肚子了... func MakeHungry(s Sayer) { s.Say() } 我们通过使用接口类型，把所有会叫的动物当成Sayer类型来处理，只要实现了Say()方法都能当成Sayer类型的变量来处理。\nvar c cat MakeHungry(c) var d dog MakeHungry(d) 在电商系统中我们允许用户使用多种支付方式（支付宝支付、微信支付、银联支付等），我们的交易流程中可能不太在乎用户究竟使用什么支付方式，只要它能提供一个实现支付功能的Pay方法让调用方调用就可以了。\n再比如我们需要在某个程序中添加一个将某些指标数据向外输出的功能，根据不同的需求可能要将数据输出到终端、写入到文件或者通过网络连接发送出去。在这个场景下我们可以不关注最终输出的目的地是什么，只需要它能提供一个Write方法让我们把内容写入就可以了。\nGo语言中为了解决类似上面的问题引入了接口的概念，接口类型区别于我们之前章节中介绍的那些具体类型，让我们专注于该类型提供的方法，而不是类型本身。使用接口类型通常能够让我们写出更加通用和灵活的代码。\n1.4 面向接口编程 PHP、Java等语言中也有接口的概念，不过在PHP和Java语言中需要显式声明一个类实现了哪些接口，在Go语言中使用隐式声明的方式实现接口。只要一个类型实现了接口中规定的所有方法，那么它就实现了这个接口。\nGo语言中的这种设计符合程序开发中抽象的一般规律，例如在下面的代码示例中，我们的电商系统最开始只设计了支付宝一种支付方式：\ntype ZhiFuBao struct { // 支付宝 } // Pay 支付宝的支付方法 func (z *ZhiFuBao) Pay(amount int64) { fmt.Printf(\"使用支付宝付款：%.2f元。\\n\", float64(amount/100)) } // Checkout 结账 func Checkout(obj *ZhiFuBao) { // 支付100元 obj.Pay(100) } func main() { Checkout(\u0026ZhiFuBao{}) } 随着业务的发展，根据用户需求添加支持微信支付。\ntype WeChat struct { // 微信 } // Pay 微信的支付方法 func (w *WeChat) Pay(amount int64) { fmt.Printf(\"使用微信付款：%.2f元。\\n\", float64(amount/100)) } 在实际的交易流程中，我们可以根据用户选择的支付方式来决定最终调用支付宝的Pay方法还是微信支付的Pay方法。\n// Checkout 支付宝结账 func CheckoutWithZFB(obj *ZhiFuBao) { // 支付100元 obj.Pay(100) } // Checkout 微信支付结账 func CheckoutWithWX(obj *WeChat) { // 支付100元 obj.Pay(100) } 实际上，从上面的代码示例中我们可以看出，我们其实并不怎么关心用户选择的是什么支付方式，我们只关心调用Pay方法时能否正常运行。这就是典型的“不关心它是什么，只关心它能做什么”的场景。\n在这种场景下我们可以将具体的支付方式抽象为一个名为Payer的接口类型，即任何实现了Pay方法的都可以称为Payer类型。\n// Payer 包含支付方法的接口类型 type Payer interface { Pay(int64) } 此时只需要修改下原始的Checkout函数，它接收一个Payer类型的参数。这样就能够在不修改既有函数调用的基础上，支持新的支付方式。\n// Checkout 结账 func Checkout(obj Payer) { // 支付100元 obj.Pay(100) } func main() { Checkout(\u0026ZhiFuBao{}) // 之前调用支付宝支付 Checkout(\u0026WeChat{}) // 现在支持使用微信支付 } 像类似的例子在我们编程过程中会经常遇到：\n比如一个网上商城可能使用支付宝、微信、银联等方式去在线支付，我们能不能把它们当成“支付方式”来处理呢？ 比如三角形，四边形，圆形都能计算周长和面积，我们能不能把它们当成“图形”来处理呢？ 比如满减券、立减券、打折券都属于电商场景下常见的优惠方式，我们能不能把它们当成“优惠券”来处理呢？ 接口类型是Go语言提供的一种工具，在实际的编码过程中是否使用它由你自己决定，但是通常使用接口类型可以使代码更清晰易读。\n1.5 接口类型变量 那实现了接口又有什么用呢？一个接口类型的变量能够存储所有实现了该接口的类型变量。\n例如在上面的示例中，Dog和Cat类型均实现了Sayer接口，此时一个Sayer类型的变量就能够接收Cat和Dog类型的变量。\nvar x Sayer // 声明一个Sayer类型的变量x a := Cat{} // 声明一个Cat类型变量a b := Dog{} // 声明一个Dog类型变量b x = a // 可以把Cat类型变量直接赋值给x x.Say() // 喵喵喵 x = b // 可以把Dog类型变量直接赋值给x x.Say() // 汪汪汪 2.值接收者和指针接收者 在结构体那一章节中，我们介绍了在定义结构体方法时既可以使用值接收者也可以使用指针接收者。那么对于实现接口来说使用值接收者和使用指针接收者有什么区别呢？接下来我们通过一个例子看一下其中的区别。\n我们定义一个Mover接口，它包含一个Move方法。\n// Mover 定义一个接口类型 type Mover interface { Move() } 2.1 值接收者实现接口 我们定义一个Dog结构体类型，并使用值接收者为其定义一个Move方法。\n// Dog 狗结构体类型 type Dog struct{} // Move 使用值接收者定义Move方法实现Mover接口 func (d Dog) Move() { fmt.Println(\"狗会动\") } 此时实现Mover接口的是Dog类型。\nvar x Mover // 声明一个Mover类型的变量x var d1 = Dog{} // d1是Dog类型 x = d1 // 可以将d1赋值给变量x x.Move() var d2 = \u0026Dog{} // d2是Dog指针类型 x = d2 // 也可以将d2赋值给变量x x.Move() 从上面的代码中我们可以发现，使用值接收者实现接口之后，不管是结构体类型还是对应的结构体指针类型的变量都可以赋值给该接口变量。\n2.2 指针接收者实现接口 我们再来测试一下使用指针接收者实现接口有什么区别。\n// Cat 猫结构体类型 type Cat struct{} // Move 使用指针接收者定义Move方法实现Mover接口 func (c *Cat) Move() { fmt.Println(\"猫会动\") } 此时实现Mover接口的是*Cat类型，我们可以将*Cat类型的变量直接赋值给Mover接口类型的变量x。\nvar c1 = \u0026Cat{} // c1是*Cat类型 x = c1 // 可以将c1当成Mover类型 x.Move() 但是不能给将Cat类型的变量赋值给Mover接口类型的变量x。\n// 下面的代码无法通过编译 var c2 = Cat{} // c2是Cat类型 x = c2 // 不能将c2当成Mover类型 由于Go语言中有对指针求值的语法糖，对于值接收者实现的接口，无论使用值类型还是指针类型都没有问题。但是我们并不总是能对一个值求址，所以对于指针接收者实现的接口要额外注意。\n3.类型与接口的关系 3.1 一个类型实现多个接口 一个类型可以同时实现多个接口，而接口间彼此独立，不知道对方的实现。例如狗不仅可以叫，还可以动。我们完全可以分别定义Sayer接口和Mover接口，具体代码示例如下。\n// Sayer 接口 type Sayer interface { Say() } // Mover 接口 type Mover interface { Move() } Dog既可以实现Sayer接口，也可以实现Mover接口。\ntype Dog struct { Name string } // 实现Sayer接口 func (d Dog) Say() { fmt.Printf(\"%s会叫汪汪汪\\n\", d.Name) } // 实现Mover接口 func (d Dog) Move() { fmt.Printf(\"%s会动\\n\", d.Name) } 同一个类型实现不同的接口互相不影响使用。\nvar d = Dog{Name: \"旺财\"} var s Sayer = d var m Mover = d s.Say() // 对Sayer类型调用Say方法 m.Move() // 对Mover类型调用Move方法 3.2 多种类型实现同一接口 Go语言中不同的类型还可以实现同一接口。例如在我们的代码世界中不仅狗可以动，汽车也可以动。我们可以使用如下代码体现这个关系。\n// 实现Mover接口 func (d Dog) Move() { fmt.Printf(\"%s会动\\n\", d.Name) } // Car 汽车结构体类型 type Car struct { Brand string } // Move Car类型实现Mover接口 func (c Car) Move() { fmt.Printf(\"%s速度70迈\\n\", c.Brand) } 这样我们在代码中就可以把狗和汽车当成一个会动的类型来处理，不必关注它们具体是什么，只需要调用它们的Move方法就可以了。\nvar obj Mover obj = Dog{Name: \"旺财\"} obj.Move() obj = Car{Brand: \"宝马\"} obj.Move() 上面的代码执行结果如下：\n旺财会跑 宝马速度70迈 一个接口的所有方法，不一定需要由一个类型完全实现，接口的方法可以通过在类型中嵌入其他类型或者结构体来实现。\n// WashingMachine 洗衣机 type WashingMachine interface { wash() dry() } // 甩干器 type dryer struct{} // 实现WashingMachine接口的dry()方法 func (d dryer) dry() { fmt.Println(\"甩一甩\") } // 海尔洗衣机 type haier struct { dryer //嵌入甩干器 } // 实现WashingMachine接口的wash()方法 func (h haier) wash() { fmt.Println(\"洗刷刷\") } 4.接口组合 接口与接口之间可以通过互相嵌套形成新的接口类型，例如Go标准库io源码中就有很多接口之间互相组合的示例。\n// src/io/io.go type Reader interface { Read(p []byte) (n int, err error) } type Writer interface { Write(p []byte) (n int, err error) } type Closer interface { Close() error } // ReadWriter 是组合Reader接口和Writer接口形成的新接口类型 type ReadWriter interface { Reader Writer } // ReadCloser 是组合Reader接口和Closer接口形成的新接口类型 type ReadCloser interface { Reader Closer } // WriteCloser 是组合Writer接口和Closer接口形成的新接口类型 type WriteCloser interface { Writer Closer } 对于这种由多个接口类型组合形成的新接口类型，同样只需要实现新接口类型中规定的所有方法就算实现了该接口类型。\n接口也可以作为结构体的一个字段，我们来看一段Go标准库sort源码中的示例。\n// src/sort/sort.go // Interface 定义通过索引对元素排序的接口类型 type Interface interface { Len() int Less(i, j int) bool Swap(i, j int) } // reverse 结构体中嵌入了Interface接口 type reverse struct { Interface } 通过在结构体中嵌入一个接口类型，从而让该结构体类型实现了该接口类型，并且还可以改写该接口的方法。\n// Less 为reverse类型添加Less方法，重写原Interface接口类型的Less方法 func (r reverse) Less(i, j int) bool { return r.Interface.Less(j, i) } Interface类型原本的Less方法签名为Less(i, j int) bool，此处重写为r.Interface.Less(j, i)，即通过将索引参数交换位置实现反转。\n在这个示例中还有一个需要注意的地方是reverse结构体本身是不可导出的（结构体类型名称首字母小写），sort.go中通过定义一个可导出的Reverse函数来让使用者创建reverse结构体实例。\nfunc Reverse(data Interface) Interface { return \u0026reverse{data} } 这样做的目的是保证得到的reverse结构体中的Interface属性一定不为nil，否者r.Interface.Less(j, i)就会出现空指针panic。\n此外在Go内置标准库database/sql中也有很多类似的结构体内嵌接口类型的使用示例，各位读者可自行查阅。\n5.空接口 5.1 空接口的定义 空接口是指没有定义任何方法的接口类型。因此任何类型都可以视为实现了空接口。也正是因为空接口类型的这个特性，空接口类型的变量可以存储任意类型的值。\npackage main import \"fmt\" // 空接口 // Any 不包含任何方法的空接口类型 type Any interface{} // Dog 狗结构体 type Dog struct{} func main() { var x Any x = \"你好\" // 字符串型 fmt.Printf(\"type:%T value:%v\\n\", x, x) x = 100 // int型 fmt.Printf(\"type:%T value:%v\\n\", x, x) x = true // 布尔型 fmt.Printf(\"type:%T value:%v\\n\", x, x) x = Dog{} // 结构体类型 fmt.Printf(\"type:%T value:%v\\n\", x, x) } 通常我们在使用空接口类型时不必使用type关键字声明，可以像下面的代码一样直接使用interface{}。\nvar x interface{} // 声明一个空接口类型变量x 5.2 空接口的应用 5.2.1 空接口作为函数的参数 使用空接口实现可以接收任意类型的函数参数。\n// 空接口作为函数参数 func show(a interface{}) { fmt.Printf(\"type:%T value:%v\\n\", a, a) } 5.2.2 空接口作为map的值 使用空接口实现可以保存任意值的字典。\n// 空接口作为map值 var studentInfo = make(map[string]interface{}) studentInfo[\"name\"] = \"沙河娜扎\" studentInfo[\"age\"] = 18 studentInfo[\"married\"] = false fmt.Println(studentInfo) 6.接口值 由于接口类型的值可以是任意一个实现了该接口的类型值，所以接口值除了需要记录具体值之外，还需要记录这个值属于的类型。也就是说接口值由“类型”和“值”组成，鉴于这两部分会根据存入值的不同而发生变化，我们称之为接口的动态类型和动态值。\n我们接下来通过一个示例来加深对接口值的理解。\n下面的示例代码中，定义了一个Mover接口类型和两个实现了该接口的Dog和Car结构体类型。\ntype Mover interface { Move() } type Dog struct { Name string } func (d *Dog) Move() { fmt.Println(\"狗在跑~\") } type Car struct { Brand string } func (c *Car) Move() { fmt.Println(\"汽车在跑~\") } 首先，我们创建一个Mover接口类型的变量m。\nvar m Mover 此时，接口变量m是接口类型的零值，也就是它的类型和值部分都是nil，就如下图所示。\n我们可以使用m == nil来判断此时的接口值是否为空。\nfmt.Println(m == nil) // true **注意：**我们不能对一个空接口值调用任何方法，否则会产生panic。\nm.Move() // panic: runtime error: invalid memory address or nil pointer dereference 接下来，我们将一个*Dog结构体指针赋值给变量m。\nm = \u0026Dog{Name: \"旺财\"} 此时，接口值m的动态类型会被设置为*Dog，动态值为结构体变量的拷贝。\n然后，我们给接口变量m赋值为一个*Car类型的值。\nvar c *Car m = c 这一次，接口值m的动态类型为*Car，动态值为nil。\n**注意：**此时接口变量m与nil并不相等，因为它只是动态值的部分为nil，而动态类型部分保存着对应值的类型。\nfmt.Println(m == nil) // false 接口值是支持相互比较的，当且仅当接口值的动态类型和动态值都相等时才相等。\nvar ( x Mover = new(Dog) y Mover = new(Car) ) fmt.Println(x == y) // false 但是有一种特殊情况需要特别注意，如果接口值保存的动态类型相同，但是这个动态类型不支持互相比较（比如切片），那么对它们相互比较时就会引发panic。\nvar z interface{} = []int{1, 2, 3} fmt.Println(z == z) // panic: runtime error: comparing uncomparable type []int 7.类型断言 接口值可能赋值为任意类型的值，那我们如何从接口值获取其存储的具体数据呢？\n我们可以借助标准库fmt包的格式化打印获取到接口值的动态类型。\nvar m Mover m = \u0026Dog{Name: \"旺财\"} fmt.Printf(\"%T\\n\", m) // *main.Dog m = new(Car) fmt.Printf(\"%T\\n\", m) // *main.Car 而fmt包内部其实是使用反射的机制在程序运行时获取到动态类型的名称。关于反射的内容我们会在后续章节详细介绍。\n而想要从接口值中获取到对应的实际值需要使用类型断言，其语法格式如下。\nx.(T) 其中：\nx：表示接口类型的变量 T：表示断言x可能是的类型。 该语法返回两个参数，第一个参数是x转化为T类型后的变量，第二个值是一个布尔值，若为true则表示断言成功，为false则表示断言失败。\n举个例子：\nvar n Mover = \u0026Dog{Name: \"旺财\"} v, ok := n.(*Dog) if ok { fmt.Println(\"类型断言成功\") v.Name = \"富贵\" // 变量v是*Dog类型 } else { fmt.Println(\"类型断言失败\") } 如果对一个接口值有多个实际类型需要判断，推荐使用switch语句来实现。\n// justifyType 对传入的空接口类型变量x进行类型断言 func justifyType(x interface{}) { switch v := x.(type) { case string: fmt.Printf(\"x is a string，value is %v\\n\", v) case int: fmt.Printf(\"x is a int is %v\\n\", v) case bool: fmt.Printf(\"x is a bool is %v\\n\", v) default: fmt.Println(\"unsupport type！\") } } 由于接口类型变量能够动态存储不同类型值的特点，所以很多初学者会滥用接口类型（特别是空接口）来实现编码过程中的便捷。只有当有两个或两个以上的具体类型必须以相同的方式进行处理时才需要定义接口。切记不要为了使用接口类型而增加不必要的抽象，导致不必要的运行时损耗。\n在 Go 语言中接口是一个非常重要的概念和特性，使用接口类型能够实现代码的抽象和解耦，也可以隐藏某个功能的内部实现，但是缺点就是在查看源码的时候，不太方便查找到具体实现接口的类型。\n相信很多读者在刚接触到接口类型时都会有很多疑惑，请牢记接口是一种类型，一种抽象的类型。区别于我们在之前章节提到的那些具体类型（整型、数组、结构体类型等），它是一个只要求实现特定方法的抽象类型。\n小技巧： 下面的代码可以在程序编译阶段验证某一结构体是否满足特定的接口类型。\n// 摘自gin框架routergroup.go type IRouter interface{ ... } type RouterGroup struct { ... } var _ IRouter = \u0026RouterGroup{} // 确保RouterGroup实现了接口IRouter 上面的代码中也可以使用var _ IRouter = (*RouterGroup)(nil)进行验证。\n8.练习题 使用接口的方式实现一个既可以往终端写日志也可以往文件写日志的简易日志库。 package main import ( \"fmt\" \"os\" \"time\" ) // 接口 type Logger interface { consoleLog() // 终端 fileLog() // 文件 } // 用户结构体 type User struct { username string password string } // User实现方法 func (u User) consoleLog() { t := time.Now() fmt.Printf(\"用户创建成功！用户名为：%s\", u.username) fmt.Printf(\"用户密码是：%s\\n\", u.password) fmt.Printf(\"创建完成时间：%d-%d-%d %d:%d:%d\\n\", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second()) } func (u User) fileLog() { t := time.Now() file, err := os.OpenFile(\"./\"+u.username+\".txt\", os.O_RDWR|os.O_CREATE, 0766) if err != nil { fmt.Println(err) } data := \"用户创建成功！ 用户名为：\" + fmt.Sprintf(\"%s\\n\", u.username) + \"密码是：\" + u.password + \"\\n\" + fmt.Sprintf(\"创建完成时间：%d-%d-%d %d:%d:%d\\n\", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second()) _, _ = file.WriteString(data) _ = file.Close() } // User中的字段初始化 func newUser(username, password string) User { return User{ username: username, password: password, } } // 创建用户对象 func createUser() { var ( username string password string ) fmt.Print(\"请输入用户名：\") _, err := fmt.Scan(\u0026username) fmt.Print(\"请输入一个密码：\") _, err = fmt.Scan(\u0026password) if err != nil { fmt.Println(\"输入错误！！ERROR:\", err) } u := newUser(username, password) u.consoleLog() u.fileLog() } // 主函数 func main() { createUser() } 生成的文件是放在根目录下的也就是$GOPATH/src 目录下的\n",
+  "wordCount" : "7997",
+  "inLanguage": "en",
+  "datePublished": "2022-12-23T22:58:17+08:00",
+  "dateModified": "2022-12-23T22:58:17+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "N3bu74"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://N3bu74.github.io/posts/tech/golang_interface/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "N3bu74's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://N3bu74.github.io/img/N3bu74.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://N3bu74.github.io" accesskey="h" title="N3bu74&#39;s Blog (Alt + H)">
+            <img src="https://N3bu74.github.io/img/Q.gif" alt="logo" aria-label="logo"
+                 height="35">N3bu74&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://N3bu74.github.io/search" title="🔍 搜索 (Alt &#43; /)" accesskey=/>
+                <span>🔍 搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/posts" title="📚 文章">
+                <span>📚 文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/categories/" title="📦 分类">
+                <span>📦 分类</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/tags" title="🧩 标签">
+                <span>🧩 标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/archives/" title="⏱️ 时间轴">
+                <span>⏱️ 时间轴</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://N3bu74.github.io">主页</a>&nbsp;»&nbsp;<a href="https://N3bu74.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://N3bu74.github.io/posts/tech/">👨🏻‍💻 技术</a></div>
+            <h1 class="post-title">
+                Golang 接口
+            </h1>
+            <div class="post-description">
+                Golang基础十二之 接口
+            </div>
+            <div class="post-meta">📅&nbsp;<span title='2022-12-23 22:58:17 +0800 CST'>2022-12-23</span>&nbsp; &nbsp;⏰&nbsp;2022-12-23&nbsp; &nbsp;📃:&nbsp;7997字&nbsp; &nbsp;⏳&nbsp;16分钟&nbsp; &nbsp;
+🙍‍♂️&nbsp;N3bu74
+
+
+
+                &nbsp; &nbsp; 🧩 &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://N3bu74.github.io/tags/golang/">Golang</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp; 👁‍🗨 <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#1%e6%8e%a5%e5%8f%a3%e7%b1%bb%e5%9e%8b" aria-label="1.接口类型">1.接口类型</a><ul>
+                        
+                <li>
+                    <a href="#11-%e6%8e%a5%e5%8f%a3%e7%9a%84%e5%ae%9a%e4%b9%89" aria-label="1.1 接口的定义">1.1 接口的定义</a></li>
+                <li>
+                    <a href="#12-%e5%ae%9e%e7%8e%b0%e6%8e%a5%e5%8f%a3%e7%9a%84%e6%9d%a1%e4%bb%b6" aria-label="1.2 实现接口的条件">1.2 实现接口的条件</a></li>
+                <li>
+                    <a href="#13-%e4%b8%ba%e4%bb%80%e4%b9%88%e8%a6%81%e4%bd%bf%e7%94%a8%e6%8e%a5%e5%8f%a3" aria-label="1.3 为什么要使用接口？">1.3 为什么要使用接口？</a></li>
+                <li>
+                    <a href="#14-%e9%9d%a2%e5%90%91%e6%8e%a5%e5%8f%a3%e7%bc%96%e7%a8%8b" aria-label="1.4 面向接口编程">1.4 面向接口编程</a></li>
+                <li>
+                    <a href="#15-%e6%8e%a5%e5%8f%a3%e7%b1%bb%e5%9e%8b%e5%8f%98%e9%87%8f" aria-label="1.5 接口类型变量">1.5 接口类型变量</a></li></ul>
+                </li>
+                <li>
+                    <a href="#2%e5%80%bc%e6%8e%a5%e6%94%b6%e8%80%85%e5%92%8c%e6%8c%87%e9%92%88%e6%8e%a5%e6%94%b6%e8%80%85" aria-label="2.值接收者和指针接收者">2.值接收者和指针接收者</a><ul>
+                        
+                <li>
+                    <a href="#21-%e5%80%bc%e6%8e%a5%e6%94%b6%e8%80%85%e5%ae%9e%e7%8e%b0%e6%8e%a5%e5%8f%a3" aria-label="2.1 值接收者实现接口">2.1 值接收者实现接口</a></li>
+                <li>
+                    <a href="#22-%e6%8c%87%e9%92%88%e6%8e%a5%e6%94%b6%e8%80%85%e5%ae%9e%e7%8e%b0%e6%8e%a5%e5%8f%a3" aria-label="2.2 指针接收者实现接口">2.2 指针接收者实现接口</a></li></ul>
+                </li>
+                <li>
+                    <a href="#3%e7%b1%bb%e5%9e%8b%e4%b8%8e%e6%8e%a5%e5%8f%a3%e7%9a%84%e5%85%b3%e7%b3%bb" aria-label="3.类型与接口的关系">3.类型与接口的关系</a><ul>
+                        
+                <li>
+                    <a href="#31-%e4%b8%80%e4%b8%aa%e7%b1%bb%e5%9e%8b%e5%ae%9e%e7%8e%b0%e5%a4%9a%e4%b8%aa%e6%8e%a5%e5%8f%a3" aria-label="3.1 一个类型实现多个接口">3.1 一个类型实现多个接口</a></li>
+                <li>
+                    <a href="#32-%e5%a4%9a%e7%a7%8d%e7%b1%bb%e5%9e%8b%e5%ae%9e%e7%8e%b0%e5%90%8c%e4%b8%80%e6%8e%a5%e5%8f%a3" aria-label="3.2 多种类型实现同一接口">3.2 多种类型实现同一接口</a></li></ul>
+                </li>
+                <li>
+                    <a href="#4%e6%8e%a5%e5%8f%a3%e7%bb%84%e5%90%88" aria-label="4.接口组合">4.接口组合</a></li>
+                <li>
+                    <a href="#5%e7%a9%ba%e6%8e%a5%e5%8f%a3" aria-label="5.空接口">5.空接口</a><ul>
+                        
+                <li>
+                    <a href="#51-%e7%a9%ba%e6%8e%a5%e5%8f%a3%e7%9a%84%e5%ae%9a%e4%b9%89" aria-label="5.1 空接口的定义">5.1 空接口的定义</a></li>
+                <li>
+                    <a href="#52-%e7%a9%ba%e6%8e%a5%e5%8f%a3%e7%9a%84%e5%ba%94%e7%94%a8" aria-label="5.2 空接口的应用">5.2 空接口的应用</a><ul>
+                        
+                <li>
+                    <a href="#521-%e7%a9%ba%e6%8e%a5%e5%8f%a3%e4%bd%9c%e4%b8%ba%e5%87%bd%e6%95%b0%e7%9a%84%e5%8f%82%e6%95%b0" aria-label="5.2.1 空接口作为函数的参数">5.2.1 空接口作为函数的参数</a></li>
+                <li>
+                    <a href="#522-%e7%a9%ba%e6%8e%a5%e5%8f%a3%e4%bd%9c%e4%b8%bamap%e7%9a%84%e5%80%bc" aria-label="5.2.2 空接口作为map的值">5.2.2 空接口作为map的值</a></li></ul>
+                </li></ul>
+                </li>
+                <li>
+                    <a href="#6%e6%8e%a5%e5%8f%a3%e5%80%bc" aria-label="6.接口值">6.接口值</a></li>
+                <li>
+                    <a href="#7%e7%b1%bb%e5%9e%8b%e6%96%ad%e8%a8%80" aria-label="7.类型断言">7.类型断言</a></li>
+                <li>
+                    <a href="#8%e7%bb%83%e4%b9%a0%e9%a2%98" aria-label="8.练习题">8.练习题</a>
+                </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><p>接口（interface）定义了一个对象的行为规范，只定义规范不实现，由具体的对象来实现规范的细节。</p>
+<p><strong>本章学习目标</strong></p>
+<ul>
+<li>了解为什么需要接口以及接口的特点</li>
+<li>掌握接口的声明和使用</li>
+<li>掌握接口值的概念</li>
+<li>掌握空接口的特点及其使用场景</li>
+</ul>
+<p>在Go语言中接口（interface）是一种类型，一种抽象的类型。相较于之前章节中讲到的那些具体类型（字符串、切片、结构体等）更注重“我是谁”，接口类型更注重“我能做什么”的问题。接口类型就像是一种约定——概括了一种类型应该具备哪些方法，在Go语言中提倡使用面向接口的编程方式实现解耦。</p>
+<h2 id="1接口类型">1.接口类型<a hidden class="anchor" aria-hidden="true" href="#1接口类型">#</a></h2>
+<p>接口是一种由程序员来定义的类型，一个接口类型就是一组方法的集合，它规定了需要实现的所有方法。</p>
+<p>相较于使用结构体类型，当我们使用接口类型说明相比于它是什么更关心它能做什么。</p>
+<h3 id="11-接口的定义">1.1 接口的定义<a hidden class="anchor" aria-hidden="true" href="#11-接口的定义">#</a></h3>
+<p>每个接口类型由任意个方法签名组成，接口的定义格式如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#960050;background-color:#1e0010">接口类型名</span> <span style="color:#66d9ef">interface</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">方法名</span><span style="color:#ae81ff">1</span>( <span style="color:#960050;background-color:#1e0010">参数列表</span><span style="color:#ae81ff">1</span> ) <span style="color:#960050;background-color:#1e0010">返回值列表</span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">方法名</span><span style="color:#ae81ff">2</span>( <span style="color:#960050;background-color:#1e0010">参数列表</span><span style="color:#ae81ff">2</span> ) <span style="color:#960050;background-color:#1e0010">返回值列表</span><span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">…</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>其中：</p>
+<ul>
+<li>接口类型名：Go语言的接口在命名时，一般会在单词后面添加<code>er</code>，如有写操作的接口叫<code>Writer</code>，有关闭操作的接口叫<code>closer</code>等。接口名最好要能突出该接口的类型含义。</li>
+<li>方法名：当方法名首字母是大写且这个接口类型名首字母也是大写时，这个方法可以被接口所在的包（package）之外的代码访问。</li>
+<li>参数列表、返回值列表：参数列表和返回值列表中的参数变量名可以省略。</li>
+</ul>
+<p>举个例子，定义一个包含<code>Write</code>方法的<code>Writer</code>接口。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Writer</span> <span style="color:#66d9ef">interface</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Write</span>([]<span style="color:#66d9ef">byte</span>) <span style="color:#66d9ef">error</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>当你看到一个<code>Writer</code>接口类型的值时，你不知道它是什么，唯一知道的就是可以通过调用它的<code>Write</code>方法来做一些事情。</p>
+<h3 id="12-实现接口的条件">1.2 实现接口的条件<a hidden class="anchor" aria-hidden="true" href="#12-实现接口的条件">#</a></h3>
+<p>接口就是规定了一个<strong>需要实现的方法列表</strong>，在 Go 语言中一个类型只要实现了接口中规定的所有方法，那么我们就称它实现了这个接口。</p>
+<p>我们定义的<code>Singer</code>接口类型，它包含一个<code>Sing</code>方法。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// Singer 接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Singer</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Sing</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>我们有一个<code>Bird</code>结构体类型如下。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Bird</span> <span style="color:#66d9ef">struct</span> {}
+</span></span></code></pre></div><p>因为<code>Singer</code>接口只包含一个<code>Sing</code>方法，所以只需要给<code>Bird</code>结构体添加一个<code>Sing</code>方法就可以满足<code>Singer</code>接口的要求。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// Sing Bird类型的Sing方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">b</span> <span style="color:#a6e22e">Bird</span>) <span style="color:#a6e22e">Sing</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;汪汪汪&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>这样就称为<code>Bird</code>实现了<code>Singer</code>接口。</p>
+<h3 id="13-为什么要使用接口">1.3 为什么要使用接口？<a hidden class="anchor" aria-hidden="true" href="#13-为什么要使用接口">#</a></h3>
+<p>现在假设我们的代码世界里有很多小动物，下面的代码片段定义了猫和狗，它们饿了都会叫。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Cat</span> <span style="color:#66d9ef">struct</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">c</span> <span style="color:#a6e22e">Cat</span>) <span style="color:#a6e22e">Say</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;喵喵喵~&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Dog</span> <span style="color:#66d9ef">struct</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">d</span> <span style="color:#a6e22e">Dog</span>) <span style="color:#a6e22e">Say</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;汪汪汪~&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Cat</span>{}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Say</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">d</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Dog</span>{}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">d</span>.<span style="color:#a6e22e">Say</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>这个时候又跑来了一只羊，羊饿了也会发出叫声。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Sheep</span> <span style="color:#66d9ef">struct</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">s</span> <span style="color:#a6e22e">Sheep</span>) <span style="color:#a6e22e">Say</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;咩咩咩~&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>我们接下来定义一个饿肚子的场景。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// MakeCatHungry 猫饿了会喵喵喵~
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">MakeCatHungry</span>(<span style="color:#a6e22e">c</span> <span style="color:#a6e22e">Cat</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Say</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// MakeSheepHungry 羊饿了会咩咩咩~
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">MakeSheepHungry</span>(<span style="color:#a6e22e">s</span> <span style="color:#a6e22e">Sheep</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">Say</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>接下来会有越来越多的小动物跑过来，我们的代码世界该怎么拓展呢？</p>
+<p>在饿肚子这个场景下，我们可不可以把所有动物都当成一个“会叫的类型”来处理呢？当然可以！使用接口类型就可以实现这个目标。 我们的代码其实并不关心究竟是什么动物在叫，我们只是在代码中调用它的<code>Say()</code>方法，这就足够了。</p>
+<p>我们可以约定一个<code>Sayer</code>类型，它必须实现一个<code>Say()</code>方法，只要饿肚子了，我们就调用<code>Say()</code>方法。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Sayer</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Say</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>然后我们定义一个通用的<code>MakeHungry</code>函数，接收<code>Sayer</code>类型的参数。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// MakeHungry 饿肚子了...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">MakeHungry</span>(<span style="color:#a6e22e">s</span> <span style="color:#a6e22e">Sayer</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">Say</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>我们通过使用接口类型，把所有会叫的动物当成<code>Sayer</code>类型来处理，只要实现了<code>Say()</code>方法都能当成<code>Sayer</code>类型的变量来处理。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c</span> <span style="color:#a6e22e">cat</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MakeHungry</span>(<span style="color:#a6e22e">c</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">d</span> <span style="color:#a6e22e">dog</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">MakeHungry</span>(<span style="color:#a6e22e">d</span>)
+</span></span></code></pre></div><p>在电商系统中我们允许用户使用多种支付方式（支付宝支付、微信支付、银联支付等），我们的交易流程中可能不太在乎用户究竟使用什么支付方式，只要它能提供一个实现支付功能的<code>Pay</code>方法让调用方调用就可以了。</p>
+<p>再比如我们需要在某个程序中添加一个将某些指标数据向外输出的功能，根据不同的需求可能要将数据输出到终端、写入到文件或者通过网络连接发送出去。在这个场景下我们可以不关注最终输出的目的地是什么，只需要它能提供一个<code>Write</code>方法让我们把内容写入就可以了。</p>
+<p>Go语言中为了解决类似上面的问题引入了接口的概念，接口类型区别于我们之前章节中介绍的那些具体类型，让我们专注于该类型提供的方法，而不是类型本身。使用接口类型通常能够让我们写出更加通用和灵活的代码。</p>
+<h3 id="14-面向接口编程">1.4 面向接口编程<a hidden class="anchor" aria-hidden="true" href="#14-面向接口编程">#</a></h3>
+<p>PHP、Java等语言中也有接口的概念，不过在PHP和Java语言中需要显式声明一个类实现了哪些接口，在Go语言中使用隐式声明的方式实现接口。只要一个类型实现了接口中规定的所有方法，那么它就实现了这个接口。</p>
+<p>Go语言中的这种设计符合程序开发中抽象的一般规律，例如在下面的代码示例中，我们的电商系统最开始只设计了支付宝一种支付方式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ZhiFuBao</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 支付宝
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Pay 支付宝的支付方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">z</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">ZhiFuBao</span>) <span style="color:#a6e22e">Pay</span>(<span style="color:#a6e22e">amount</span> <span style="color:#66d9ef">int64</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;使用支付宝付款：%.2f元。\n&#34;</span>, float64(<span style="color:#a6e22e">amount</span><span style="color:#f92672">/</span><span style="color:#ae81ff">100</span>))
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Checkout 结账
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Checkout</span>(<span style="color:#a6e22e">obj</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">ZhiFuBao</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 支付100元
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">Pay</span>(<span style="color:#ae81ff">100</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Checkout</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">ZhiFuBao</span>{})
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>随着业务的发展，根据用户需求添加支持微信支付。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">WeChat</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 微信
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Pay 微信的支付方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">w</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">WeChat</span>) <span style="color:#a6e22e">Pay</span>(<span style="color:#a6e22e">amount</span> <span style="color:#66d9ef">int64</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;使用微信付款：%.2f元。\n&#34;</span>, float64(<span style="color:#a6e22e">amount</span><span style="color:#f92672">/</span><span style="color:#ae81ff">100</span>))
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>在实际的交易流程中，我们可以根据用户选择的支付方式来决定最终调用支付宝的Pay方法还是微信支付的Pay方法。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// Checkout 支付宝结账
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">CheckoutWithZFB</span>(<span style="color:#a6e22e">obj</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">ZhiFuBao</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 支付100元
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">Pay</span>(<span style="color:#ae81ff">100</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Checkout 微信支付结账
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">CheckoutWithWX</span>(<span style="color:#a6e22e">obj</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">WeChat</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 支付100元
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">Pay</span>(<span style="color:#ae81ff">100</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>实际上，从上面的代码示例中我们可以看出，我们其实并不怎么关心用户选择的是什么支付方式，我们只关心调用Pay方法时能否正常运行。这就是典型的“不关心它是什么，只关心它能做什么”的场景。</p>
+<p>在这种场景下我们可以将具体的支付方式抽象为一个名为<code>Payer</code>的接口类型，即任何实现了<code>Pay</code>方法的都可以称为<code>Payer</code>类型。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// Payer 包含支付方法的接口类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Payer</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Pay</span>(<span style="color:#66d9ef">int64</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>此时只需要修改下原始的<code>Checkout</code>函数，它接收一个<code>Payer</code>类型的参数。这样就能够在不修改既有函数调用的基础上，支持新的支付方式。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// Checkout 结账
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Checkout</span>(<span style="color:#a6e22e">obj</span> <span style="color:#a6e22e">Payer</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 支付100元
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">Pay</span>(<span style="color:#ae81ff">100</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Checkout</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">ZhiFuBao</span>{}) <span style="color:#75715e">// 之前调用支付宝支付
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Checkout</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">WeChat</span>{}) <span style="color:#75715e">// 现在支持使用微信支付
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>像类似的例子在我们编程过程中会经常遇到：</p>
+<ul>
+<li>比如一个网上商城可能使用支付宝、微信、银联等方式去在线支付，我们能不能把它们当成“支付方式”来处理呢？</li>
+<li>比如三角形，四边形，圆形都能计算周长和面积，我们能不能把它们当成“图形”来处理呢？</li>
+<li>比如满减券、立减券、打折券都属于电商场景下常见的优惠方式，我们能不能把它们当成“优惠券”来处理呢？</li>
+</ul>
+<p>接口类型是Go语言提供的一种工具，在实际的编码过程中是否使用它由你自己决定，但是通常使用接口类型可以使代码更清晰易读。</p>
+<h3 id="15-接口类型变量">1.5 接口类型变量<a hidden class="anchor" aria-hidden="true" href="#15-接口类型变量">#</a></h3>
+<p>那实现了接口又有什么用呢？一个接口类型的变量能够存储所有实现了该接口的类型变量。</p>
+<p>例如在上面的示例中，<code>Dog</code>和<code>Cat</code>类型均实现了<code>Sayer</code>接口，此时一个<code>Sayer</code>类型的变量就能够接收<code>Cat</code>和<code>Dog</code>类型的变量。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">x</span> <span style="color:#a6e22e">Sayer</span> <span style="color:#75715e">// 声明一个Sayer类型的变量x
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">a</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Cat</span>{}  <span style="color:#75715e">// 声明一个Cat类型变量a
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">Dog</span>{}  <span style="color:#75715e">// 声明一个Dog类型变量b
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span> = <span style="color:#a6e22e">a</span>       <span style="color:#75715e">// 可以把Cat类型变量直接赋值给x
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span>.<span style="color:#a6e22e">Say</span>()     <span style="color:#75715e">// 喵喵喵
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span> = <span style="color:#a6e22e">b</span>       <span style="color:#75715e">// 可以把Dog类型变量直接赋值给x
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span>.<span style="color:#a6e22e">Say</span>()     <span style="color:#75715e">// 汪汪汪
+</span></span></span></code></pre></div><h2 id="2值接收者和指针接收者">2.值接收者和指针接收者<a hidden class="anchor" aria-hidden="true" href="#2值接收者和指针接收者">#</a></h2>
+<p>在结构体那一章节中，我们介绍了在定义结构体方法时既可以使用值接收者也可以使用指针接收者。那么对于实现接口来说使用值接收者和使用指针接收者有什么区别呢？接下来我们通过一个例子看一下其中的区别。</p>
+<p>我们定义一个<code>Mover</code>接口，它包含一个<code>Move</code>方法。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// Mover 定义一个接口类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Mover</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Move</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="21-值接收者实现接口">2.1 值接收者实现接口<a hidden class="anchor" aria-hidden="true" href="#21-值接收者实现接口">#</a></h3>
+<p>我们定义一个<code>Dog</code>结构体类型，并使用值接收者为其定义一个<code>Move</code>方法。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// Dog 狗结构体类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Dog</span> <span style="color:#66d9ef">struct</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Move 使用值接收者定义Move方法实现Mover接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">d</span> <span style="color:#a6e22e">Dog</span>) <span style="color:#a6e22e">Move</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;狗会动&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>此时实现<code>Mover</code>接口的是<code>Dog</code>类型。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">x</span> <span style="color:#a6e22e">Mover</span>    <span style="color:#75715e">// 声明一个Mover类型的变量x
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">d1</span> = <span style="color:#a6e22e">Dog</span>{} <span style="color:#75715e">// d1是Dog类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span> = <span style="color:#a6e22e">d1</span>         <span style="color:#75715e">// 可以将d1赋值给变量x
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span>.<span style="color:#a6e22e">Move</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">d2</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Dog</span>{} <span style="color:#75715e">// d2是Dog指针类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span> = <span style="color:#a6e22e">d2</span>          <span style="color:#75715e">// 也可以将d2赋值给变量x
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span>.<span style="color:#a6e22e">Move</span>()
+</span></span></code></pre></div><p>从上面的代码中我们可以发现，使用值接收者实现接口之后，不管是结构体类型还是对应的结构体指针类型的变量都可以赋值给该接口变量。</p>
+<h3 id="22-指针接收者实现接口">2.2 指针接收者实现接口<a hidden class="anchor" aria-hidden="true" href="#22-指针接收者实现接口">#</a></h3>
+<p>我们再来测试一下使用指针接收者实现接口有什么区别。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// Cat 猫结构体类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Cat</span> <span style="color:#66d9ef">struct</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Move 使用指针接收者定义Move方法实现Mover接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Cat</span>) <span style="color:#a6e22e">Move</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;猫会动&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>此时实现<code>Mover</code>接口的是<code>*Cat</code>类型，我们可以将<code>*Cat</code>类型的变量直接赋值给<code>Mover</code>接口类型的变量<code>x</code>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c1</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Cat</span>{} <span style="color:#75715e">// c1是*Cat类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span> = <span style="color:#a6e22e">c1</span>          <span style="color:#75715e">// 可以将c1当成Mover类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span>.<span style="color:#a6e22e">Move</span>()
+</span></span></code></pre></div><p>但是不能给将<code>Cat</code>类型的变量赋值给<code>Mover</code>接口类型的变量<code>x</code>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// 下面的代码无法通过编译
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c2</span> = <span style="color:#a6e22e">Cat</span>{} <span style="color:#75715e">// c2是Cat类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">x</span> = <span style="color:#a6e22e">c2</span>         <span style="color:#75715e">// 不能将c2当成Mover类型
+</span></span></span></code></pre></div><p>由于Go语言中有对指针求值的语法糖，对于值接收者实现的接口，无论使用值类型还是指针类型都没有问题。但是我们并不总是能对一个值求址，所以对于指针接收者实现的接口要额外注意。</p>
+<h2 id="3类型与接口的关系">3.类型与接口的关系<a hidden class="anchor" aria-hidden="true" href="#3类型与接口的关系">#</a></h2>
+<h3 id="31-一个类型实现多个接口">3.1 一个类型实现多个接口<a hidden class="anchor" aria-hidden="true" href="#31-一个类型实现多个接口">#</a></h3>
+<p>一个类型可以同时实现多个接口，而接口间彼此独立，不知道对方的实现。例如狗不仅可以叫，还可以动。我们完全可以分别定义<code>Sayer</code>接口和<code>Mover</code>接口，具体代码示例如下。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// Sayer 接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Sayer</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Say</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Mover 接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Mover</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Move</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>Dog</code>既可以实现<code>Sayer</code>接口，也可以实现<code>Mover</code>接口。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Dog</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Name</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 实现Sayer接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">d</span> <span style="color:#a6e22e">Dog</span>) <span style="color:#a6e22e">Say</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%s会叫汪汪汪\n&#34;</span>, <span style="color:#a6e22e">d</span>.<span style="color:#a6e22e">Name</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 实现Mover接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">d</span> <span style="color:#a6e22e">Dog</span>) <span style="color:#a6e22e">Move</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%s会动\n&#34;</span>, <span style="color:#a6e22e">d</span>.<span style="color:#a6e22e">Name</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>同一个类型实现不同的接口互相不影响使用。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">d</span> = <span style="color:#a6e22e">Dog</span>{<span style="color:#a6e22e">Name</span>: <span style="color:#e6db74">&#34;旺财&#34;</span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">s</span> <span style="color:#a6e22e">Sayer</span> = <span style="color:#a6e22e">d</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">m</span> <span style="color:#a6e22e">Mover</span> = <span style="color:#a6e22e">d</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">s</span>.<span style="color:#a6e22e">Say</span>()  <span style="color:#75715e">// 对Sayer类型调用Say方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Move</span>() <span style="color:#75715e">// 对Mover类型调用Move方法
+</span></span></span></code></pre></div><h3 id="32-多种类型实现同一接口">3.2 多种类型实现同一接口<a hidden class="anchor" aria-hidden="true" href="#32-多种类型实现同一接口">#</a></h3>
+<p>Go语言中不同的类型还可以实现同一接口。例如在我们的代码世界中不仅狗可以动，汽车也可以动。我们可以使用如下代码体现这个关系。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// 实现Mover接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">d</span> <span style="color:#a6e22e">Dog</span>) <span style="color:#a6e22e">Move</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%s会动\n&#34;</span>, <span style="color:#a6e22e">d</span>.<span style="color:#a6e22e">Name</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Car 汽车结构体类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Car</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Brand</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Move Car类型实现Mover接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">c</span> <span style="color:#a6e22e">Car</span>) <span style="color:#a6e22e">Move</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%s速度70迈\n&#34;</span>, <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">Brand</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>这样我们在代码中就可以把狗和汽车当成一个会动的类型来处理，不必关注它们具体是什么，只需要调用它们的<code>Move</code>方法就可以了。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">obj</span> <span style="color:#a6e22e">Mover</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">obj</span> = <span style="color:#a6e22e">Dog</span>{<span style="color:#a6e22e">Name</span>: <span style="color:#e6db74">&#34;旺财&#34;</span>}
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">Move</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">obj</span> = <span style="color:#a6e22e">Car</span>{<span style="color:#a6e22e">Brand</span>: <span style="color:#e6db74">&#34;宝马&#34;</span>}
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">obj</span>.<span style="color:#a6e22e">Move</span>()
+</span></span></code></pre></div><p>上面的代码执行结果如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">旺财会跑</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">宝马速度</span><span style="color:#ae81ff">70</span><span style="color:#960050;background-color:#1e0010">迈</span>
+</span></span></code></pre></div><p>一个接口的所有方法，不一定需要由一个类型完全实现，接口的方法可以通过在类型中嵌入其他类型或者结构体来实现。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// WashingMachine 洗衣机
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">WashingMachine</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">wash</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">dry</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 甩干器
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">dryer</span> <span style="color:#66d9ef">struct</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 实现WashingMachine接口的dry()方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">d</span> <span style="color:#a6e22e">dryer</span>) <span style="color:#a6e22e">dry</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;甩一甩&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 海尔洗衣机
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">haier</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">dryer</span> <span style="color:#75715e">//嵌入甩干器
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 实现WashingMachine接口的wash()方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">h</span> <span style="color:#a6e22e">haier</span>) <span style="color:#a6e22e">wash</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;洗刷刷&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="4接口组合">4.接口组合<a hidden class="anchor" aria-hidden="true" href="#4接口组合">#</a></h2>
+<p>接口与接口之间可以通过互相嵌套形成新的接口类型，例如Go标准库<code>io</code>源码中就有很多接口之间互相组合的示例。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// src/io/io.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Reader</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Read</span>(<span style="color:#a6e22e">p</span> []<span style="color:#66d9ef">byte</span>) (<span style="color:#a6e22e">n</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Writer</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Write</span>(<span style="color:#a6e22e">p</span> []<span style="color:#66d9ef">byte</span>) (<span style="color:#a6e22e">n</span> <span style="color:#66d9ef">int</span>, <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Closer</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Close</span>() <span style="color:#66d9ef">error</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// ReadWriter 是组合Reader接口和Writer接口形成的新接口类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ReadWriter</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Reader</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Writer</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// ReadCloser 是组合Reader接口和Closer接口形成的新接口类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">ReadCloser</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Reader</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Closer</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// WriteCloser 是组合Writer接口和Closer接口形成的新接口类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">WriteCloser</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Writer</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Closer</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>对于这种由多个接口类型组合形成的新接口类型，同样只需要实现新接口类型中规定的所有方法就算实现了该接口类型。</p>
+<p>接口也可以作为结构体的一个字段，我们来看一段Go标准库<code>sort</code>源码中的示例。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// src/sort/sort.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Interface 定义通过索引对元素排序的接口类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Interface</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Len</span>() <span style="color:#66d9ef">int</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Swap</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// reverse 结构体中嵌入了Interface接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">reverse</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Interface</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>通过在结构体中嵌入一个接口类型，从而让该结构体类型实现了该接口类型，并且还可以改写该接口的方法。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// Less 为reverse类型添加Less方法，重写原Interface接口类型的Less方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">r</span> <span style="color:#a6e22e">reverse</span>) <span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">i</span>, <span style="color:#a6e22e">j</span> <span style="color:#66d9ef">int</span>) <span style="color:#66d9ef">bool</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">Interface</span>.<span style="color:#a6e22e">Less</span>(<span style="color:#a6e22e">j</span>, <span style="color:#a6e22e">i</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>Interface</code>类型原本的<code>Less</code>方法签名为<code>Less(i, j int) bool</code>，此处重写为<code>r.Interface.Less(j, i)</code>，即通过将索引参数交换位置实现反转。</p>
+<p>在这个示例中还有一个需要注意的地方是<code>reverse</code>结构体本身是不可导出的（结构体类型名称首字母小写），<code>sort.go</code>中通过定义一个可导出的<code>Reverse</code>函数来让使用者创建<code>reverse</code>结构体实例。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">Reverse</span>(<span style="color:#a6e22e">data</span> <span style="color:#a6e22e">Interface</span>) <span style="color:#a6e22e">Interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">reverse</span>{<span style="color:#a6e22e">data</span>}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>这样做的目的是保证得到的<code>reverse</code>结构体中的<code>Interface</code>属性一定不为<code>nil</code>，否者<code>r.Interface.Less(j, i)</code>就会出现空指针panic。</p>
+<p>此外在Go内置标准库<code>database/sql</code>中也有很多类似的结构体内嵌接口类型的使用示例，各位读者可自行查阅。</p>
+<h2 id="5空接口">5.空接口<a hidden class="anchor" aria-hidden="true" href="#5空接口">#</a></h2>
+<h3 id="51-空接口的定义">5.1 空接口的定义<a hidden class="anchor" aria-hidden="true" href="#51-空接口的定义">#</a></h3>
+<p>空接口是指没有定义任何方法的接口类型。因此任何类型都可以视为实现了空接口。也正是因为空接口类型的这个特性，空接口类型的变量可以存储任意类型的值。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 空接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Any 不包含任何方法的空接口类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Any</span> <span style="color:#66d9ef">interface</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Dog 狗结构体
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Dog</span> <span style="color:#66d9ef">struct</span>{}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">x</span> <span style="color:#a6e22e">Any</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">x</span> = <span style="color:#e6db74">&#34;你好&#34;</span> <span style="color:#75715e">// 字符串型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;type:%T value:%v\n&#34;</span>, <span style="color:#a6e22e">x</span>, <span style="color:#a6e22e">x</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">x</span> = <span style="color:#ae81ff">100</span> <span style="color:#75715e">// int型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;type:%T value:%v\n&#34;</span>, <span style="color:#a6e22e">x</span>, <span style="color:#a6e22e">x</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">x</span> = <span style="color:#66d9ef">true</span> <span style="color:#75715e">// 布尔型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;type:%T value:%v\n&#34;</span>, <span style="color:#a6e22e">x</span>, <span style="color:#a6e22e">x</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">x</span> = <span style="color:#a6e22e">Dog</span>{} <span style="color:#75715e">// 结构体类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;type:%T value:%v\n&#34;</span>, <span style="color:#a6e22e">x</span>, <span style="color:#a6e22e">x</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>通常我们在使用空接口类型时不必使用<code>type</code>关键字声明，可以像下面的代码一样直接使用<code>interface{}</code>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">x</span> <span style="color:#66d9ef">interface</span>{}  <span style="color:#75715e">// 声明一个空接口类型变量x
+</span></span></span></code></pre></div><h3 id="52-空接口的应用">5.2 空接口的应用<a hidden class="anchor" aria-hidden="true" href="#52-空接口的应用">#</a></h3>
+<h4 id="521-空接口作为函数的参数">5.2.1 空接口作为函数的参数<a hidden class="anchor" aria-hidden="true" href="#521-空接口作为函数的参数">#</a></h4>
+<p>使用空接口实现可以接收任意类型的函数参数。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// 空接口作为函数参数
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">show</span>(<span style="color:#a6e22e">a</span> <span style="color:#66d9ef">interface</span>{}) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;type:%T value:%v\n&#34;</span>, <span style="color:#a6e22e">a</span>, <span style="color:#a6e22e">a</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="522-空接口作为map的值">5.2.2 空接口作为map的值<a hidden class="anchor" aria-hidden="true" href="#522-空接口作为map的值">#</a></h4>
+<p>使用空接口实现可以保存任意值的字典。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// 空接口作为map值
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">studentInfo</span> = make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#66d9ef">interface</span>{})
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">studentInfo</span>[<span style="color:#e6db74">&#34;name&#34;</span>] = <span style="color:#e6db74">&#34;沙河娜扎&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">studentInfo</span>[<span style="color:#e6db74">&#34;age&#34;</span>] = <span style="color:#ae81ff">18</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">studentInfo</span>[<span style="color:#e6db74">&#34;married&#34;</span>] = <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">studentInfo</span>)
+</span></span></code></pre></div><h2 id="6接口值">6.接口值<a hidden class="anchor" aria-hidden="true" href="#6接口值">#</a></h2>
+<p>由于接口类型的值可以是任意一个实现了该接口的类型值，所以接口值除了需要记录具体<strong>值</strong>之外，还需要记录这个值属于的<strong>类型</strong>。也就是说接口值由“类型”和“值”组成，鉴于这两部分会根据存入值的不同而发生变化，我们称之为接口的<code>动态类型</code>和<code>动态值</code>。</p>
+<p><img loading="lazy" src="interface01.png" alt="接口值示例"  />
+</p>
+<p>我们接下来通过一个示例来加深对接口值的理解。</p>
+<p>下面的示例代码中，定义了一个<code>Mover</code>接口类型和两个实现了该接口的<code>Dog</code>和<code>Car</code>结构体类型。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Mover</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Move</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Dog</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Name</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">d</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Dog</span>) <span style="color:#a6e22e">Move</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;狗在跑~&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Car</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Brand</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Car</span>) <span style="color:#a6e22e">Move</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;汽车在跑~&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>首先，我们创建一个<code>Mover</code>接口类型的变量<code>m</code>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">m</span> <span style="color:#a6e22e">Mover</span>
+</span></span></code></pre></div><p>此时，接口变量<code>m</code>是接口类型的零值，也就是它的类型和值部分都是<code>nil</code>，就如下图所示。</p>
+<p><img loading="lazy" src="interface02.png" alt="接口值示例"  />
+</p>
+<p>我们可以使用<code>m == nil</code>来判断此时的接口值是否为空。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">m</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span>)  <span style="color:#75715e">// true
+</span></span></span></code></pre></div><p>**注意：**我们不能对一个空接口值调用任何方法，否则会产生panic。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">m</span>.<span style="color:#a6e22e">Move</span>() <span style="color:#75715e">// panic: runtime error: invalid memory address or nil pointer dereference
+</span></span></span></code></pre></div><p>接下来，我们将一个<code>*Dog</code>结构体指针赋值给变量<code>m</code>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">m</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Dog</span>{<span style="color:#a6e22e">Name</span>: <span style="color:#e6db74">&#34;旺财&#34;</span>}
+</span></span></code></pre></div><p>此时，接口值<code>m</code>的动态类型会被设置为<code>*Dog</code>，动态值为结构体变量的拷贝。</p>
+<p><img loading="lazy" src="interface03.png" alt="接口值示例"  />
+</p>
+<p>然后，我们给接口变量<code>m</code>赋值为一个<code>*Car</code>类型的值。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Car</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">m</span> = <span style="color:#a6e22e">c</span>
+</span></span></code></pre></div><p>这一次，接口值<code>m</code>的动态类型为<code>*Car</code>，动态值为<code>nil</code>。</p>
+<p><img loading="lazy" src="interface04.png" alt="接口值示例"  />
+</p>
+<p>**注意：**此时接口变量<code>m</code>与<code>nil</code>并不相等，因为它只是动态值的部分为<code>nil</code>，而动态类型部分保存着对应值的类型。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">m</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span>) <span style="color:#75715e">// false
+</span></span></span></code></pre></div><p>接口值是支持相互比较的，当且仅当接口值的动态类型和动态值都相等时才相等。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">x</span> <span style="color:#a6e22e">Mover</span> = new(<span style="color:#a6e22e">Dog</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">y</span> <span style="color:#a6e22e">Mover</span> = new(<span style="color:#a6e22e">Car</span>)
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">x</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">y</span>) <span style="color:#75715e">// false
+</span></span></span></code></pre></div><p>但是有一种特殊情况需要特别注意，如果接口值保存的动态类型相同，但是这个动态类型不支持互相比较（比如切片），那么对它们相互比较时就会引发panic。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">z</span> <span style="color:#66d9ef">interface</span>{} = []<span style="color:#66d9ef">int</span>{<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>}
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">z</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">z</span>) <span style="color:#75715e">// panic: runtime error: comparing uncomparable type []int
+</span></span></span></code></pre></div><h2 id="7类型断言">7.类型断言<a hidden class="anchor" aria-hidden="true" href="#7类型断言">#</a></h2>
+<p>接口值可能赋值为任意类型的值，那我们如何从接口值获取其存储的具体数据呢？</p>
+<p>我们可以借助标准库<code>fmt</code>包的格式化打印获取到接口值的动态类型。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">m</span> <span style="color:#a6e22e">Mover</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">m</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Dog</span>{<span style="color:#a6e22e">Name</span>: <span style="color:#e6db74">&#34;旺财&#34;</span>}
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%T\n&#34;</span>, <span style="color:#a6e22e">m</span>) <span style="color:#75715e">// *main.Dog
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">m</span> = new(<span style="color:#a6e22e">Car</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%T\n&#34;</span>, <span style="color:#a6e22e">m</span>) <span style="color:#75715e">// *main.Car
+</span></span></span></code></pre></div><p>而<code>fmt</code>包内部其实是使用反射的机制在程序运行时获取到动态类型的名称。关于反射的内容我们会在后续章节详细介绍。</p>
+<p>而想要从接口值中获取到对应的实际值需要使用类型断言，其语法格式如下。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">x</span>.(<span style="color:#a6e22e">T</span>)
+</span></span></code></pre></div><p>其中：</p>
+<ul>
+<li>x：表示接口类型的变量</li>
+<li>T：表示断言<code>x</code>可能是的类型。</li>
+</ul>
+<p>该语法返回两个参数，第一个参数是<code>x</code>转化为<code>T</code>类型后的变量，第二个值是一个布尔值，若为<code>true</code>则表示断言成功，为<code>false</code>则表示断言失败。</p>
+<p>举个例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">n</span> <span style="color:#a6e22e">Mover</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">Dog</span>{<span style="color:#a6e22e">Name</span>: <span style="color:#e6db74">&#34;旺财&#34;</span>}
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">v</span>, <span style="color:#a6e22e">ok</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">n</span>.(<span style="color:#f92672">*</span><span style="color:#a6e22e">Dog</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#a6e22e">ok</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;类型断言成功&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">v</span>.<span style="color:#a6e22e">Name</span> = <span style="color:#e6db74">&#34;富贵&#34;</span> <span style="color:#75715e">// 变量v是*Dog类型
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>} <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;类型断言失败&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>如果对一个接口值有多个实际类型需要判断，推荐使用<code>switch</code>语句来实现。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// justifyType 对传入的空接口类型变量x进行类型断言
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">justifyType</span>(<span style="color:#a6e22e">x</span> <span style="color:#66d9ef">interface</span>{}) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">switch</span> <span style="color:#a6e22e">v</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">x</span>.(<span style="color:#66d9ef">type</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">case</span> <span style="color:#66d9ef">string</span>:
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;x is a string，value is %v\n&#34;</span>, <span style="color:#a6e22e">v</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">case</span> <span style="color:#66d9ef">int</span>:
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;x is a int is %v\n&#34;</span>, <span style="color:#a6e22e">v</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">case</span> <span style="color:#66d9ef">bool</span>:
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;x is a bool is %v\n&#34;</span>, <span style="color:#a6e22e">v</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">default</span>:
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;unsupport type！&#34;</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>由于接口类型变量能够动态存储不同类型值的特点，所以很多初学者会滥用接口类型（特别是空接口）来实现编码过程中的便捷。只有当有两个或两个以上的具体类型必须以相同的方式进行处理时才需要定义接口。切记不要为了使用接口类型而增加不必要的抽象，导致不必要的运行时损耗。</p>
+<p>在 Go 语言中接口是一个非常重要的概念和特性，使用接口类型能够实现代码的抽象和解耦，也可以隐藏某个功能的内部实现，但是缺点就是在查看源码的时候，不太方便查找到具体实现接口的类型。</p>
+<p>相信很多读者在刚接触到接口类型时都会有很多疑惑，请牢记接口是一种类型，一种抽象的类型。区别于我们在之前章节提到的那些具体类型（整型、数组、结构体类型等），它是一个只要求实现特定方法的抽象类型。</p>
+<p><strong>小技巧：</strong> 下面的代码可以在程序编译阶段验证某一结构体是否满足特定的接口类型。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// 摘自gin框架routergroup.go
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">IRouter</span> <span style="color:#66d9ef">interface</span>{ <span style="color:#f92672">...</span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">RouterGroup</span> <span style="color:#66d9ef">struct</span> { <span style="color:#f92672">...</span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_</span> <span style="color:#a6e22e">IRouter</span> = <span style="color:#f92672">&amp;</span><span style="color:#a6e22e">RouterGroup</span>{}  <span style="color:#75715e">// 确保RouterGroup实现了接口IRouter
+</span></span></span></code></pre></div><p>上面的代码中也可以使用<code>var _ IRouter = (*RouterGroup)(nil)</code>进行验证。</p>
+<h2 id="8练习题">8.练习题<a hidden class="anchor" aria-hidden="true" href="#8练习题">#</a></h2>
+<ol>
+<li>使用接口的方式实现一个既可以往终端写日志也可以往文件写日志的简易日志库。</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;os&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;time&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 接口
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Logger</span> <span style="color:#66d9ef">interface</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">consoleLog</span>()  <span style="color:#75715e">// 终端
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">fileLog</span>()     <span style="color:#75715e">// 文件
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 用户结构体
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">User</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">username</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">password</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// User实现方法
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">u</span> <span style="color:#a6e22e">User</span>) <span style="color:#a6e22e">consoleLog</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">t</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;用户创建成功！用户名为：%s&#34;</span>, <span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">username</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;用户密码是：%s\n&#34;</span>, <span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">password</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;创建完成时间：%d-%d-%d %d:%d:%d\n&#34;</span>, <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Year</span>(), <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Month</span>(), <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Day</span>(),
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Hour</span>(), <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Minute</span>(), <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Second</span>())
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">u</span> <span style="color:#a6e22e">User</span>) <span style="color:#a6e22e">fileLog</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">t</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Now</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">file</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">OpenFile</span>(<span style="color:#e6db74">&#34;./&#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">username</span><span style="color:#f92672">+</span><span style="color:#e6db74">&#34;.txt&#34;</span>, <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">O_RDWR</span>|<span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">O_CREATE</span>, <span style="color:#ae81ff">0766</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">data</span> <span style="color:#f92672">:=</span> <span style="color:#e6db74">&#34;用户创建成功！ 用户名为：&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;%s\n&#34;</span>, <span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">username</span>) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;密码是：&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">password</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;\n&#34;</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Sprintf</span>(<span style="color:#e6db74">&#34;创建完成时间：%d-%d-%d %d:%d:%d\n&#34;</span>, <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Year</span>(),
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Month</span>(), <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Day</span>(), <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Hour</span>(), <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Minute</span>(), <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Second</span>())
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">WriteString</span>(<span style="color:#a6e22e">data</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">_</span> = <span style="color:#a6e22e">file</span>.<span style="color:#a6e22e">Close</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// User中的字段初始化
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">newUser</span>(<span style="color:#a6e22e">username</span>, <span style="color:#a6e22e">password</span> <span style="color:#66d9ef">string</span>) <span style="color:#a6e22e">User</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">User</span>{
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">username</span>: <span style="color:#a6e22e">username</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">password</span>: <span style="color:#a6e22e">password</span>,
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 创建用户对象
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">createUser</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> (
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">username</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">password</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>	)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Print</span>(<span style="color:#e6db74">&#34;请输入用户名：&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Scan</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">username</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Print</span>(<span style="color:#e6db74">&#34;请输入一个密码：&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Scan</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">password</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;输入错误！！ERROR:&#34;</span>, <span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">u</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">newUser</span>(<span style="color:#a6e22e">username</span>, <span style="color:#a6e22e">password</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">consoleLog</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">fileLog</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// 主函数
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">createUser</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>生成的文件是放在根目录下的也就是<code>$GOPATH/src</code> 目录下的</strong></p>
+
+
+        </div>
+        <div class="post-reward">
+            <div style="padding: 0 0 0 0; margin: 0 0 0 0; width: 100%; font-size:16px; text-align: center;">
+                <div id="QR" style="opacity: 0;">
+                    <div id="wechat" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="wechat_qr" src="https://N3bu74.github.io/img/wechat_pay.png" alt="wechat_pay"></a>
+                        <p>微信</p>
+                    </div>
+                    <div id="alipay" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="alipay_qr" src="https://N3bu74.github.io/img/wechat_pay.png" alt="alipay"></a>
+                        <p>支付宝</p>
+                    </div>
+                </div>
+                <button id="rewardButton"
+                        onclick="
+                    var qr = document.getElementById('QR');
+                    if (qr.style.opacity === '0') {
+                        qr.style.opacity='1';
+                    } else {
+                        qr.style.opacity='0'
+                    }"
+                >
+                    <span>🧧 鼓励</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://N3bu74.github.io/posts/tech/golang_error/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>Golang 错误处理</span>
+  </a>
+  <a class="next" href="https://N3bu74.github.io/posts/tech/golang_package/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>Golang 包</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://N3bu74.github.io" style="color:#939393;">N3bu74&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "N3bu74's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>

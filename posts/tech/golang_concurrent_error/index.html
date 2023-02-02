@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Golang 处理并发错误 | N3bu74&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Golang基础十六之 处理并发错误">
+<meta name="author" content="
+🙍‍♂️&nbsp;N3bu74">
+<link rel="canonical" href="https://N3bu74.github.io/posts/tech/golang_concurrent_error/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f5f7976b0695bcc912cd3f9e0715cf7d38944601dc8250a8f2f117625f16e974.css" integrity="sha256-9feXawaVvMkSzT&#43;eBxXPfTiURgHcglCo8vEXYl8W6XQ=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="apple-touch-icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<link rel="mask-icon" href="https://N3bu74.github.io/img/N3bu74.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<meta property="og:title" content="Golang 处理并发错误" />
+<meta property="og:description" content="Golang基础十六之 处理并发错误" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://N3bu74.github.io/posts/tech/golang_concurrent_error/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-12-23T22:59:14+08:00" />
+<meta property="article:modified_time" content="2022-12-23T22:59:14+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Golang 处理并发错误"/>
+<meta name="twitter:description" content="Golang基础十六之 处理并发错误"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+
+        {
+          "@type": "ListItem",
+          "position":  2 ,
+          "name": "📚文章",
+          "item": "https://N3bu74.github.io/posts/"
+        },
+
+        {
+          "@type": "ListItem",
+          "position":  3 ,
+          "name": "👨🏻‍💻 技术",
+          "item": "https://N3bu74.github.io/posts/tech/"
+        }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "Golang 处理并发错误",
+      "item": "https://N3bu74.github.io/posts/tech/golang_concurrent_error/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Golang 处理并发错误",
+  "name": "Golang 处理并发错误",
+  "description": "Golang基础十六之 处理并发错误",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "我们可以在Go语言中十分便捷地开启goroutine去并发地执行任务，但是如何有效的处理并发过程中的错误则是一个很棘手的问题，本文介绍了一些处理并发错误的方法。\n1.recover goroutine中的panic 我们知道可以在代码中使用 recover 来会恢复程序中意想不到的 panic，而 panic 只会触发当前 goroutine 中的 defer 操作。\n例如在下面的示例代码中，无法在 main 函数中 recover 另一个goroutine中引发的 panic。\nfunc f1() { defer func() { if e := recover(); e != nil { fmt.Printf(\"recover panic:%v\\n\", e) } }() // 开启一个goroutine执行任务 go func() { fmt.Println(\"in goroutine....\") // 只能触发当前goroutine中的defer panic(\"panic in goroutine\") }() time.Sleep(time.Second) fmt.Println(\"exit\") } 执行上面的 f1 函数会得到如下结果：\nin goroutine.... panic: panic in goroutine goroutine 6 [running]: main.f1.func2() /Users/liwenzhou/workspace/github/the-road-to-learn-golang/ch12/goroutine_recover.go:20 +0x65 created by main.f1 /Users/liwenzhou/workspace/github/the-road-to-learn-golang/ch12/goroutine_recover.go:17 +0x48 Process finished with exit code 2 从输出结果可以看到程序并没有正常退出，而是由于 panic 异常退出了（exit code 2）。\n正如上面示例演示的那样，在启用 goroutine 去执行任务的场景下，如果想要 recover goroutine中可能出现的 panic 就需要在 goroutine 中使用 recover。就像下面的 f2 函数那样。\nfunc f2() { defer func() { if r := recover(); r != nil { fmt.Printf(\"recover outer panic:%v\\n\", r) } }() // 开启一个goroutine执行任务 go func() { defer func() { if r := recover(); r != nil { fmt.Printf(\"recover inner panic:%v\\n\", r) } }() fmt.Println(\"in goroutine....\") // 只能触发当前goroutine中的defer panic(\"panic in goroutine\") }() time.Sleep(time.Second) fmt.Println(\"exit\") } 执行 f2 函数会得到如下输出结果。\nin goroutine.... recover inner panic:panic in goroutine exit 程序中的 panic 被 recover 成功捕获，程序最终正常退出。\n2.errgroup 在以往演示的并发示例中，我们通常像下面的示例代码那样在 go 关键字后，调用一个函数或匿名函数。\ngo func(){ // ... } go foo() 在之前讲解并发的代码示例中我们默认被并发的那些函数都不会返回错误，但真实的情况往往是事与愿违。\n当我们想要将一个任务拆分成多个子任务交给多个 goroutine 去运行，这时我们该如何获取到子任务可能返回的错误呢？\n假设我们有多个网址需要并发去获取它们的内容，这时候我们会写出类似下面的代码。\n// fetchUrlDemo 并发获取url内容 func fetchUrlDemo() { wg := sync.WaitGroup{} var urls = []string{ \"http://pkg.go.dev\", \"http://www.liwenzhou.com\", \"http://www.yixieqitawangzhi.com\", } for _, url := range urls { wg.Add(1) go func(url string) { defer wg.Done() resp, err := http.Get(url) if err == nil { fmt.Printf(\"获取%s成功\\n\", url) resp.Body.Close() } return // 如何将错误返回呢？ }(url) } wg.Wait() // 如何获取goroutine中可能出现的错误呢？ } 执行上述fetchUrlDemo函数得到如下输出结果，由于 http://www.yixieqitawangzhi.com 是我随意编造的一个并不真实存在的 url，所以对它的 HTTP 请求会返回错误。\n获取http://pkg.go.dev成功 获取http://www.liwenzhou.com成功 在上面的示例代码中，我们开启了 3 个 goroutine 分别去获取3个 url 的内容。类似这种将任务分为若干个子任务的场景会有很多，那么我们如何获取子任务中可能出现的错误呢？\nerrgroup 包就是为了解决这类问题而开发的，它能为处理公共任务的子任务而开启的一组 goroutine 提供同步、error 传播和基于context 的取消功能。\nerrgroup 包中定义了一个 Group 类型，它包含了若干个不可导出的字段。\ntype Group struct { cancel func() wg sync.WaitGroup errOnce sync.Once err error } errgroup.Group 提供了Go和Wait两个方法。\nfunc (g *Group) Go(f func() error) Go 函数会在新的 goroutine 中调用传入的函数f。 第一个返回非零错误的调用将取消该Group；下面的Wait方法会返回该错误 func (g *Group) Wait() error Wait 会阻塞直至由上述 Go 方法调用的所有函数都返回，然后从它们返回第一个非nil的错误（如果有）。 下面的示例代码演示了如何使用 errgroup 包来处理多个子任务 goroutine 中可能返回的 error。\n// fetchUrlDemo2 使用errgroup并发获取url内容 func fetchUrlDemo2() error { g := new(errgroup.Group) // 创建等待组（类似sync.WaitGroup） var urls = []string{ \"http://pkg.go.dev\", \"http://www.liwenzhou.com\", \"http://www.yixieqitawangzhi.com\", } for _, url := range urls { url := url // 注意此处声明新的变量 // 启动一个goroutine去获取url内容 g.Go(func() error { resp, err := http.Get(url) if err == nil { fmt.Printf(\"获取%s成功\\n\", url) resp.Body.Close() } return err // 返回错误 }) } if err := g.Wait(); err != nil { // 处理可能出现的错误 fmt.Println(err) return err } fmt.Println(\"所有goroutine均成功\") return nil } 执行上面的fetchUrlDemo2函数会得到如下输出结果。\n获取http://pkg.go.dev成功 获取http://www.liwenzhou.com成功 Get \"http://www.yixieqitawangzhi.com\": dial tcp: lookup www.yixieqitawangzhi.com: no such host 当子任务的 goroutine 中对http://www.yixieqitawangzhi.com 发起 HTTP 请求时会返回一个错误，这个错误会由 errgroup.Group 的 Wait 方法返回。\n通过阅读下方 errgroup.Group 的 Go 方法源码，我们可以看到当任意一个函数 f 返回错误时，会通过g.errOnce.Do只将第一个返回的错误记录，并且如果存在 cancel 方法则会调用cancel。\nfunc (g *Group) Go(f func() error) { g.wg.Add(1) go func() { defer g.wg.Done() if err := f(); err != nil { g.errOnce.Do(func() { g.err = err if g.cancel != nil { g.cancel() } }) } }() } 那么如何创建带有 cancel 方法的 errgroup.Group 呢？\n答案是通过 errorgroup 包提供的 WithContext 函数。\nfunc WithContext(ctx context.Context) (*Group, context.Context) WithContext 函数接收一个父 context，返回一个新的 Group 对象和一个关联的子 context 对象。下面的代码片段是一个官方文档给出的示例。\npackage main import ( \"context\" \"crypto/md5\" \"fmt\" \"io/ioutil\" \"log\" \"os\" \"path/filepath\" \"golang.org/x/sync/errgroup\" ) // Pipeline demonstrates the use of a Group to implement a multi-stage // pipeline: a version of the MD5All function with bounded parallelism from // https://blog.golang.org/pipelines. func main() { m, err := MD5All(context.Background(), \".\") if err != nil { log.Fatal(err) } for k, sum := range m { fmt.Printf(\"%s:\\t%x\\n\", k, sum) } } type result struct { path string sum [md5.Size]byte } // MD5All reads all the files in the file tree rooted at root and returns a map // from file path to the MD5 sum of the file's contents. If the directory walk // fails or any read operation fails, MD5All returns an error. func MD5All(ctx context.Context, root string) (map[string][md5.Size]byte, error) { // ctx is canceled when g.Wait() returns. When this version of MD5All returns // - even in case of error! - we know that all of the goroutines have finished // and the memory they were using can be garbage-collected. g, ctx := errgroup.WithContext(ctx) paths := make(chan string) g.Go(func() error { return filepath.Walk(root, func(path string, info os.FileInfo, err error) error { if err != nil { return err } if !info.Mode().IsRegular() { return nil } select { case paths \u003c- path: case \u003c-ctx.Done(): return ctx.Err() } return nil }) }) // Start a fixed number of goroutines to read and digest files. c := make(chan result) const numDigesters = 20 for i := 0; i \u003c numDigesters; i++ { g.Go(func() error { for path := range paths { data, err := ioutil.ReadFile(path) if err != nil { return err } select { case c \u003c- result{path, md5.Sum(data)}: case \u003c-ctx.Done(): return ctx.Err() } } return nil }) } go func() { g.Wait() close(c) }() m := make(map[string][md5.Size]byte) for r := range c { m[r.path] = r.sum } // Check whether any of the goroutines failed. Since g is accumulating the // errors, we don't need to send them (or check for them) in the individual // results sent on the channel. if err := g.Wait(); err != nil { return nil, err } return m, nil } 或者这里有另外一个示例。\nfunc GetFriends(ctx context.Context, user int64) (map[string]*User, error) { g, ctx := errgroup.WithContext(ctx) friendIds := make(chan int64) // Produce g.Go(func() error { defer close(friendIds) for it := GetFriendIds(user); ; { if id, err := it.Next(ctx); err != nil { if err == io.EOF { return nil } return fmt.Errorf(\"GetFriendIds %d: %s\", user, err) } else { select { case \u003c-ctx.Done(): return ctx.Err() case friendIds \u003c- id: } } } }) friends := make(chan *User) // Map workers := int32(nWorkers) for i := 0; i \u003c nWorkers; i++ { g.Go(func() error { defer func() { // Last one out closes shop if atomic.AddInt32(\u0026workers, -1) == 0 { close(friends) } }() for id := range friendIds { if friend, err := GetUserProfile(ctx, id); err != nil { return fmt.Errorf(\"GetUserProfile %d: %s\", user, err) } else { select { case \u003c-ctx.Done(): return ctx.Err() case friends \u003c- friend: } } } return nil }) } // Reduce ret := map[string]*User{} g.Go(func() error { for friend := range friends { ret[friend.Name] = friend } return nil }) return ret, g.Wait() } 可惜这两个示例不太好理解。。。\n",
+  "wordCount" : "2444",
+  "inLanguage": "en",
+  "datePublished": "2022-12-23T22:59:14+08:00",
+  "dateModified": "2022-12-23T22:59:14+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "N3bu74"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://N3bu74.github.io/posts/tech/golang_concurrent_error/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "N3bu74's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://N3bu74.github.io/img/N3bu74.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://N3bu74.github.io" accesskey="h" title="N3bu74&#39;s Blog (Alt + H)">
+            <img src="https://N3bu74.github.io/img/Q.gif" alt="logo" aria-label="logo"
+                 height="35">N3bu74&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://N3bu74.github.io/search" title="🔍 搜索 (Alt &#43; /)" accesskey=/>
+                <span>🔍 搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/posts" title="📚 文章">
+                <span>📚 文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/categories/" title="📦 分类">
+                <span>📦 分类</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/tags" title="🧩 标签">
+                <span>🧩 标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://N3bu74.github.io/archives/" title="⏱️ 时间轴">
+                <span>⏱️ 时间轴</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://N3bu74.github.io">主页</a>&nbsp;»&nbsp;<a href="https://N3bu74.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://N3bu74.github.io/posts/tech/">👨🏻‍💻 技术</a></div>
+            <h1 class="post-title">
+                Golang 处理并发错误
+            </h1>
+            <div class="post-description">
+                Golang基础十六之 处理并发错误
+            </div>
+            <div class="post-meta">📅&nbsp;<span title='2022-12-23 22:59:14 +0800 CST'>2022-12-23</span>&nbsp; &nbsp;⏰&nbsp;2022-12-23&nbsp; &nbsp;📃:&nbsp;2444字&nbsp; &nbsp;⏳&nbsp;5分钟&nbsp; &nbsp;
+🙍‍♂️&nbsp;N3bu74
+
+
+
+                &nbsp; &nbsp; 🧩 &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://N3bu74.github.io/tags/golang/">Golang</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp; 👁‍🗨 <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#1recover-goroutine%e4%b8%ad%e7%9a%84panic" aria-label="1.recover goroutine中的panic">1.recover goroutine中的panic</a></li>
+                <li>
+                    <a href="#2errgroup" aria-label="2.errgroup">2.errgroup</a>
+                </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><p>我们可以在Go语言中十分便捷地开启goroutine去并发地执行任务，但是如何有效的处理并发过程中的错误则是一个很棘手的问题，本文介绍了一些处理并发错误的方法。</p>
+<h2 id="1recover-goroutine中的panic">1.recover goroutine中的panic<a hidden class="anchor" aria-hidden="true" href="#1recover-goroutine中的panic">#</a></h2>
+<p>我们知道可以在代码中使用 recover 来会恢复程序中意想不到的 panic，而 panic 只会触发当前 goroutine 中的 defer 操作。</p>
+<p>例如在下面的示例代码中，无法在 main 函数中 recover 另一个goroutine中引发的 panic。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f1</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">defer</span> <span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">e</span> <span style="color:#f92672">:=</span> recover(); <span style="color:#a6e22e">e</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;recover panic:%v\n&#34;</span>, <span style="color:#a6e22e">e</span>)
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	}()
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 开启一个goroutine执行任务
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;in goroutine....&#34;</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#75715e">// 只能触发当前goroutine中的defer
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		panic(<span style="color:#e6db74">&#34;panic in goroutine&#34;</span>)
+</span></span><span style="display:flex;"><span>	}()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;exit&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>执行上面的 f1 函数会得到如下结果：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>in goroutine....
+</span></span><span style="display:flex;"><span>panic: panic in goroutine
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>goroutine <span style="color:#ae81ff">6</span> <span style="color:#f92672">[</span>running<span style="color:#f92672">]</span>:
+</span></span><span style="display:flex;"><span>main.f1.func2<span style="color:#f92672">()</span>
+</span></span><span style="display:flex;"><span>        /Users/liwenzhou/workspace/github/the-road-to-learn-golang/ch12/goroutine_recover.go:20 +0x65
+</span></span><span style="display:flex;"><span>created by main.f1
+</span></span><span style="display:flex;"><span>        /Users/liwenzhou/workspace/github/the-road-to-learn-golang/ch12/goroutine_recover.go:17 +0x48
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Process finished with exit code <span style="color:#ae81ff">2</span>
+</span></span></code></pre></div><p>从输出结果可以看到程序并没有正常退出，而是由于 panic 异常退出了（exit code 2）。</p>
+<p>正如上面示例演示的那样，在启用 goroutine 去执行任务的场景下，如果想要 recover goroutine中可能出现的 panic 就需要在 goroutine 中使用 recover。就像下面的 f2 函数那样。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">f2</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">defer</span> <span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">r</span> <span style="color:#f92672">:=</span> recover(); <span style="color:#a6e22e">r</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;recover outer panic:%v\n&#34;</span>, <span style="color:#a6e22e">r</span>)
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	}()
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 开启一个goroutine执行任务
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">defer</span> <span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">r</span> <span style="color:#f92672">:=</span> recover(); <span style="color:#a6e22e">r</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;recover inner panic:%v\n&#34;</span>, <span style="color:#a6e22e">r</span>)
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>		}()
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;in goroutine....&#34;</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#75715e">// 只能触发当前goroutine中的defer
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		panic(<span style="color:#e6db74">&#34;panic in goroutine&#34;</span>)
+</span></span><span style="display:flex;"><span>	}()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Sleep</span>(<span style="color:#a6e22e">time</span>.<span style="color:#a6e22e">Second</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;exit&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>执行 f2 函数会得到如下输出结果。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">in</span> <span style="color:#a6e22e">goroutine</span><span style="color:#f92672">...</span>.
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">recover</span> <span style="color:#a6e22e">inner</span> <span style="color:#a6e22e">panic</span>:<span style="color:#a6e22e">panic</span> <span style="color:#a6e22e">in</span> <span style="color:#a6e22e">goroutine</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">exit</span>
+</span></span></code></pre></div><p>程序中的 panic 被 recover 成功捕获，程序最终正常退出。</p>
+<h2 id="2errgroup">2.errgroup<a hidden class="anchor" aria-hidden="true" href="#2errgroup">#</a></h2>
+<p>在以往演示的并发示例中，我们通常像下面的示例代码那样在 go 关键字后，调用一个函数或匿名函数。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>(){
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// ...
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">go</span> <span style="color:#a6e22e">foo</span>()
+</span></span></code></pre></div><p>在之前讲解并发的代码示例中我们默认被并发的那些函数都不会返回错误，但真实的情况往往是事与愿违。</p>
+<p>当我们想要将一个任务拆分成多个子任务交给多个 goroutine 去运行，这时我们该如何获取到子任务可能返回的错误呢？</p>
+<p>假设我们有多个网址需要并发去获取它们的内容，这时候我们会写出类似下面的代码。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// fetchUrlDemo 并发获取url内容
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fetchUrlDemo</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">wg</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">WaitGroup</span>{}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">urls</span> = []<span style="color:#66d9ef">string</span>{
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;http://pkg.go.dev&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;http://www.liwenzhou.com&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;http://www.yixieqitawangzhi.com&#34;</span>,
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">url</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">urls</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Add</span>(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">url</span> <span style="color:#66d9ef">string</span>) {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Done</span>()
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">resp</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Get</span>(<span style="color:#a6e22e">url</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;获取%s成功\n&#34;</span>, <span style="color:#a6e22e">url</span>)
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">resp</span>.<span style="color:#a6e22e">Body</span>.<span style="color:#a6e22e">Close</span>()
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">return</span> <span style="color:#75715e">// 如何将错误返回呢？
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		}(<span style="color:#a6e22e">url</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Wait</span>()
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// 如何获取goroutine中可能出现的错误呢？
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+</span></span></code></pre></div><p>执行上述<code>fetchUrlDemo</code>函数得到如下输出结果，由于 <a href="http://www.yixieqitawangzhi.com/">http://www.yixieqitawangzhi.com</a> 是我随意编造的一个并不真实存在的 url，所以对它的 HTTP 请求会返回错误。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>获取http://pkg.go.dev成功
+</span></span><span style="display:flex;"><span>获取http://www.liwenzhou.com成功
+</span></span></code></pre></div><p>在上面的示例代码中，我们开启了 3 个 goroutine 分别去获取3个 url 的内容。类似这种将任务分为若干个子任务的场景会有很多，那么我们如何获取子任务中可能出现的错误呢？</p>
+<p>errgroup 包就是为了解决这类问题而开发的，它能为处理公共任务的子任务而开启的一组 goroutine 提供同步、error 传播和基于context 的取消功能。</p>
+<p>errgroup 包中定义了一个 Group 类型，它包含了若干个不可导出的字段。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">Group</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">cancel</span> <span style="color:#66d9ef">func</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">wg</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">WaitGroup</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">errOnce</span> <span style="color:#a6e22e">sync</span>.<span style="color:#a6e22e">Once</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">err</span>     <span style="color:#66d9ef">error</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>errgroup.Group 提供了<code>Go</code>和<code>Wait</code>两个方法。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">g</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Group</span>) <span style="color:#a6e22e">Go</span>(<span style="color:#a6e22e">f</span> <span style="color:#66d9ef">func</span>() <span style="color:#66d9ef">error</span>)
+</span></span></code></pre></div><ul>
+<li>Go 函数会在新的 goroutine 中调用传入的函数f。</li>
+<li>第一个返回非零错误的调用将取消该Group；下面的Wait方法会返回该错误</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">g</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Group</span>) <span style="color:#a6e22e">Wait</span>() <span style="color:#66d9ef">error</span>
+</span></span></code></pre></div><ul>
+<li>Wait 会阻塞直至由上述 Go 方法调用的所有函数都返回，然后从它们返回第一个非nil的错误（如果有）。</li>
+</ul>
+<p>下面的示例代码演示了如何使用 errgroup 包来处理多个子任务 goroutine 中可能返回的 error。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#75715e">// fetchUrlDemo2 使用errgroup并发获取url内容
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">fetchUrlDemo2</span>() <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">g</span> <span style="color:#f92672">:=</span> new(<span style="color:#a6e22e">errgroup</span>.<span style="color:#a6e22e">Group</span>) <span style="color:#75715e">// 创建等待组（类似sync.WaitGroup）
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">var</span> <span style="color:#a6e22e">urls</span> = []<span style="color:#66d9ef">string</span>{
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;http://pkg.go.dev&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;http://www.liwenzhou.com&#34;</span>,
+</span></span><span style="display:flex;"><span>		<span style="color:#e6db74">&#34;http://www.yixieqitawangzhi.com&#34;</span>,
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">url</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">urls</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">url</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">url</span> <span style="color:#75715e">// 注意此处声明新的变量
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#75715e">// 启动一个goroutine去获取url内容
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">Go</span>(<span style="color:#66d9ef">func</span>() <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">resp</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">http</span>.<span style="color:#a6e22e">Get</span>(<span style="color:#a6e22e">url</span>)
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;获取%s成功\n&#34;</span>, <span style="color:#a6e22e">url</span>)
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">resp</span>.<span style="color:#a6e22e">Body</span>.<span style="color:#a6e22e">Close</span>()
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span> <span style="color:#75715e">// 返回错误
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		})
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">Wait</span>(); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#75715e">// 处理可能出现的错误
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;所有goroutine均成功&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>执行上面的<code>fetchUrlDemo2</code>函数会得到如下输出结果。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>获取http://pkg.go.dev成功
+</span></span><span style="display:flex;"><span>获取http://www.liwenzhou.com成功
+</span></span><span style="display:flex;"><span>Get <span style="color:#e6db74">&#34;http://www.yixieqitawangzhi.com&#34;</span>: dial tcp: lookup www.yixieqitawangzhi.com: no such host
+</span></span></code></pre></div><p>当子任务的 goroutine 中对<code>http://www.yixieqitawangzhi.com</code> 发起 HTTP 请求时会返回一个错误，这个错误会由 errgroup.Group 的 Wait 方法返回。</p>
+<p>通过阅读下方 errgroup.Group 的 Go 方法源码，我们可以看到当任意一个函数 f 返回错误时，会通过<code>g.errOnce.Do</code>只将第一个返回的错误记录，并且如果存在 cancel 方法则会调用cancel。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> (<span style="color:#a6e22e">g</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">Group</span>) <span style="color:#a6e22e">Go</span>(<span style="color:#a6e22e">f</span> <span style="color:#66d9ef">func</span>() <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Add</span>(<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">defer</span> <span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">wg</span>.<span style="color:#a6e22e">Done</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">f</span>(); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">errOnce</span>.<span style="color:#a6e22e">Do</span>(<span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">err</span> = <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">cancel</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">cancel</span>()
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>			})
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	}()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>那么如何创建带有 cancel 方法的 errgroup.Group 呢？</p>
+<p>答案是通过 errorgroup 包提供的 WithContext 函数。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">WithContext</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>) (<span style="color:#f92672">*</span><span style="color:#a6e22e">Group</span>, <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>)
+</span></span></code></pre></div><p>WithContext 函数接收一个父 context，返回一个新的 Group 对象和一个关联的子 context 对象。下面的代码片段是一个官方文档给出的示例。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> (
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;context&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;crypto/md5&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;fmt&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;io/ioutil&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;log&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;os&#34;</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;path/filepath&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#e6db74">&#34;golang.org/x/sync/errgroup&#34;</span>
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Pipeline demonstrates the use of a Group to implement a multi-stage
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// pipeline: a version of the MD5All function with bounded parallelism from
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// https://blog.golang.org/pipelines.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">m</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">MD5All</span>(<span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Background</span>(), <span style="color:#e6db74">&#34;.&#34;</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">log</span>.<span style="color:#a6e22e">Fatal</span>(<span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">k</span>, <span style="color:#a6e22e">sum</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">m</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Printf</span>(<span style="color:#e6db74">&#34;%s:\t%x\n&#34;</span>, <span style="color:#a6e22e">k</span>, <span style="color:#a6e22e">sum</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">result</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">path</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">sum</span>  [<span style="color:#a6e22e">md5</span>.<span style="color:#a6e22e">Size</span>]<span style="color:#66d9ef">byte</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// MD5All reads all the files in the file tree rooted at root and returns a map
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// from file path to the MD5 sum of the file&#39;s contents. If the directory walk
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// fails or any read operation fails, MD5All returns an error.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">MD5All</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">root</span> <span style="color:#66d9ef">string</span>) (<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>][<span style="color:#a6e22e">md5</span>.<span style="color:#a6e22e">Size</span>]<span style="color:#66d9ef">byte</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// ctx is canceled when g.Wait() returns. When this version of MD5All returns
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">// - even in case of error! - we know that all of the goroutines have finished
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">// and the memory they were using can be garbage-collected.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">g</span>, <span style="color:#a6e22e">ctx</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">errgroup</span>.<span style="color:#a6e22e">WithContext</span>(<span style="color:#a6e22e">ctx</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">paths</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">string</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">Go</span>(<span style="color:#66d9ef">func</span>() <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">filepath</span>.<span style="color:#a6e22e">Walk</span>(<span style="color:#a6e22e">root</span>, <span style="color:#66d9ef">func</span>(<span style="color:#a6e22e">path</span> <span style="color:#66d9ef">string</span>, <span style="color:#a6e22e">info</span> <span style="color:#a6e22e">os</span>.<span style="color:#a6e22e">FileInfo</span>, <span style="color:#a6e22e">err</span> <span style="color:#66d9ef">error</span>) <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> !<span style="color:#a6e22e">info</span>.<span style="color:#a6e22e">Mode</span>().<span style="color:#a6e22e">IsRegular</span>() {
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">select</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">paths</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">path</span>:
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Done</span>():
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Err</span>()
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>		})
+</span></span><span style="display:flex;"><span>	})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Start a fixed number of goroutines to read and digest files.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#a6e22e">result</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">numDigesters</span> = <span style="color:#ae81ff">20</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">numDigesters</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">Go</span>(<span style="color:#66d9ef">func</span>() <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">path</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">paths</span> {
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">data</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">ioutil</span>.<span style="color:#a6e22e">ReadFile</span>(<span style="color:#a6e22e">path</span>)
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">select</span> {
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">case</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">result</span>{<span style="color:#a6e22e">path</span>, <span style="color:#a6e22e">md5</span>.<span style="color:#a6e22e">Sum</span>(<span style="color:#a6e22e">data</span>)}:
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Done</span>():
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Err</span>()
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>		})
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">go</span> <span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">Wait</span>()
+</span></span><span style="display:flex;"><span>		close(<span style="color:#a6e22e">c</span>)
+</span></span><span style="display:flex;"><span>	}()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">m</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>][<span style="color:#a6e22e">md5</span>.<span style="color:#a6e22e">Size</span>]<span style="color:#66d9ef">byte</span>)
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">for</span> <span style="color:#a6e22e">r</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">c</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">m</span>[<span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">path</span>] = <span style="color:#a6e22e">r</span>.<span style="color:#a6e22e">sum</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">// Check whether any of the goroutines failed. Since g is accumulating the
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">// errors, we don&#39;t need to send them (or check for them) in the individual
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#75715e">// results sent on the channel.
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">Wait</span>(); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>, <span style="color:#a6e22e">err</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">m</span>, <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>或者这里有另外一个示例。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">func</span> <span style="color:#a6e22e">GetFriends</span>(<span style="color:#a6e22e">ctx</span> <span style="color:#a6e22e">context</span>.<span style="color:#a6e22e">Context</span>, <span style="color:#a6e22e">user</span> <span style="color:#66d9ef">int64</span>) (<span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#f92672">*</span><span style="color:#a6e22e">User</span>, <span style="color:#66d9ef">error</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">g</span>, <span style="color:#a6e22e">ctx</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">errgroup</span>.<span style="color:#a6e22e">WithContext</span>(<span style="color:#a6e22e">ctx</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">friendIds</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#66d9ef">int64</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Produce
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">Go</span>(<span style="color:#66d9ef">func</span>() <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">defer</span> close(<span style="color:#a6e22e">friendIds</span>)
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">it</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">GetFriendIds</span>(<span style="color:#a6e22e">user</span>); ; {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">id</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">it</span>.<span style="color:#a6e22e">Next</span>(<span style="color:#a6e22e">ctx</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>           <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">err</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">io</span>.<span style="color:#a6e22e">EOF</span> {
+</span></span><span style="display:flex;"><span>              <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>           }
+</span></span><span style="display:flex;"><span>           <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;GetFriendIds %d: %s&#34;</span>, <span style="color:#a6e22e">user</span>, <span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>           <span style="color:#66d9ef">select</span> {
+</span></span><span style="display:flex;"><span>           <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Done</span>():
+</span></span><span style="display:flex;"><span>              <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Err</span>()
+</span></span><span style="display:flex;"><span>           <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">friendIds</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">id</span>:
+</span></span><span style="display:flex;"><span>           }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>     }
+</span></span><span style="display:flex;"><span>  })
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">friends</span> <span style="color:#f92672">:=</span> make(<span style="color:#66d9ef">chan</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">User</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Map
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">workers</span> <span style="color:#f92672">:=</span> int32(<span style="color:#a6e22e">nWorkers</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; <span style="color:#a6e22e">nWorkers</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span> {
+</span></span><span style="display:flex;"><span>     <span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">Go</span>(<span style="color:#66d9ef">func</span>() <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">defer</span> <span style="color:#66d9ef">func</span>() {
+</span></span><span style="display:flex;"><span>           <span style="color:#75715e">// Last one out closes shop
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>           <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">atomic</span>.<span style="color:#a6e22e">AddInt32</span>(<span style="color:#f92672">&amp;</span><span style="color:#a6e22e">workers</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> {
+</span></span><span style="display:flex;"><span>              close(<span style="color:#a6e22e">friends</span>)
+</span></span><span style="display:flex;"><span>           }
+</span></span><span style="display:flex;"><span>        }()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">id</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">friendIds</span> {
+</span></span><span style="display:flex;"><span>           <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">friend</span>, <span style="color:#a6e22e">err</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">GetUserProfile</span>(<span style="color:#a6e22e">ctx</span>, <span style="color:#a6e22e">id</span>); <span style="color:#a6e22e">err</span> <span style="color:#f92672">!=</span> <span style="color:#66d9ef">nil</span> {
+</span></span><span style="display:flex;"><span>              <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;GetUserProfile %d: %s&#34;</span>, <span style="color:#a6e22e">user</span>, <span style="color:#a6e22e">err</span>)
+</span></span><span style="display:flex;"><span>           } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>              <span style="color:#66d9ef">select</span> {
+</span></span><span style="display:flex;"><span>              <span style="color:#66d9ef">case</span> <span style="color:#f92672">&lt;-</span><span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Done</span>():
+</span></span><span style="display:flex;"><span>                 <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ctx</span>.<span style="color:#a6e22e">Err</span>()
+</span></span><span style="display:flex;"><span>              <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">friends</span> <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">friend</span>:
+</span></span><span style="display:flex;"><span>              }
+</span></span><span style="display:flex;"><span>           }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>     })
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Reduce
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#a6e22e">ret</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">map</span>[<span style="color:#66d9ef">string</span>]<span style="color:#f92672">*</span><span style="color:#a6e22e">User</span>{}
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">Go</span>(<span style="color:#66d9ef">func</span>() <span style="color:#66d9ef">error</span> {
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">friend</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">friends</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">ret</span>[<span style="color:#a6e22e">friend</span>.<span style="color:#a6e22e">Name</span>] = <span style="color:#a6e22e">friend</span>
+</span></span><span style="display:flex;"><span>     }
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nil</span>
+</span></span><span style="display:flex;"><span>  })
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ret</span>, <span style="color:#a6e22e">g</span>.<span style="color:#a6e22e">Wait</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>可惜这两个示例不太好理解。。。</p>
+
+
+        </div>
+        <div class="post-reward">
+            <div style="padding: 0 0 0 0; margin: 0 0 0 0; width: 100%; font-size:16px; text-align: center;">
+                <div id="QR" style="opacity: 0;">
+                    <div id="wechat" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="wechat_qr" src="https://N3bu74.github.io/img/wechat_pay.png" alt="wechat_pay"></a>
+                        <p>微信</p>
+                    </div>
+                    <div id="alipay" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="alipay_qr" src="https://N3bu74.github.io/img/wechat_pay.png" alt="alipay"></a>
+                        <p>支付宝</p>
+                    </div>
+                </div>
+                <button id="rewardButton"
+                        onclick="
+                    var qr = document.getElementById('QR');
+                    if (qr.style.opacity === '0') {
+                        qr.style.opacity='1';
+                    } else {
+                        qr.style.opacity='0'
+                    }"
+                >
+                    <span>🧧 鼓励</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="next" href="https://N3bu74.github.io/posts/tech/golang_concurrency/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>Golang 并发</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://N3bu74.github.io" style="color:#939393;">N3bu74&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "N3bu74's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>
