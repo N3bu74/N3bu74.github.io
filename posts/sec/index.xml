@@ -5,6 +5,97 @@
     <link>https://n3bu74.github.io/posts/sec/</link>
     <description>Recent content in 💻 安全 on N3bu74&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-cn</language><atom:link href="https://n3bu74.github.io/posts/sec/index.xml" rel="self" type="application/rss+xml" />
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 03 Feb 2023 12:07:44 +0800</lastBuildDate><atom:link href="https://n3bu74.github.io/posts/sec/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TCP、扫描器和代理</title>
+      <link>https://n3bu74.github.io/posts/sec/tcp-scanner-proxy/</link>
+      <pubDate>Fri, 03 Feb 2023 12:07:44 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/tcp-scanner-proxy/</guid>
+      <description>Go黑帽子渗透测试编程之道一之TCP、扫描器和代理</description>
+    </item>
+    
+    <item>
+      <title>中国剩余定理</title>
+      <link>https://n3bu74.github.io/posts/sec/chinese-remainder-theorem/</link>
+      <pubDate>Fri, 03 Feb 2023 11:43:20 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/chinese-remainder-theorem/</guid>
+      <description>中国剩余定理</description>
+    </item>
+    
+    <item>
+      <title>序列密码</title>
+      <link>https://n3bu74.github.io/posts/sec/sequence-cipher/</link>
+      <pubDate>Fri, 03 Feb 2023 11:26:55 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/sequence-cipher/</guid>
+      <description>A5-1 &amp;amp; RC4</description>
+    </item>
+    
+    <item>
+      <title>经典密码</title>
+      <link>https://n3bu74.github.io/posts/sec/classical-cipher/</link>
+      <pubDate>Fri, 03 Feb 2023 11:22:11 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/classical-cipher/</guid>
+      <description>Caesar &amp;amp; Affine</description>
+    </item>
+    
+    <item>
+      <title>背包密码</title>
+      <link>https://n3bu74.github.io/posts/sec/knapsack-ciphers/</link>
+      <pubDate>Fri, 03 Feb 2023 11:18:57 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/knapsack-ciphers/</guid>
+      <description>背包密码</description>
+    </item>
+    
+    <item>
+      <title>RSA算法</title>
+      <link>https://n3bu74.github.io/posts/sec/rsa/</link>
+      <pubDate>Fri, 03 Feb 2023 11:09:28 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/rsa/</guid>
+      <description>RSA算法</description>
+    </item>
+    
+    <item>
+      <title>ECC加密算法</title>
+      <link>https://n3bu74.github.io/posts/sec/ecc/</link>
+      <pubDate>Fri, 03 Feb 2023 11:06:08 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/ecc/</guid>
+      <description>ECC加密算法</description>
+    </item>
+    
+    <item>
+      <title>DES加密算法</title>
+      <link>https://n3bu74.github.io/posts/sec/des/</link>
+      <pubDate>Fri, 03 Feb 2023 11:01:21 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/des/</guid>
+      <description>DES加密算法</description>
+    </item>
+    
+    <item>
+      <title>AES加密算法</title>
+      <link>https://n3bu74.github.io/posts/sec/aes/</link>
+      <pubDate>Fri, 03 Feb 2023 10:42:40 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/aes/</guid>
+      <description>AES加密算法</description>
+    </item>
+    
+    <item>
+      <title>DC-1</title>
+      <link>https://n3bu74.github.io/posts/sec/dc-1/</link>
+      <pubDate>Fri, 03 Feb 2023 10:26:31 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/dc-1/</guid>
+      <description>vulnhub DC靶机系列之一</description>
+    </item>
+    
   </channel>
 </rss>

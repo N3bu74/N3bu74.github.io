@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>ECC加密算法 | N3bu74&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="ECC加密算法">
+<meta name="author" content="
+🙍‍♂️&nbsp;N3bu74">
+<link rel="canonical" href="https://n3bu74.github.io/posts/sec/ecc/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f5f7976b0695bcc912cd3f9e0715cf7d38944601dc8250a8f2f117625f16e974.css" integrity="sha256-9feXawaVvMkSzT&#43;eBxXPfTiURgHcglCo8vEXYl8W6XQ=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="apple-touch-icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="mask-icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<meta property="og:title" content="ECC加密算法" />
+<meta property="og:description" content="ECC加密算法" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://n3bu74.github.io/posts/sec/ecc/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-02-03T11:06:08+08:00" />
+<meta property="article:modified_time" content="2023-02-03T11:06:08+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="ECC加密算法"/>
+<meta name="twitter:description" content="ECC加密算法"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+
+        {
+          "@type": "ListItem",
+          "position":  2 ,
+          "name": "📚文章",
+          "item": "https://n3bu74.github.io/posts/"
+        },
+
+        {
+          "@type": "ListItem",
+          "position":  3 ,
+          "name": "💻 安全",
+          "item": "https://n3bu74.github.io/posts/sec/"
+        }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "ECC加密算法",
+      "item": "https://n3bu74.github.io/posts/sec/ecc/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "ECC加密算法",
+  "name": "ECC加密算法",
+  "description": "ECC加密算法",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "ECC英文全称\"Ellipse Curve Cryptography\"，与传统的基于大质数因子分解困难性的加密方法不同，ECC通过椭圆曲线方程式的性质产生密钥。\n基础 椭圆曲线离散对数问题 （Elliptic Curve Discrete Logarithm Problem，ECDLP）\n椭圆曲线上的两个点 $P$ 和 $Q$ ，$K$ 为整数。 $$ Q=KP $$ 椭圆曲线加密的数学原理：\n点 $P$ 称为基点（base point）；$k$ 为私钥（private key）；$Q$ 为公钥（public key）\n给定 $k$ 和 $P$ ，根据加法法则，计算 $Q$ 很容易。 但给定 $P$ 和 $Q$ ，求 $k$ ⾮常困难（实际应⽤ECC，质数 $p$ 取的⾮常⼤，穷举出 $k$ ⾮常困难）。 在实数系中，椭圆曲线可定义成所有满足方程式 $E: y^2=x^3+ax+b\\quad 的点(x,y)所构成的集合，$ $若曲线处处可导，即4a^3+27b^2\\not=0$，$则E: y^2=x^3+ax+b\\quad 能成为群(group)$\n一条过 $A,B$ 的直线，交椭圆曲线与 $A,B$ 和另外一点 $C’$ ，过点 $C’$ 作一条垂直于x轴的垂线交椭圆曲线于点 $C$ ，这里就有 $C=A+B$\n椭圆曲线是连续的，并不适合加密。我们要把椭圆曲线变成离散的点。于是就把椭圆曲线定义在有限域上！\n域\n域是⼀个可以在其上进⾏加法、减法、乘法、和除法运算，⽽结果不会超出域的集合。 如：有理数集合、实数集合、复数集合都是域，但整数集合不是。 （很明显，使⽤除法得到的分数或者⼩数已超出整数集合）。\n有限域\n如果域F只包含有限个元素，则称其为有限域。 有限域中元素的个数称为有限域的阶。 每个有限域的阶必为素数的幂，即有限域的阶可表示为 $p^n$(p 是素数，n是正整数)， 该有限域通常称为Galois域(Galois Fields)，记为 $GF(p^n)$。\n有限域上的椭圆曲线\n在域的定义基础上，作如下修改：\n定义模p加法和模p乘法（加或乘的结果超过p时，模p取余数，p为素数）。 集合内的元素经过加法和乘法计算，结果仍然在集合内。 计算符合交换率、结合率、分配率。 加法和乘法有单位元素（所有的集合内的值都有对应的负数，所有集合内⾮零 值都有倒数）。 有限域上的椭圆曲线运算\n椭圆曲线： $y^2=x^3+x+1\\ $,在有限域：$GF(23)$中，就有 $y^2=x^3+x+1\\ (mod\\ p)$\n在有限域 $GF(p)$ 的椭圆曲线中，令 $A(x_1,y_1),B(x_2,y_2),C(x_3,y_3)$ ,则有 $$ x_3≡k^2-x_1-x_2\\ (mod\\ p) $$\n$$ y_3≡k(x_1-x_3)-y_1\\ (mod\\ p) $$\n$若A≠B,即求P+Q，则$ $$ k=\\frac{y_2-y_1}{x_2-x_1}\\ (mod\\ p) $$\n$若A=B,即求np(倍运算)，则$ $$ k=\\frac{3{x_1}^2+a}{2y_1}\\ mod\\ p $$\n加密过程 $椭圆曲线,Ep(a,b),p为质数，x,y∈[0.p-1]: $ $$ 椭圆方程：y^2=x^3+ax+b\\ (mod\\ p) $$\n$$ Q=kP $$\n1、选⼀条椭圆曲线 $Ep(a,b)$, 并取椭圆曲线上⼀点作为基点 $P$。\n2、选定⼀个⼤数 $k$ 作为私钥，并⽣成公钥 $Q=kP$ 。\n3、加密：选择随机数 $r$，将消息 $M$ ⽣成密⽂ $C$ 。 密⽂是⼀个点对，即 $C=(c_1,c_2)=(rP, M+rQ)$ 。\n4、解密：$c_2-kc_1=M+rQ-k(rP) = M+r(kP)-k(rp) = M$\n例题 $GF(23)上的一条椭圆曲线y^2=x^3+x+1，设 P=（6，4），取私钥,k=3.$\n计算公钥\n$公钥为,Q=kP=2P+P$\n先求 $2P$\n此时 $x_1,x_2(6,4); k=\\frac{3{x_1}^2+1}{2y_1}\\ mod\\ 23=5，$\n$x_3≡k^2-x_1-x_2\\ (mod\\ 23)≡5^2-2*6(mod\\ 23)≡13\\ mod\\ 23,即x_3=13$\n$y_3≡k(x_1-x_3)-y_1\\ (mod\\ 23)≡5(6-13)-4(mod\\ 23)≡-39mod\\ 23≡7mod\\ 23,即y_3=7$\n所以 $2P=(13,7)$\n再求 $3P=P+2P$\n此时 $x_1=(6,4),x_2=(13,7)$;$k=\\frac{y_2-y_1}{x_2-x_1}\\ (mod\\ 23)=\\frac{3}{7}$\n$x_3≡k^2-x_1-x_2\\ (mod\\ 23)≡\\frac{3}{7}^2-6-13(mod\\ 23)≡\\frac{21}{49}\\ mod\\ 23,即49x_3=21mod\\ 23,所以x_3=7$\n$y_3≡k(x_1-x_3)-y_1\\ (mod\\ 23)≡\\frac{3}{7}(6-7)-4(mod\\ 23)≡\\frac{15}{7}mod\\ 23,即7y_3=15mod\\ 23,所以y_3=12$\n所以 $Q=3P=(7,12)$\n若 $A$ 想加密明文 $M=(5,4)$,随机选取 $r=2$,则密文 $C=$ ？\n$C=(c_1,c_2)=(rP, M+rQ)$\n$c_1=rP=2(6,4)=(13,7)$ ; $c_2=M+rQ=(5,4)+2(7,12)=(5,4)+(17,3)=(5,19)$\n$C=(rP, M+rQ)=(\\ (13,7)\\ ,(5,19)\\ )$\nB收到密文后，解密得：\n$M= c_2-kc_1=(5,19)-3(13,7)=(5,4)$\n",
+  "wordCount" : "1578",
+  "inLanguage": "en",
+  "datePublished": "2023-02-03T11:06:08+08:00",
+  "dateModified": "2023-02-03T11:06:08+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "N3bu74"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://n3bu74.github.io/posts/sec/ecc/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "N3bu74's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://n3bu74.github.io/img/N3bu74.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://n3bu74.github.io" accesskey="h" title="N3bu74&#39;s Blog (Alt + H)">
+            <img src="https://n3bu74.github.io/img/Q.gif" alt="logo" aria-label="logo"
+                 height="35">N3bu74&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://n3bu74.github.io/search" title="🔍 搜索 (Alt &#43; /)" accesskey=/>
+                <span>🔍 搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/posts" title="📚 文章">
+                <span>📚 文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/categories/" title="📦 分类">
+                <span>📦 分类</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/tags" title="🧩 标签">
+                <span>🧩 标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/archives/" title="⏱️ 时间轴">
+                <span>⏱️ 时间轴</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://n3bu74.github.io">主页</a>&nbsp;»&nbsp;<a href="https://n3bu74.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://n3bu74.github.io/posts/sec/">💻 安全</a></div>
+            <h1 class="post-title">
+                ECC加密算法
+            </h1>
+            <div class="post-description">
+                ECC加密算法
+            </div>
+            <div class="post-meta">📅&nbsp;<span title='2023-02-03 11:06:08 +0800 CST'>2023-02-03</span>&nbsp; &nbsp;⏰&nbsp;2023-02-03&nbsp; &nbsp;📃:&nbsp;1578字&nbsp; &nbsp;⏳&nbsp;4分钟&nbsp; &nbsp;
+🙍‍♂️&nbsp;N3bu74
+
+
+
+                &nbsp; &nbsp; 🧩 &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://n3bu74.github.io/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">密码学</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp; 👁‍🗨 <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e5%9f%ba%e7%a1%80" aria-label="基础">基础</a></li>
+                <li>
+                    <a href="#%e5%8a%a0%e5%af%86%e8%bf%87%e7%a8%8b" aria-label="加密过程">加密过程</a></li>
+                <li>
+                    <a href="#%e4%be%8b%e9%a2%98" aria-label="例题">例题</a>
+                </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><p>ECC英文全称&quot;Ellipse Curve Cryptography&quot;，与传统的基于大质数因子分解困难性的加密方法不同，ECC通过椭圆曲线方程式的性质产生密钥。</p>
+<h2 id="基础">基础<a hidden class="anchor" aria-hidden="true" href="#基础">#</a></h2>
+<p>椭圆曲线离散对数问题
+（Elliptic Curve Discrete Logarithm Problem，ECDLP）</p>
+<p>椭圆曲线上的两个点 $P$ 和 $Q$ ，$K$ 为整数。
+$$
+Q=KP
+$$
+椭圆曲线加密的数学原理：</p>
+<p>点 $P$ 称为基点（base point）；$k$ 为私钥（private key）；$Q$ 为公钥（public key）</p>
+<ul>
+<li>给定 $k$ 和 $P$ ，根据加法法则，计算 $Q$ 很容易。</li>
+<li>但给定 $P$ 和 $Q$ ，求 $k$ ⾮常困难（实际应⽤ECC，质数 $p$ 取的⾮常⼤，穷举出 $k$ ⾮常困难）。</li>
+</ul>
+<p>在实数系中，椭圆曲线可定义成所有满足方程式  $E: y^2=x^3+ax+b\quad 的点(x,y)所构成的集合，$ $若曲线处处可导，即4a^3+27b^2\not=0$，$则E: y^2=x^3+ax+b\quad 能成为群(group)$</p>
+<p><img loading="lazy" src="image-20221105003537194.png" alt="image-20221105003537194"  />
+</p>
+<blockquote>
+<p>一条过 $A,B$ 的直线，交椭圆曲线与 $A,B$ 和另外一点 $C&rsquo;$ ，过点 $C&rsquo;$ 作一条垂直于x轴的垂线交椭圆曲线于点 $C$ ，这里就有 $C=A+B$</p>
+</blockquote>
+<blockquote>
+<p>椭圆曲线是连续的，并不适合加密。我们要把椭圆曲线变成离散的点。于是就把椭圆曲线定义在有限域上！</p>
+</blockquote>
+<p>域</p>
+<blockquote>
+<p>域是⼀个可以在其上进⾏加法、减法、乘法、和除法运算，⽽结果不会超出域的集合。
+如：有理数集合、实数集合、复数集合都是域，但整数集合不是。
+（很明显，使⽤除法得到的分数或者⼩数已超出整数集合）。</p>
+</blockquote>
+<p>有限域</p>
+<blockquote>
+<p>如果域F只包含有限个元素，则称其为有限域。
+有限域中元素的个数称为有限域的阶。
+每个有限域的阶必为素数的幂，即有限域的阶可表示为 $p^n$(p 是素数，n是正整数)，
+该有限域通常称为Galois域(Galois Fields)，记为 $GF(p^n)$。</p>
+</blockquote>
+<p>有限域上的椭圆曲线</p>
+<blockquote>
+<p>在域的定义基础上，作如下修改：</p>
+<ol>
+<li>定义模p加法和模p乘法（加或乘的结果超过p时，模p取余数，p为素数）。</li>
+<li>集合内的元素经过加法和乘法计算，结果仍然在集合内。</li>
+<li>计算符合交换率、结合率、分配率。</li>
+<li>加法和乘法有单位元素（所有的集合内的值都有对应的负数，所有集合内⾮零
+值都有倒数）。</li>
+</ol>
+</blockquote>
+<p>有限域上的椭圆曲线运算</p>
+<blockquote>
+<p>椭圆曲线： $y^2=x^3+x+1\ $,在有限域：$GF(23)$中，就有 $y^2=x^3+x+1\  (mod\ p)$</p>
+</blockquote>
+<p><img loading="lazy" src="image-20221105102329818.png" alt="image-20221105102329818"  />
+</p>
+<blockquote>
+<p>在有限域 $GF(p)$ 的椭圆曲线中，令 $A(x_1,y_1),B(x_2,y_2),C(x_3,y_3)$ ,则有
+$$
+x_3≡k^2-x_1-x_2\ (mod\ p)
+$$</p>
+<p>$$
+y_3≡k(x_1-x_3)-y_1\ (mod\ p)
+$$</p>
+<p>$若A≠B,即求P+Q，则$
+$$
+k=\frac{y_2-y_1}{x_2-x_1}\ (mod\ p)
+$$</p>
+<p>$若A=B,即求np(倍运算)，则$
+$$
+k=\frac{3{x_1}^2+a}{2y_1}\ mod\ p
+$$</p>
+</blockquote>
+<h2 id="加密过程">加密过程<a hidden class="anchor" aria-hidden="true" href="#加密过程">#</a></h2>
+<p>$椭圆曲线,Ep(a,b),p为质数，x,y∈[0.p-1]:
+$
+$$
+椭圆方程：y^2=x^3+ax+b\  (mod\ p)
+$$</p>
+<p>$$
+Q=kP
+$$</p>
+<p>1、选⼀条椭圆曲线 $Ep(a,b)$, 并取椭圆曲线上⼀点作为基点 $P$。</p>
+<p>2、选定⼀个⼤数 $k$ 作为私钥，并⽣成公钥 $Q=kP$ 。</p>
+<p>3、加密：选择随机数 $r$，将消息 $M$ ⽣成密⽂ $C$ 。
+密⽂是⼀个点对，即 $C=(c_1,c_2)=(rP, M+rQ)$ 。</p>
+<p>4、解密：$c_2-kc_1=M+rQ-k(rP) = M+r(kP)-k(rp) = M$</p>
+<h2 id="例题">例题<a hidden class="anchor" aria-hidden="true" href="#例题">#</a></h2>
+<blockquote>
+<p>$GF(23)上的一条椭圆曲线y^2=x^3+x+1，设 P=（6，4），取私钥,k=3.$</p>
+</blockquote>
+<p>计算公钥</p>
+<blockquote>
+<p>$公钥为,Q=kP=2P+P$</p>
+<p>先求 $2P$</p>
+<p>此时 $x_1,x_2(6,4); k=\frac{3{x_1}^2+1}{2y_1}\ mod\ 23=5，$</p>
+<p>$x_3≡k^2-x_1-x_2\ (mod\ 23)≡5^2-2*6(mod\ 23)≡13\ mod\ 23,即x_3=13$</p>
+<p>$y_3≡k(x_1-x_3)-y_1\ (mod\ 23)≡5(6-13)-4(mod\ 23)≡-39mod\ 23≡7mod\ 23,即y_3=7$</p>
+<p>所以 $2P=(13,7)$</p>
+<p>再求 $3P=P+2P$</p>
+<p>此时 $x_1=(6,4),x_2=(13,7)$;$k=\frac{y_2-y_1}{x_2-x_1}\ (mod\ 23)=\frac{3}{7}$</p>
+<p>$x_3≡k^2-x_1-x_2\ (mod\ 23)≡\frac{3}{7}^2-6-13(mod\ 23)≡\frac{21}{49}\ mod\ 23,即49x_3=21mod\ 23,所以x_3=7$</p>
+<p>$y_3≡k(x_1-x_3)-y_1\ (mod\ 23)≡\frac{3}{7}(6-7)-4(mod\ 23)≡\frac{15}{7}mod\ 23,即7y_3=15mod\ 23,所以y_3=12$</p>
+<p>所以 $Q=3P=(7,12)$</p>
+</blockquote>
+<p>若 $A$ 想加密明文 $M=(5,4)$,随机选取 $r=2$,则密文 $C=$ ？</p>
+<blockquote>
+<p>$C=(c_1,c_2)=(rP, M+rQ)$</p>
+<p>$c_1=rP=2(6,4)=(13,7)$ ; $c_2=M+rQ=(5,4)+2(7,12)=(5,4)+(17,3)=(5,19)$</p>
+<p>$C=(rP, M+rQ)=(\ (13,7)\ ,(5,19)\ )$</p>
+</blockquote>
+<p>B收到密文后，解密得：</p>
+<blockquote>
+<p>$M= c_2-kc_1=(5,19)-3(13,7)=(5,4)$</p>
+</blockquote>
+
+
+        </div>
+        <div class="post-reward">
+            <div style="padding: 0 0 0 0; margin: 0 0 0 0; width: 100%; font-size:16px; text-align: center;">
+                <div id="QR" style="opacity: 0;">
+                    <div id="wechat" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="wechat_qr" src="https://n3bu74.github.io/img/Bilibili.png" alt="wechat_pay"></a>
+                        <p>微信</p>
+                    </div>
+                    <div id="alipay" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="alipay_qr" src="https://n3bu74.github.io/img/Github.png" alt="alipay"></a>
+                        <p>支付宝</p>
+                    </div>
+                </div>
+                <button id="rewardButton"
+                        onclick="
+                    var qr = document.getElementById('QR');
+                    if (qr.style.opacity === '0') {
+                        qr.style.opacity='1';
+                    } else {
+                        qr.style.opacity='0'
+                    }"
+                >
+                    <span>🧧 鼓励</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://n3bu74.github.io/posts/sec/rsa/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>RSA算法</span>
+  </a>
+  <a class="next" href="https://n3bu74.github.io/posts/sec/des/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>DES加密算法</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://n3bu74.github.io" style="color:#939393;">N3bu74&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "N3bu74's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>

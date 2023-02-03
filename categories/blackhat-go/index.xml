@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Blackhat-go on N3bu74&#39;s Blog</title>
+    <link>https://n3bu74.github.io/categories/blackhat-go/</link>
+    <description>Recent content in Blackhat-go on N3bu74&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Fri, 03 Feb 2023 12:07:44 +0800</lastBuildDate><atom:link href="https://n3bu74.github.io/categories/blackhat-go/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TCP、扫描器和代理</title>
+      <link>https://n3bu74.github.io/posts/sec/tcp-scanner-proxy/</link>
+      <pubDate>Fri, 03 Feb 2023 12:07:44 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/tcp-scanner-proxy/</guid>
+      <description>Go黑帽子渗透测试编程之道一之TCP、扫描器和代理</description>
+    </item>
+    
+  </channel>
+</rss>

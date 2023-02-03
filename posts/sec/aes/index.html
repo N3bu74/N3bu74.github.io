@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>AES加密算法 | N3bu74&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="AES加密算法">
+<meta name="author" content="
+🙍‍♂️&nbsp;N3bu74">
+<link rel="canonical" href="https://n3bu74.github.io/posts/sec/aes/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f5f7976b0695bcc912cd3f9e0715cf7d38944601dc8250a8f2f117625f16e974.css" integrity="sha256-9feXawaVvMkSzT&#43;eBxXPfTiURgHcglCo8vEXYl8W6XQ=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="apple-touch-icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="mask-icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<meta property="og:title" content="AES加密算法" />
+<meta property="og:description" content="AES加密算法" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://n3bu74.github.io/posts/sec/aes/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-02-03T10:42:40+08:00" />
+<meta property="article:modified_time" content="2023-02-03T10:42:40+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="AES加密算法"/>
+<meta name="twitter:description" content="AES加密算法"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+
+        {
+          "@type": "ListItem",
+          "position":  2 ,
+          "name": "📚文章",
+          "item": "https://n3bu74.github.io/posts/"
+        },
+
+        {
+          "@type": "ListItem",
+          "position":  3 ,
+          "name": "💻 安全",
+          "item": "https://n3bu74.github.io/posts/sec/"
+        }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "AES加密算法",
+      "item": "https://n3bu74.github.io/posts/sec/aes/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "AES加密算法",
+  "name": "AES加密算法",
+  "description": "AES加密算法",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "1.简介 AES加密算法（Advanced Encryption Standard）\nAES 属于 分组加密 算法，明⽂⻓度固定为128位，密钥⻓度可以是128、192、256位，这里以128位为例。\n2.加密过程 初始变换（其实就是 轮密钥加 操作） 九轮轮函数操作 字节代换（SubBytes） 行位移 (ShiftRows) 列混淆 (MixColumns) 轮密钥加 (AddRoundKey) 最终轮运算（实际上是 除去 列混淆的轮操作函数） 图示:\n具体：\n2.1 初始变换(Initial round) 首先将16字节(128位)的明文转化为 4*4的 矩阵\n然后将 明文矩阵 与 子密钥矩阵 进行 异或操作（即为初始变换）\n2.2 9轮循环运算(9 rounds) 2.2.1 字节代换(SubBytes) 将生成的矩阵的每个元素根据 S盒 将每一个字节的前 4 位（转化为16进制）作为 X轴的坐标，然后后 4 位作为 Y 轴的坐标，然后进行一个值的替换 比如第一个元素 19 对应第1行第9烈的 d4 ，最后将替换为如下矩阵\n2.2.2 行位移(ShiftRows) 将矩阵的2,3,4 行分别向 左循环移动 1,2,3 个字节，如图所示\n行位移后的结果：\n2.2.3 列混合(MixColumns) 我们将会给当前的这个矩阵 左乘 一个 指定矩阵 但是注意的是这里的矩阵乘法不是普通意义上的，而是有限域$GF(2^8)$ 上的乘法，\n有限域 $GF(2^8)$ 是由不可约多项式 $m(x) = x^8 +x^4 +x^3 +x +1 $(或记作十六进制 11B) 定义的，其中的元素可以表示 $GF(2)$ 上的多项式形式，也可以表示成字节的形式，还可以表示成16进制的形式。\n例如，一个由 01010111 组成的字节可表示成多项式 $x^6 +x^4 +x^2 +x +1$ ，也可以是十六进制‘57’。这里所选m(x)是所有次数为8 的不可约多项式列表中的第一个。\n我们知道矩阵的乘法是左边的行乘上右边的列，那么对于每一个字节而言，都有 8 位，在有限域的乘法中，乘法变为了多项式乘法，例如：\n然后加法变成了异或运算\n即 $s^{’}{0,0} = (2 * s{0,0}) ⨁ (3 * s_{1,0}) ⨁ (1 * s_{2,0}) ⨁ (1 * s_{3,0})$\n2.2.4 轮密钥加(AddRoundKey) 将得到的矩阵 与第n轮子密钥矩阵 进行异或\n2.3 1轮最终轮(Final round) 字节代换+行位移+轮密钥加\n2.4 密钥扩展 1.如果i 不是4的倍数，那么第i列由如下等式确定： $W[i]=W[i-4]⨁W[i-1]$ 2.如果i 是4的倍数，那么第i列由如下等式确定： $W[i]=W[i-4]⨁T(W[i-1])$\nT函数 函数T由3部分组成：字循环、字节代换和轮常量异或。\n比如，此时要求第四列 $W[4]=W[0]⨁T(W[3])$\na.字循环：将1个字中的4个字节循环左移1个字节。即将输⼊字[b0, b1, b2, b3]变换成 [b1,b2,b3,b0]。\n第三列 09 cf 4f 3c 变换为 cf 4f 3c 09\nb.字节代换：对字循环的结果使⽤S盒进⾏字节代换。\n例如cf 4f 3c 09 根据S盒代换为 8a 84 eb 01\nc.轮常量异或：将前两步的结果同给定的轮常量Rcon[j]进⾏异或，其中j表示轮数。\n轮常量：\n根据$W[4]=W[0]⨁T(W[3])$，第四列就等于 第一列和字节代换后的结果和轮常量的第一列之间进行异或后的结果\n之后亦是如此：\n总共扩展10轮\n3.代码实现 import base64 from Crypto.Cipher import AES # 密钥（key）, 密斯偏移量（iv） CBC模式加密 def AES_Encrypt(key, data): vi = '0102030405060708' pad = lambda s: s + (16 - len(s)%16) * chr(16 - len(s)%16) data = pad(data) # 字符串补位 cipher = AES.new(key.encode('utf8'), AES.MODE_CBC, vi.encode('utf8')) encryptedbytes = cipher.encrypt(data.encode('utf8')) # 加密后得到的是bytes类型的数据 encodestrs = base64.b64encode(encryptedbytes) # 使用Base64进行编码,返回byte字符串 enctext = encodestrs.decode('utf8') # 对byte字符串按utf-8进行解码 return enctext def AES_Decrypt(key, data): vi = '0102030405060708' data = data.encode('utf8') encodebytes = base64.decodebytes(data) # 将加密数据转换位bytes类型数据 cipher = AES.new(key.encode('utf8'), AES.MODE_CBC, vi.encode('utf8')) text_decrypted = cipher.decrypt(encodebytes) unpad = lambda s: s[0:-s[-1]] text_decrypted = unpad(text_decrypted) # 去补位 text_decrypted = text_decrypted.decode('utf8') return text_decrypted key = '0CoJUm6Qyw8W8jud' data = 'sdadsdsdsfd' AES_Encrypt(key, data) enctext = AES_Encrypt(key, data) print(enctext) text_decrypted = AES_Decrypt(key, enctext) print(text_decrypted) ",
+  "wordCount" : "1375",
+  "inLanguage": "en",
+  "datePublished": "2023-02-03T10:42:40+08:00",
+  "dateModified": "2023-02-03T10:42:40+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "N3bu74"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://n3bu74.github.io/posts/sec/aes/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "N3bu74's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://n3bu74.github.io/img/N3bu74.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://n3bu74.github.io" accesskey="h" title="N3bu74&#39;s Blog (Alt + H)">
+            <img src="https://n3bu74.github.io/img/Q.gif" alt="logo" aria-label="logo"
+                 height="35">N3bu74&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://n3bu74.github.io/search" title="🔍 搜索 (Alt &#43; /)" accesskey=/>
+                <span>🔍 搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/posts" title="📚 文章">
+                <span>📚 文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/categories/" title="📦 分类">
+                <span>📦 分类</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/tags" title="🧩 标签">
+                <span>🧩 标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/archives/" title="⏱️ 时间轴">
+                <span>⏱️ 时间轴</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://n3bu74.github.io">主页</a>&nbsp;»&nbsp;<a href="https://n3bu74.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://n3bu74.github.io/posts/sec/">💻 安全</a></div>
+            <h1 class="post-title">
+                AES加密算法
+            </h1>
+            <div class="post-description">
+                AES加密算法
+            </div>
+            <div class="post-meta">📅&nbsp;<span title='2023-02-03 10:42:40 +0800 CST'>2023-02-03</span>&nbsp; &nbsp;⏰&nbsp;2023-02-03&nbsp; &nbsp;📃:&nbsp;1375字&nbsp; &nbsp;⏳&nbsp;3分钟&nbsp; &nbsp;
+🙍‍♂️&nbsp;N3bu74
+
+
+
+                &nbsp; &nbsp; 🧩 &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://n3bu74.github.io/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">密码学</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp; 👁‍🗨 <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#1%e7%ae%80%e4%bb%8b" aria-label="1.简介">1.简介</a></li>
+                <li>
+                    <a href="#2%e5%8a%a0%e5%af%86%e8%bf%87%e7%a8%8b" aria-label="2.加密过程">2.加密过程</a><ul>
+                        
+                <li>
+                    <a href="#21-%e5%88%9d%e5%a7%8b%e5%8f%98%e6%8d%a2initial-round" aria-label="2.1 初始变换(Initial round)">2.1 初始变换(Initial round)</a></li>
+                <li>
+                    <a href="#22-9%e8%bd%ae%e5%be%aa%e7%8e%af%e8%bf%90%e7%ae%979-rounds" aria-label="2.2 9轮循环运算(9 rounds)">2.2 9轮循环运算(9 rounds)</a><ul>
+                        
+                <li>
+                    <a href="#221-%e5%ad%97%e8%8a%82%e4%bb%a3%e6%8d%a2subbytes" aria-label="2.2.1 字节代换(SubBytes)">2.2.1 字节代换(SubBytes)</a></li>
+                <li>
+                    <a href="#222-%e8%a1%8c%e4%bd%8d%e7%a7%bbshiftrows" aria-label="2.2.2 行位移(ShiftRows)">2.2.2 行位移(ShiftRows)</a></li>
+                <li>
+                    <a href="#223-%e5%88%97%e6%b7%b7%e5%90%88mixcolumns" aria-label="2.2.3 列混合(MixColumns)">2.2.3 列混合(MixColumns)</a></li>
+                <li>
+                    <a href="#224-%e8%bd%ae%e5%af%86%e9%92%a5%e5%8a%a0addroundkey" aria-label="2.2.4 轮密钥加(AddRoundKey)">2.2.4 轮密钥加(AddRoundKey)</a></li></ul>
+                </li>
+                <li>
+                    <a href="#23-1%e8%bd%ae%e6%9c%80%e7%bb%88%e8%bd%aefinal-round" aria-label="2.3 1轮最终轮(Final round)">2.3 1轮最终轮(Final round)</a></li>
+                <li>
+                    <a href="#24-%e5%af%86%e9%92%a5%e6%89%a9%e5%b1%95" aria-label="2.4 密钥扩展">2.4 密钥扩展</a><ul>
+                        
+                <li>
+                    <a href="#t%e5%87%bd%e6%95%b0" aria-label="T函数">T函数</a></li></ul>
+                </li></ul>
+                </li>
+                <li>
+                    <a href="#3%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b0" aria-label="3.代码实现">3.代码实现</a>
+                </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><h2 id="1简介">1.简介<a hidden class="anchor" aria-hidden="true" href="#1简介">#</a></h2>
+<p>AES加密算法（Advanced Encryption Standard）</p>
+<p>AES 属于 <strong>分组加密</strong> 算法，明⽂⻓度固定为128位，密钥⻓度可以是128、192、256位，这里以128位为例。</p>
+<h2 id="2加密过程">2.加密过程<a hidden class="anchor" aria-hidden="true" href="#2加密过程">#</a></h2>
+<ul>
+<li>初始变换（其实就是 <strong>轮密钥加</strong> 操作）</li>
+<li>九轮轮函数操作
+<ul>
+<li>字节代换（SubBytes）</li>
+<li>行位移 (ShiftRows)</li>
+<li>列混淆 (MixColumns)</li>
+<li>轮密钥加 (AddRoundKey)</li>
+</ul>
+</li>
+<li>最终轮运算（实际上是 <strong>除去</strong> 列混淆的轮操作函数）</li>
+</ul>
+<p>图示:</p>
+<p><img loading="lazy" src="image-20221031223910856.png" alt="image-20221031223910856"  />
+</p>
+<p>具体：</p>
+<p><img loading="lazy" src="image-20221101175345665.png" alt="image-20221101175345665"  />
+</p>
+<h3 id="21-初始变换initial-round">2.1 初始变换(Initial round)<a hidden class="anchor" aria-hidden="true" href="#21-初始变换initial-round">#</a></h3>
+<p>首先将16字节(128位)的明文转化为 4*4的 矩阵</p>
+<p><img loading="lazy" src="image-20221101144216226.png" alt="image-20221101144216226"  />
+</p>
+<p>然后将 明文矩阵 与 子密钥矩阵 进行 异或操作（即为初始变换）</p>
+<p><img loading="lazy" src="image-20221101144450576.png" alt="image-20221101144450576"  />
+</p>
+<h3 id="22-9轮循环运算9-rounds">2.2 9轮循环运算(9 rounds)<a hidden class="anchor" aria-hidden="true" href="#22-9轮循环运算9-rounds">#</a></h3>
+<h4 id="221-字节代换subbytes">2.2.1 字节代换(SubBytes)<a hidden class="anchor" aria-hidden="true" href="#221-字节代换subbytes">#</a></h4>
+<p>将生成的矩阵的每个元素根据 S盒 将每一个字节的前 4 位（转化为16进制）作为 X轴的坐标，然后后 4 位作为 Y 轴的坐标，然后进行一个值的替换
+<img loading="lazy" src="image-20221101145126327.png" alt="image-20221101145126327"  />
+</p>
+<p>比如第一个元素 19 对应第1行第9烈的 d4 ，最后将替换为如下矩阵</p>
+<p><img loading="lazy" src="image-20221101145939777.png" alt="image-20221101145939777"  />
+</p>
+<h4 id="222-行位移shiftrows">2.2.2 行位移(ShiftRows)<a hidden class="anchor" aria-hidden="true" href="#222-行位移shiftrows">#</a></h4>
+<p>将矩阵的2,3,4 行分别向 左循环移动 1,2,3 个字节，如图所示</p>
+<p><img loading="lazy" src="image-20221101150216050.png" alt="image-20221101150216050"  />
+</p>
+<p>行位移后的结果：</p>
+<p><img loading="lazy" src="image-20221101150308023.png" alt="image-20221101150308023"  />
+</p>
+<h4 id="223-列混合mixcolumns">2.2.3 列混合(MixColumns)<a hidden class="anchor" aria-hidden="true" href="#223-列混合mixcolumns">#</a></h4>
+<p><img loading="lazy" src="image-20221101150753362.png" alt="image-20221101150753362"  />
+</p>
+<p>我们将会给当前的这个矩阵 左乘 一个 指定矩阵 但是注意的是这里的矩阵乘法不是普通意义上的，而是有限域$GF(2^8)$ 上的乘法，</p>
+<blockquote>
+<p>有限域 $GF(2^8)$ 是由不可约多项式 $m(x) = x^8 +x^4 +x^3 +x +1 $(或记作十六进制 11B) 定义的，其中的元素可以表示 $GF(2)$ 上的多项式形式，也可以表示成字节的形式，还可以表示成16进制的形式。</p>
+<p>例如，一个由 01010111 组成的字节可表示成多项式 $x^6 +x^4 +x^2 +x +1$ ，也可以是十六进制‘57’。这里所选m(x)是所有次数为8 的不可约多项式列表中的第一个。</p>
+</blockquote>
+<p>我们知道矩阵的乘法是左边的行乘上右边的列，那么对于每一个字节而言，都有 8 位，在有限域的乘法中，乘法变为了多项式乘法，例如：</p>
+<p><img loading="lazy" src="image-20221101170843281.png" alt="image-20221101170843281"  />
+</p>
+<p>然后加法变成了异或运算</p>
+<p><img loading="lazy" src="image-20221101174531239.png" alt="image-20221101174531239"  />
+</p>
+<p><img loading="lazy" src="image-20221101174539283.png" alt="image-20221101174539283"  />
+</p>
+<p>即 $s^{&rsquo;}<em>{0,0} = (2 * s</em>{0,0}) ⨁ (3 * s_{1,0}) ⨁ (1 * s_{2,0}) ⨁ (1 * s_{3,0})$</p>
+<h4 id="224-轮密钥加addroundkey">2.2.4 轮密钥加(AddRoundKey)<a hidden class="anchor" aria-hidden="true" href="#224-轮密钥加addroundkey">#</a></h4>
+<p>将得到的矩阵 与第n轮子密钥矩阵 进行异或</p>
+<p><img loading="lazy" src="image-20221101152019893.png" alt="image-20221101152019893"  />
+</p>
+<h3 id="23-1轮最终轮final-round">2.3 1轮最终轮(Final round)<a hidden class="anchor" aria-hidden="true" href="#23-1轮最终轮final-round">#</a></h3>
+<p>字节代换+行位移+轮密钥加</p>
+<h3 id="24-密钥扩展">2.4 密钥扩展<a hidden class="anchor" aria-hidden="true" href="#24-密钥扩展">#</a></h3>
+<p><img loading="lazy" src="image-20221101153617248.png" alt="image-20221101153617248"  />
+</p>
+<p>1.如果i 不是4的倍数，那么第i列由如下等式确定：
+$W[i]=W[i-4]⨁W[i-1]$
+2.如果i 是4的倍数，那么第i列由如下等式确定：
+$W[i]=W[i-4]⨁T(W[i-1])$</p>
+<h4 id="t函数">T函数<a hidden class="anchor" aria-hidden="true" href="#t函数">#</a></h4>
+<p>函数T由3部分组成：字循环、字节代换和轮常量异或。</p>
+<p>比如，此时要求第四列 $W[4]=W[0]⨁T(W[3])$</p>
+<p>a.字循环：将1个字中的4个字节循环左移1个字节。即将输⼊字[b0, b1, b2, b3]变换成
+[b1,b2,b3,b0]。</p>
+<p><img loading="lazy" src="image-20221101154433320.png" alt="image-20221101154433320"  />
+</p>
+<p>第三列 09 cf 4f 3c 变换为 cf 4f 3c 09</p>
+<p>b.字节代换：对字循环的结果使⽤S盒进⾏字节代换。</p>
+<p>例如cf 4f 3c 09 根据S盒代换为 8a 84 eb 01</p>
+<p>c.轮常量异或：将前两步的结果同给定的轮常量Rcon[j]进⾏异或，其中j表示轮数。</p>
+<p>轮常量：</p>
+<p><img loading="lazy" src="image-20221101155558145.png" alt="image-20221101155558145"  />
+</p>
+<p>根据$W[4]=W[0]⨁T(W[3])$，第四列就等于 第一列和字节代换后的结果和轮常量的第一列之间进行异或后的结果</p>
+<p><img loading="lazy" src="image-20221101155611933.png" alt="image-20221101155611933"  />
+</p>
+<p>之后亦是如此：</p>
+<p><img loading="lazy" src="image-20221101160227221.png" alt="image-20221101160227221"  />
+</p>
+<p>总共扩展10轮</p>
+<p><img loading="lazy" src="image-20221101160417734.png" alt="image-20221101160417734"  />
+</p>
+<h2 id="3代码实现">3.代码实现<a hidden class="anchor" aria-hidden="true" href="#3代码实现">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> base64
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> Crypto.Cipher <span style="color:#f92672">import</span> AES
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 密钥（key）, 密斯偏移量（iv） CBC模式加密</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">AES_Encrypt</span>(key, data):
+</span></span><span style="display:flex;"><span>  vi <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;0102030405060708&#39;</span>
+</span></span><span style="display:flex;"><span>  pad <span style="color:#f92672">=</span> <span style="color:#66d9ef">lambda</span> s: s <span style="color:#f92672">+</span> (<span style="color:#ae81ff">16</span> <span style="color:#f92672">-</span> len(s)<span style="color:#f92672">%</span><span style="color:#ae81ff">16</span>) <span style="color:#f92672">*</span> chr(<span style="color:#ae81ff">16</span> <span style="color:#f92672">-</span> len(s)<span style="color:#f92672">%</span><span style="color:#ae81ff">16</span>)
+</span></span><span style="display:flex;"><span>  data <span style="color:#f92672">=</span> pad(data)
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 字符串补位</span>
+</span></span><span style="display:flex;"><span>  cipher <span style="color:#f92672">=</span> AES<span style="color:#f92672">.</span>new(key<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#39;utf8&#39;</span>), AES<span style="color:#f92672">.</span>MODE_CBC, vi<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#39;utf8&#39;</span>))
+</span></span><span style="display:flex;"><span>  encryptedbytes <span style="color:#f92672">=</span> cipher<span style="color:#f92672">.</span>encrypt(data<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#39;utf8&#39;</span>))
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 加密后得到的是bytes类型的数据</span>
+</span></span><span style="display:flex;"><span>  encodestrs <span style="color:#f92672">=</span> base64<span style="color:#f92672">.</span>b64encode(encryptedbytes)
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 使用Base64进行编码,返回byte字符串</span>
+</span></span><span style="display:flex;"><span>  enctext <span style="color:#f92672">=</span> encodestrs<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#39;utf8&#39;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 对byte字符串按utf-8进行解码</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> enctext
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">AES_Decrypt</span>(key, data):
+</span></span><span style="display:flex;"><span>  vi <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;0102030405060708&#39;</span>
+</span></span><span style="display:flex;"><span>  data <span style="color:#f92672">=</span> data<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#39;utf8&#39;</span>)
+</span></span><span style="display:flex;"><span>  encodebytes <span style="color:#f92672">=</span> base64<span style="color:#f92672">.</span>decodebytes(data)
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 将加密数据转换位bytes类型数据</span>
+</span></span><span style="display:flex;"><span>  cipher <span style="color:#f92672">=</span> AES<span style="color:#f92672">.</span>new(key<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#39;utf8&#39;</span>), AES<span style="color:#f92672">.</span>MODE_CBC, vi<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#39;utf8&#39;</span>))
+</span></span><span style="display:flex;"><span>  text_decrypted <span style="color:#f92672">=</span> cipher<span style="color:#f92672">.</span>decrypt(encodebytes)
+</span></span><span style="display:flex;"><span>  unpad <span style="color:#f92672">=</span> <span style="color:#66d9ef">lambda</span> s: s[<span style="color:#ae81ff">0</span>:<span style="color:#f92672">-</span>s[<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]]
+</span></span><span style="display:flex;"><span>  text_decrypted <span style="color:#f92672">=</span> unpad(text_decrypted)
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 去补位</span>
+</span></span><span style="display:flex;"><span>  text_decrypted <span style="color:#f92672">=</span> text_decrypted<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#39;utf8&#39;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> text_decrypted
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;0CoJUm6Qyw8W8jud&#39;</span>
+</span></span><span style="display:flex;"><span>data <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;sdadsdsdsfd&#39;</span>
+</span></span><span style="display:flex;"><span>AES_Encrypt(key, data)
+</span></span><span style="display:flex;"><span>enctext <span style="color:#f92672">=</span> AES_Encrypt(key, data)
+</span></span><span style="display:flex;"><span>print(enctext)
+</span></span><span style="display:flex;"><span>text_decrypted <span style="color:#f92672">=</span> AES_Decrypt(key, enctext)
+</span></span><span style="display:flex;"><span>print(text_decrypted) 
+</span></span></code></pre></div>
+
+        </div>
+        <div class="post-reward">
+            <div style="padding: 0 0 0 0; margin: 0 0 0 0; width: 100%; font-size:16px; text-align: center;">
+                <div id="QR" style="opacity: 0;">
+                    <div id="wechat" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="wechat_qr" src="https://n3bu74.github.io/img/Bilibili.png" alt="wechat_pay"></a>
+                        <p>微信</p>
+                    </div>
+                    <div id="alipay" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="alipay_qr" src="https://n3bu74.github.io/img/Github.png" alt="alipay"></a>
+                        <p>支付宝</p>
+                    </div>
+                </div>
+                <button id="rewardButton"
+                        onclick="
+                    var qr = document.getElementById('QR');
+                    if (qr.style.opacity === '0') {
+                        qr.style.opacity='1';
+                    } else {
+                        qr.style.opacity='0'
+                    }"
+                >
+                    <span>🧧 鼓励</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://n3bu74.github.io/posts/sec/des/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>DES加密算法</span>
+  </a>
+  <a class="next" href="https://n3bu74.github.io/posts/sec/dc-1/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>DC-1</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://n3bu74.github.io" style="color:#939393;">N3bu74&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "N3bu74's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>

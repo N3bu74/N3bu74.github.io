@@ -6,7 +6,16 @@
     <description>Recent content in Golang on N3bu74&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 23 Dec 2022 22:59:14 +0800</lastBuildDate><atom:link href="https://n3bu74.github.io/tags/golang/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 03 Feb 2023 12:07:44 +0800</lastBuildDate><atom:link href="https://n3bu74.github.io/tags/golang/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TCP、扫描器和代理</title>
+      <link>https://n3bu74.github.io/posts/sec/tcp-scanner-proxy/</link>
+      <pubDate>Fri, 03 Feb 2023 12:07:44 +0800</pubDate>
+      
+      <guid>https://n3bu74.github.io/posts/sec/tcp-scanner-proxy/</guid>
+      <description>Go黑帽子渗透测试编程之道一之TCP、扫描器和代理</description>
+    </item>
+    
     <item>
       <title>Golang 处理并发错误</title>
       <link>https://n3bu74.github.io/posts/tech/golang_concurrent_error/</link>

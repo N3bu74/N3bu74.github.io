@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>经典密码 | N3bu74&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Caesar &amp; Affine">
+<meta name="author" content="
+🙍‍♂️&nbsp;N3bu74">
+<link rel="canonical" href="https://n3bu74.github.io/posts/sec/classical-cipher/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f5f7976b0695bcc912cd3f9e0715cf7d38944601dc8250a8f2f117625f16e974.css" integrity="sha256-9feXawaVvMkSzT&#43;eBxXPfTiURgHcglCo8vEXYl8W6XQ=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="apple-touch-icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="mask-icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<meta property="og:title" content="经典密码" />
+<meta property="og:description" content="Caesar &amp; Affine" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://n3bu74.github.io/posts/sec/classical-cipher/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-02-03T11:22:11+08:00" />
+<meta property="article:modified_time" content="2023-02-03T11:22:11+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="经典密码"/>
+<meta name="twitter:description" content="Caesar &amp; Affine"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+
+        {
+          "@type": "ListItem",
+          "position":  2 ,
+          "name": "📚文章",
+          "item": "https://n3bu74.github.io/posts/"
+        },
+
+        {
+          "@type": "ListItem",
+          "position":  3 ,
+          "name": "💻 安全",
+          "item": "https://n3bu74.github.io/posts/sec/"
+        }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "经典密码",
+      "item": "https://n3bu74.github.io/posts/sec/classical-cipher/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "经典密码",
+  "name": "经典密码",
+  "description": "Caesar \u0026 Affine",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "恺撒密码 ​\t在密码学中，恺撒密码（英语：Caesar cipher），或称恺撒加密、恺撒变换、变换加密，是一种最简单且最广为人知的加密技术。它是一种替换加密的技术，明文中的所有字母都在字母表上向后（或向前）按照一个固定数目进行偏移后被替换成密文。例如，当偏移量是3的时候，所有的字母A将被替换成D，B变成E，以此类推。\npython实现\nclass Caesar(): def __init__(self,character_Set): self.character_Set = character_Set def caesar_encrypt(self,str_m,shift): new_str=\"\" for i in str_m: # 如果明文中有字符不在字符集中，则原样输出 if i in strM: numI=strM.index(i) # 字符为大写 if numI \u003e=26: new_str += strM[(numI+shift)%26+26] else: new_str += strM[(numI+shift)%26] else: new_str += i return new_str def caesar_decrypt(self,str): for i in range(1,27): print(self.caesar_encrypt(str,i)) if __name__ == '__main__': # 字符表 strM = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' # 明文m str_m = \"Nebula1805zZ\" # 位移 shift shift = 1 # 密文c str_c = \"Ulibsh{mhmzouo}\" test = Caesar(strM) print(test.caesar_encrypt(str_m,shift)) test.caesar_decrypt(str_c) 仿射密码 仿射加密要求gcd(a,26)=0,否则就褪化为 y=f(k)=b(mod 26)。\n加密函数： $$ m = D(x) = (ax+b) (mod\\ n) $$ 解密函数： $$ c = E(y) = a^(y-b) (mod\\ n) $$\n这里a*是a关于n的乘法逆元。\n欧几里得算法\n​\t欧几里得算法（Euclid’s Algorithm）又称辗转相除法。古希腊数学家欧几里得在其著作 The Elements 中最早描述了这种算法，所以该算法被命名为欧几里得算法。算法利用公式 gcd(a,b) = gcd(b, a mod b)，直到a mod b为0时。a 就是原来两个非负整数 a 和 b 的最大公约数。\n#递归 def gcd(a, b): if b == 0: return a else: return gcd(b, a % b) #非递归 def gcd(a,b): while ( b != 0): a, b = b, a % b return a 扩展欧几里得算法\n​\t扩展欧几里得算法（Extend Euclid’s Algorithm）是欧几里得算法的扩展，基于以下定理：对于任意两个整数 a, b，必存在整数 x, y，使得 ax + by = gcd(a,b) 成立，求出整数解 x, y，可以得到 gcd(a,b)。\n​\t在欧几里得算法中，终止状态是b == 0时，这时候其实就是gcd(a,0)；我们想从这个最终状态反推出刚开始的状态。由欧几里得算法可知。gcd(a,b) = gcd(b,a mod b);那么有如下表达式：\ngcd(a,b) = a*x1+b*y1; gcd(b,a mod b) = b*x2+(a - a//b*b)*y2；（此处的a//b表示整除，例如：6//4 = 1；所以：a mod b = a % b = a - a//b*b） 化简上式有：b*x2 + a * y2 - a//b*b*y2 = a*y2 + b*(x2 - a//b*y2) 与原式 gcd(a,b) = a*x1+b*y1; 对比，容易得出： x1 = y2; y1 = x2 - a//b*y2; 根据上面的递归式和欧几里得算法的终止条件b == 0,我们可以很容易知道最终状态是a * x1 + 0 * y1 = a; 即递归基 x =1 ,y =0 乘法逆元\n​\t对于ax mod p = 1,这时，x就是a 在mod p乘法群的乘法逆元, 通过拓展欧几里得算法，得到ax + by = gcd（a，b）,因为a属于模b乘法群，所以a",
+  "wordCount" : "2943",
+  "inLanguage": "en",
+  "datePublished": "2023-02-03T11:22:11+08:00",
+  "dateModified": "2023-02-03T11:22:11+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "N3bu74"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://n3bu74.github.io/posts/sec/classical-cipher/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "N3bu74's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://n3bu74.github.io/img/N3bu74.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://n3bu74.github.io" accesskey="h" title="N3bu74&#39;s Blog (Alt + H)">
+            <img src="https://n3bu74.github.io/img/Q.gif" alt="logo" aria-label="logo"
+                 height="35">N3bu74&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://n3bu74.github.io/search" title="🔍 搜索 (Alt &#43; /)" accesskey=/>
+                <span>🔍 搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/posts" title="📚 文章">
+                <span>📚 文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/categories/" title="📦 分类">
+                <span>📦 分类</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/tags" title="🧩 标签">
+                <span>🧩 标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/archives/" title="⏱️ 时间轴">
+                <span>⏱️ 时间轴</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://n3bu74.github.io">主页</a>&nbsp;»&nbsp;<a href="https://n3bu74.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://n3bu74.github.io/posts/sec/">💻 安全</a></div>
+            <h1 class="post-title">
+                经典密码
+            </h1>
+            <div class="post-description">
+                Caesar &amp; Affine
+            </div>
+            <div class="post-meta">📅&nbsp;<span title='2023-02-03 11:22:11 +0800 CST'>2023-02-03</span>&nbsp; &nbsp;⏰&nbsp;2023-02-03&nbsp; &nbsp;📃:&nbsp;2943字&nbsp; &nbsp;⏳&nbsp;6分钟&nbsp; &nbsp;
+🙍‍♂️&nbsp;N3bu74
+
+
+
+                &nbsp; &nbsp; 🧩 &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://n3bu74.github.io/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">密码学</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp; 👁‍🗨 <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e6%81%ba%e6%92%92%e5%af%86%e7%a0%81" aria-label="恺撒密码">恺撒密码</a></li>
+                <li>
+                    <a href="#%e4%bb%bf%e5%b0%84%e5%af%86%e7%a0%81" aria-label="仿射密码">仿射密码</a>
+                </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><h2 id="恺撒密码">恺撒密码<a hidden class="anchor" aria-hidden="true" href="#恺撒密码">#</a></h2>
+<blockquote>
+<p>​	在密码学中，<strong>恺撒密码</strong>（英语：Caesar cipher），或称<strong>恺撒加密</strong>、<strong>恺撒变换</strong>、<strong>变换加密</strong>，是一种最简单且最广为人知的加密技术。它是一种替换加密的技术，明文中的所有字母都在字母表上向后（或向前）按照一个固定数目进行偏移后被替换成密文。例如，当偏移量是3的时候，所有的字母A将被替换成D，B变成E，以此类推。</p>
+</blockquote>
+<p>python实现</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Caesar</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self,character_Set):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>character_Set <span style="color:#f92672">=</span> character_Set
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">caesar_encrypt</span>(self,str_m,shift):
+</span></span><span style="display:flex;"><span>        new_str<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> str_m:
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># 如果明文中有字符不在字符集中，则原样输出</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> i <span style="color:#f92672">in</span> strM:
+</span></span><span style="display:flex;"><span>                numI<span style="color:#f92672">=</span>strM<span style="color:#f92672">.</span>index(i)
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e"># 字符为大写</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> numI <span style="color:#f92672">&gt;=</span><span style="color:#ae81ff">26</span>:
+</span></span><span style="display:flex;"><span>                    new_str <span style="color:#f92672">+=</span> strM[(numI<span style="color:#f92672">+</span>shift)<span style="color:#f92672">%</span><span style="color:#ae81ff">26</span><span style="color:#f92672">+</span><span style="color:#ae81ff">26</span>]
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                    new_str <span style="color:#f92672">+=</span> strM[(numI<span style="color:#f92672">+</span>shift)<span style="color:#f92672">%</span><span style="color:#ae81ff">26</span>]
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                new_str <span style="color:#f92672">+=</span> i
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> new_str
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">caesar_decrypt</span>(self,str):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">27</span>):
+</span></span><span style="display:flex;"><span>            print(self<span style="color:#f92672">.</span>caesar_encrypt(str,i))
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 字符表</span>
+</span></span><span style="display:flex;"><span>    strM <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 明文m</span>
+</span></span><span style="display:flex;"><span>    str_m <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Nebula1805zZ&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 位移 shift</span>
+</span></span><span style="display:flex;"><span>    shift <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 密文c</span>
+</span></span><span style="display:flex;"><span>    str_c <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Ulibsh</span><span style="color:#e6db74">{mhmzouo}</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>    test <span style="color:#f92672">=</span> Caesar(strM)
+</span></span><span style="display:flex;"><span>    print(test<span style="color:#f92672">.</span>caesar_encrypt(str_m,shift))
+</span></span><span style="display:flex;"><span>    test<span style="color:#f92672">.</span>caesar_decrypt(str_c)
+</span></span></code></pre></div><h2 id="仿射密码">仿射密码<a hidden class="anchor" aria-hidden="true" href="#仿射密码">#</a></h2>
+<p>仿射加密要求gcd(a,26)=0,否则就褪化为 y=f(k)=b(mod 26)。</p>
+<p>加密函数：
+$$
+m = D(x) = (a<em>x+b) (mod\ n)
+$$
+解密函数：
+$$
+c = E(y) = a^</em>(y-b) (mod\ n)
+$$</p>
+<blockquote>
+<p>这里a*是a关于n的乘法逆元。</p>
+</blockquote>
+<p>欧几里得算法</p>
+<blockquote>
+<p>​	欧几里得算法（Euclid&rsquo;s Algorithm）又称辗转相除法。古希腊数学家欧几里得在其著作 <em>The Elements</em> 中最早描述了这种算法，所以该算法被命名为欧几里得算法。算法利用公式 gcd(a,b) = gcd(b, a mod b)，直到a mod b为0时。a 就是原来两个非负整数 a 和 b 的最大公约数。</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#递归</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">gcd</span>(a, b):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> b <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> a
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> gcd(b, a <span style="color:#f92672">%</span> b)
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#非递归</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">gcd</span>(a,b):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> ( b <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>):
+</span></span><span style="display:flex;"><span>        a, b <span style="color:#f92672">=</span> b, a <span style="color:#f92672">%</span> b
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> a
+</span></span></code></pre></div><p>扩展欧几里得算法</p>
+<blockquote>
+<p>​	扩展欧几里得算法（Extend Euclid&rsquo;s Algorithm）是欧几里得算法的扩展，基于以下定理：对于任意两个整数 a, b，必存在整数 x, y，使得 ax + by = gcd(a,b) 成立，求出整数解 x, y，可以得到 gcd(a,b)。</p>
+<p>​	在欧几里得算法中，终止状态是b == 0时，这时候其实就是gcd(a,0)；我们想从这个最终状态反推出刚开始的状态。由欧几里得算法可知。gcd(a,b) = gcd(b,a mod b);那么有如下表达式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>gcd(a,b) = a*x1+b*y1;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>gcd(b,a mod b) = b*x2+(a - a//b*b)*y2；（此处的a//b表示整除，例如：6//4 = 1；所以：a mod b = a % b = a - a//b*b）
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>化简上式有：b*x2 + a * y2 - a//b*b*y2
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		= a*y2 + b*(x2 - a//b*y2)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>与原式 gcd(a,b) = a*x1+b*y1; 对比，容易得出：
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>x1 = y2;
+</span></span><span style="display:flex;"><span>y1 = x2 - a//b*y2;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>根据上面的递归式和欧几里得算法的终止条件b == 0,我们可以很容易知道最终状态是a * x1 + 0 * y1 = a;
+</span></span><span style="display:flex;"><span>即递归基 x =1 ,y =0
+</span></span></code></pre></div></blockquote>
+<p>乘法逆元</p>
+<blockquote>
+<p>​	对于ax mod p = 1,这时，x就是a 在mod p乘法群的乘法逆元, 通过拓展欧几里得算法，得到ax + by = gcd（a，b）,因为a属于模b乘法群，所以a&lt;b，所以a与b互素，则有gcd(a,b)=1,即 ax + by = 1,有了这个，我们就可以两边求mod b,即有 ax = 1（mod b），即此时的x就是乘法逆元。</p>
+<p>​	根据乘法逆元的性质，只有当a与b互素，a关于模b的乘法逆元有解。如果时不互素，则无解。那么这个方程就是a,b互质的充要条件是方程ax+by = 1必有整数解</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e"># 扩展欧几里得算法</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">ext_gcd</span>(a, b):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> b <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:         
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, a     
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:         
+</span></span><span style="display:flex;"><span>        x, y, q <span style="color:#f92672">=</span> ext_gcd(b, a <span style="color:#f92672">%</span> b)   <span style="color:#75715e"># 递归直至余数等于0(需多递归一层用来判断)</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># q = gcd(a, b) = gcd(b, a%b)         </span>
+</span></span><span style="display:flex;"><span>        x, y <span style="color:#f92672">=</span> y, (x <span style="color:#f92672">-</span> (a <span style="color:#f92672">//</span> b) <span style="color:#f92672">*</span> y)    <span style="color:#75715e"># 辗转相除法反向推导每层a、b的因子使得gcd(a,b)=ax+by成立    </span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> x, y, q
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 求乘法逆元</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inverse</span>(a: int, n: int):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;&#39;&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    return: a 在 mod n 的逆元
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#39;&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>    x, _ , gcd<span style="color:#f92672">=</span> ext_gcd(a,n)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (gcd <span style="color:#f92672">!=</span> <span style="color:#ae81ff">1</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(str(a) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; has no inverse in mod &#34;</span> <span style="color:#f92672">+</span> str(n))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> (x<span style="color:#f92672">+</span>n)<span style="color:#f92672">%</span>n       <span style="color:#75715e">#为了使余数一定为正数</span>
+</span></span></code></pre></div><p>python实现</p>
+<blockquote>
+<p>也可利用libnum库</p>
+<p>libnum.gcd(a,b)返回a,b的最大公因数</p>
+<p>libnum.invmod(a,n)返回 a 在mod n 的逆元</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Affine</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self,Z):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>Z <span style="color:#f92672">=</span> Z
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 扩展欧几里得算法</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">ext_gcd</span>(self,a, b):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> b <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>, a
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            x, y, q <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>ext_gcd(b, a <span style="color:#f92672">%</span> b)  <span style="color:#75715e"># 递归直至余数等于0(需多递归一层用来判断)</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e"># q = gcd(a, b) = gcd(b, a%b)</span>
+</span></span><span style="display:flex;"><span>            x, y <span style="color:#f92672">=</span> y, (x <span style="color:#f92672">-</span> (a <span style="color:#f92672">//</span> b) <span style="color:#f92672">*</span> y)  <span style="color:#75715e"># 辗转相除法反向推导每层a、b的因子使得gcd(a,b)=ax+by成立</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> x, y, q
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 求逆元</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">inverse</span>(self,a: int, n: int):
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;&#39;&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        return: a 在 mod n 的逆元
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &#39;&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>        x, _, gcd <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>ext_gcd(a, n)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (gcd <span style="color:#f92672">!=</span> <span style="color:#ae81ff">1</span>):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(str(a) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; has no inverse in mod &#34;</span> <span style="color:#f92672">+</span> str(n))
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> (x <span style="color:#f92672">+</span> n) <span style="color:#f92672">%</span> n  <span style="color:#75715e"># 为了使余数一定为正数</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#D(x) = (a*x+b) (mod 26)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">affine_encrypt</span>(self,str_m:str,a:int,b:int,mod<span style="color:#f92672">=</span><span style="color:#ae81ff">26</span>):
+</span></span><span style="display:flex;"><span>        mod <span style="color:#f92672">=</span> len(self<span style="color:#f92672">.</span>Z)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (libnum<span style="color:#f92672">.</span>gcd(a) <span style="color:#f92672">!=</span> <span style="color:#ae81ff">1</span>):
+</span></span><span style="display:flex;"><span>            print(<span style="color:#e6db74">&#34;秘钥a错误，应与&#34;</span><span style="color:#f92672">+</span>str(mod)<span style="color:#f92672">+</span><span style="color:#e6db74">&#34;互质!&#34;</span>)
+</span></span><span style="display:flex;"><span>            exit(<span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (b <span style="color:#f92672">&gt;=</span> mod):
+</span></span><span style="display:flex;"><span>            print(<span style="color:#e6db74">&#34;秘钥b错误[0~&#34;</span><span style="color:#f92672">+</span>str(mod)<span style="color:#f92672">+</span><span style="color:#e6db74">&#34;]!&#34;</span>)
+</span></span><span style="display:flex;"><span>            exit(<span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        new_str <span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        str1 <span style="color:#f92672">=</span> str_m<span style="color:#f92672">.</span>upper()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> index,var <span style="color:#f92672">in</span> enumerate(str1):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> var <span style="color:#f92672">in</span> Z:
+</span></span><span style="display:flex;"><span>                num <span style="color:#f92672">=</span> Z<span style="color:#f92672">.</span>index(var)
+</span></span><span style="display:flex;"><span>                y <span style="color:#f92672">=</span> (a <span style="color:#f92672">*</span> num <span style="color:#f92672">+</span> b) <span style="color:#f92672">%</span> mod
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> var <span style="color:#f92672">==</span> str_m[index]:
+</span></span><span style="display:flex;"><span>                    new_str <span style="color:#f92672">+=</span> Z[y]
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                    new_str <span style="color:#f92672">+=</span> Z[y]<span style="color:#f92672">.</span>lower()
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                new_str <span style="color:#f92672">+=</span> var
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> new_str
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># E(y) = a1(y-b) (mod 26)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># a1 为a 的逆元</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">affine_decrypt</span>(self,a,b,c,mod<span style="color:#f92672">=</span><span style="color:#ae81ff">26</span>):
+</span></span><span style="display:flex;"><span>        mod <span style="color:#f92672">=</span> len(self<span style="color:#f92672">.</span>Z)
+</span></span><span style="display:flex;"><span>        _,_,gcd <span style="color:#f92672">=</span>self<span style="color:#f92672">.</span>ext_gcd(a,len(Z))
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> gcd <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span> <span style="color:#f92672">and</span> a <span style="color:#f92672">!=</span> b:
+</span></span><span style="display:flex;"><span>            a1 <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>inverse(a,mod)
+</span></span><span style="display:flex;"><span>            flag <span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>            c1 <span style="color:#f92672">=</span> c<span style="color:#f92672">.</span>upper()
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> index , var <span style="color:#f92672">in</span> enumerate(c1):
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> var <span style="color:#f92672">in</span> Z:
+</span></span><span style="display:flex;"><span>                    num <span style="color:#f92672">=</span>  Z<span style="color:#f92672">.</span>index(var)
+</span></span><span style="display:flex;"><span>                    y <span style="color:#f92672">=</span> a1<span style="color:#f92672">*</span>(num <span style="color:#f92672">-</span> b )<span style="color:#f92672">%</span>mod
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">if</span> var <span style="color:#f92672">==</span> c[index]:
+</span></span><span style="display:flex;"><span>                        flag <span style="color:#f92672">+=</span> Z[y]
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                        flag <span style="color:#f92672">+=</span> Z[y]<span style="color:#f92672">.</span>lower()
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                    flag <span style="color:#f92672">+=</span> var
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> flag
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Error！！！ a,b不互质&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;&#39;&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    字符集 Z
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    明文m
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    密文c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    key a，b
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#39;&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>    Z<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ABCDEFGHIJKLMNOPQRSTUVWXYZ&#34;</span>
+</span></span><span style="display:flex;"><span>    m <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Nebula1805zZ&#34;</span>
+</span></span><span style="display:flex;"><span>    a , b <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span> , <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>    test <span style="color:#f92672">=</span> Affine(Z)
+</span></span><span style="display:flex;"><span>    c <span style="color:#f92672">=</span> test<span style="color:#f92672">.</span>affine_encrypt(m,a,b)
+</span></span><span style="display:flex;"><span>    print(c)
+</span></span><span style="display:flex;"><span>    d <span style="color:#f92672">=</span> test<span style="color:#f92672">.</span>affine_decrypt(a,b,c)
+</span></span><span style="display:flex;"><span>    print(d)
+</span></span></code></pre></div><p>copy</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#coding = utf-8</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> math
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>CryptoText <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>PlainText <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>txt <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>a,b,m<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 加密</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">encode</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">global</span> a,b,CryptoText,txt
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> math<span style="color:#f92672">.</span>gcd(<span style="color:#ae81ff">26</span>,a) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> txt:
+</span></span><span style="display:flex;"><span>            tmp <span style="color:#f92672">=</span> a <span style="color:#f92672">*</span> (ord(i)<span style="color:#f92672">-</span><span style="color:#ae81ff">97</span>) <span style="color:#f92672">+</span> b
+</span></span><span style="display:flex;"><span>            CryptoText <span style="color:#f92672">+=</span> chr((tmp <span style="color:#f92672">%</span> m) <span style="color:#f92672">+</span> <span style="color:#ae81ff">97</span>)
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;[+]密文为-----&gt;&#34;</span>,CryptoText)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;[-]加密失败，密钥 a 与 26 不互质,请重新输入a&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 求乘法逆元</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">extendEdeuclid</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">global</span> a,m
+</span></span><span style="display:flex;"><span>    x1,x2,x3 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>,m
+</span></span><span style="display:flex;"><span>    y1,y2,y3 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">1</span>,a
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">True</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> y3 <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> :
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> y3 <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span> :
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> y2<span style="color:#f92672">&lt;</span><span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>                y2 <span style="color:#f92672">=</span> m<span style="color:#f92672">+</span>y2
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> y2
+</span></span><span style="display:flex;"><span>        q <span style="color:#f92672">=</span> int(x3<span style="color:#f92672">/</span>y3)
+</span></span><span style="display:flex;"><span>        t1,t2,t3 <span style="color:#f92672">=</span> x1<span style="color:#f92672">-</span>q<span style="color:#f92672">*</span>y1, x2<span style="color:#f92672">-</span>q<span style="color:#f92672">*</span>y2, x3<span style="color:#f92672">-</span>q<span style="color:#f92672">*</span>y3
+</span></span><span style="display:flex;"><span>        x1,x2,x3 <span style="color:#f92672">=</span> y1,y2,y3
+</span></span><span style="display:flex;"><span>        y1,y2,y3 <span style="color:#f92672">=</span> t1,t2,t3
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 解密</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">decode</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">global</span> PlainText,CryptoText,a,b,m
+</span></span><span style="display:flex;"><span>    tmp <span style="color:#f92672">=</span> extendEdeuclid()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> tmp <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> CryptoText:
+</span></span><span style="display:flex;"><span>            PlainText <span style="color:#f92672">+=</span> chr(tmp <span style="color:#f92672">*</span> (ord(i)<span style="color:#f92672">-</span><span style="color:#ae81ff">97</span><span style="color:#f92672">-</span>b) <span style="color:#f92672">%</span> m <span style="color:#f92672">+</span> <span style="color:#ae81ff">97</span>)
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;[+]解密得到-----&gt;&#34;</span>,PlainText)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;[-]解密失败，密钥&#34;</span>,a,<span style="color:#e6db74">&#34;与&#34;</span>,m,<span style="color:#e6db74">&#34;没有逆元，请重新输入密钥a&#34;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;&#39;&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">   ▄████████    ▄████████    ▄████████  ▄█  ███▄▄▄▄      ▄████████  ▄████████  ▄█     ▄███████▄    ▄█    █▄       ▄████████    ▄████████ 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  ███    ███   ███    ███   ███    ███ ███  ███▀▀▀██▄   ███    ███ ███    ███ ███    ███    ███   ███    ███     ███    ███   ███    ███ 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  ███    ███   ███    █▀    ███    █▀  ███▌ ███   ███   ███    █▀  ███    █▀  ███▌   ███    ███   ███    ███     ███    █▀    ███    ███ 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  ███    ███  ▄███▄▄▄      ▄███▄▄▄     ███▌ ███   ███  ▄███▄▄▄     ███        ███▌   ███    ███  ▄███▄▄▄▄███▄▄  ▄███▄▄▄      ▄███▄▄▄▄██▀ 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">▀███████████ ▀▀███▀▀▀     ▀▀███▀▀▀     ███▌ ███   ███ ▀▀███▀▀▀     ███        ███▌ ▀█████████▀  ▀▀███▀▀▀▀███▀  ▀▀███▀▀▀     ▀▀███▀▀▀▀▀   
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  ███    ███   ███          ███        ███  ███   ███   ███    █▄  ███    █▄  ███    ███          ███    ███     ███    █▄  ▀███████████ 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  ███    ███   ███          ███        ███  ███   ███   ███    ███ ███    ███ ███    ███          ███    ███     ███    ███   ███    ███ 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  ███    █▀    ███          ███        █▀    ▀█   █▀    ██████████ ████████▀  █▀    ▄████▀        ███    █▀      ██████████   ███    ███ 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                                                                                                                              ███    ███                                                                                                
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                                                         is insteresting !
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                                                         编码系统为26小写字母
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#39;&#39;&#39;</span>)
+</span></span><span style="display:flex;"><span>    a,b,m<span style="color:#f92672">=</span>int(input(<span style="color:#e6db74">&#34;请输入密钥a: &#34;</span>)),int(input(<span style="color:#e6db74">&#34;请输入密钥b(任意正整数): &#34;</span>)),input(<span style="color:#e6db74">&#34;请输入编码数m[不输默认26]：&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> m <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;&#39;</span>:
+</span></span><span style="display:flex;"><span>        m <span style="color:#f92672">=</span> <span style="color:#ae81ff">26</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        m <span style="color:#f92672">=</span> int(m)
+</span></span><span style="display:flex;"><span>    txt<span style="color:#f92672">=</span>input(<span style="color:#e6db74">&#34;请输入明文:&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span>(encode()):
+</span></span><span style="display:flex;"><span>        a <span style="color:#f92672">=</span> int(input(<span style="color:#e6db74">&#34;请输入密钥a: &#34;</span>))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span>(decode()):
+</span></span><span style="display:flex;"><span>        a <span style="color:#f92672">=</span> int(input(<span style="color:#e6db74">&#34;请输入密钥a: &#34;</span>))
+</span></span></code></pre></div><p>参考：</p>
+<blockquote>
+<p><a href="https://zhuanlan.zhihu.com/p/51481046">https://zhuanlan.zhihu.com/p/51481046</a></p>
+<p><a href="https://www.cnblogs.com/kentle/p/14975039.html">https://www.cnblogs.com/kentle/p/14975039.html</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1433267">https://cloud.tencent.com/developer/article/1433267</a></p>
+<p><a href="https://baike.baidu.com/item/%E6%89%A9%E5%B1%95%E6%AC%A7%E5%87%A0%E9%87%8C%E5%BE%97%E7%AE%97%E6%B3%95/2029414">https://baike.baidu.com/item/%E6%89%A9%E5%B1%95%E6%AC%A7%E5%87%A0%E9%87%8C%E5%BE%97%E7%AE%97%E6%B3%95/2029414</a></p>
+</blockquote>
+
+
+        </div>
+        <div class="post-reward">
+            <div style="padding: 0 0 0 0; margin: 0 0 0 0; width: 100%; font-size:16px; text-align: center;">
+                <div id="QR" style="opacity: 0;">
+                    <div id="wechat" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="wechat_qr" src="https://n3bu74.github.io/img/Bilibili.png" alt="wechat_pay"></a>
+                        <p>微信</p>
+                    </div>
+                    <div id="alipay" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="alipay_qr" src="https://n3bu74.github.io/img/Github.png" alt="alipay"></a>
+                        <p>支付宝</p>
+                    </div>
+                </div>
+                <button id="rewardButton"
+                        onclick="
+                    var qr = document.getElementById('QR');
+                    if (qr.style.opacity === '0') {
+                        qr.style.opacity='1';
+                    } else {
+                        qr.style.opacity='0'
+                    }"
+                >
+                    <span>🧧 鼓励</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://n3bu74.github.io/posts/sec/sequence-cipher/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>序列密码</span>
+  </a>
+  <a class="next" href="https://n3bu74.github.io/posts/sec/knapsack-ciphers/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>背包密码</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://n3bu74.github.io" style="color:#939393;">N3bu74&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "N3bu74's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>

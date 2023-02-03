@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>RSA算法 | N3bu74&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="RSA算法">
+<meta name="author" content="
+🙍‍♂️&nbsp;N3bu74">
+<link rel="canonical" href="https://n3bu74.github.io/posts/sec/rsa/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f5f7976b0695bcc912cd3f9e0715cf7d38944601dc8250a8f2f117625f16e974.css" integrity="sha256-9feXawaVvMkSzT&#43;eBxXPfTiURgHcglCo8vEXYl8W6XQ=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="apple-touch-icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="mask-icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<meta property="og:title" content="RSA算法" />
+<meta property="og:description" content="RSA算法" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://n3bu74.github.io/posts/sec/rsa/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-02-03T11:09:28+08:00" />
+<meta property="article:modified_time" content="2023-02-03T11:09:28+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="RSA算法"/>
+<meta name="twitter:description" content="RSA算法"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+
+        {
+          "@type": "ListItem",
+          "position":  2 ,
+          "name": "📚文章",
+          "item": "https://n3bu74.github.io/posts/"
+        },
+
+        {
+          "@type": "ListItem",
+          "position":  3 ,
+          "name": "💻 安全",
+          "item": "https://n3bu74.github.io/posts/sec/"
+        }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "RSA算法",
+      "item": "https://n3bu74.github.io/posts/sec/rsa/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "RSA算法",
+  "name": "RSA算法",
+  "description": "RSA算法",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "基础 欧拉函数 • 欧拉函数是⼩于n的正整数中与n互质的数的数⽬。\n• 互质是公约数只有1的两个整数，叫做互质整数。\n• 质数是指在⼤于1的⾃然数中，除了1和它本身以外不再有其他因数的⾃然数。\n• 如果n可以分解成2个互质的整数之积，那么n的欧拉函数等于这两个因⼦的欧拉函数之积。\n• 即若n=pq，且p,q互质, 则φ(n)=φ(pq)=φ(p)*φ(q)。\n模反元素(乘法逆元) 如果两个正整数 $e$ 和 $φ(n)$ 互质，那么⼀定可以找到⼀个整数 $d$ ，使得 $ed^{-1}$ 被 $φ(n)$ 整除，或者说 $ed$ 除以 $φ(n)$ 所得余数为 $1$ (即 $d*e\\ mod\\ φ(n)=1$)。此时，$d$ 就叫做 $e$ 的模反元素。\n密钥生成 1.选择一对不相等且足够大的素数 $p , q$\n计算 $p , q$ 的乘积 ，$n = p*q$ 计算 $n$ 的欧拉函数，$φ(n)=φ(p*q)=φ(p-1)φ(q-1)=(p-1)(q-1)$ 选一个与 $φ(n)$ 互素的整数 $e$ (即 $gcd(φ(n),e)$ ),$1",
+  "wordCount" : "1464",
+  "inLanguage": "en",
+  "datePublished": "2023-02-03T11:09:28+08:00",
+  "dateModified": "2023-02-03T11:09:28+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "N3bu74"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://n3bu74.github.io/posts/sec/rsa/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "N3bu74's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://n3bu74.github.io/img/N3bu74.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://n3bu74.github.io" accesskey="h" title="N3bu74&#39;s Blog (Alt + H)">
+            <img src="https://n3bu74.github.io/img/Q.gif" alt="logo" aria-label="logo"
+                 height="35">N3bu74&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://n3bu74.github.io/search" title="🔍 搜索 (Alt &#43; /)" accesskey=/>
+                <span>🔍 搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/posts" title="📚 文章">
+                <span>📚 文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/categories/" title="📦 分类">
+                <span>📦 分类</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/tags" title="🧩 标签">
+                <span>🧩 标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/archives/" title="⏱️ 时间轴">
+                <span>⏱️ 时间轴</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://n3bu74.github.io">主页</a>&nbsp;»&nbsp;<a href="https://n3bu74.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://n3bu74.github.io/posts/sec/">💻 安全</a></div>
+            <h1 class="post-title">
+                RSA算法
+            </h1>
+            <div class="post-description">
+                RSA算法
+            </div>
+            <div class="post-meta">📅&nbsp;<span title='2023-02-03 11:09:28 +0800 CST'>2023-02-03</span>&nbsp; &nbsp;⏰&nbsp;2023-02-03&nbsp; &nbsp;📃:&nbsp;1464字&nbsp; &nbsp;⏳&nbsp;3分钟&nbsp; &nbsp;
+🙍‍♂️&nbsp;N3bu74
+
+
+
+                &nbsp; &nbsp; 🧩 &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://n3bu74.github.io/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">密码学</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp; 👁‍🗨 <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e5%9f%ba%e7%a1%80" aria-label="基础">基础</a><ul>
+                        
+                <li>
+                    <a href="#%e6%ac%a7%e6%8b%89%e5%87%bd%e6%95%b0" aria-label="欧拉函数">欧拉函数</a></li>
+                <li>
+                    <a href="#%e6%a8%a1%e5%8f%8d%e5%85%83%e7%b4%a0%e4%b9%98%e6%b3%95%e9%80%86%e5%85%83" aria-label="模反元素(乘法逆元)">模反元素(乘法逆元)</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%af%86%e9%92%a5%e7%94%9f%e6%88%90" aria-label="密钥生成">密钥生成</a></li>
+                <li>
+                    <a href="#%e5%8a%a0%e8%a7%a3%e5%af%86" aria-label="加解密">加解密</a><ul>
+                        
+                <li>
+                    <a href="#%e5%8a%a0%e5%af%86" aria-label="加密：">加密：</a></li>
+                <li>
+                    <a href="#%e8%a7%a3%e5%af%86" aria-label="解密">解密</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e4%be%8b%e9%a2%98" aria-label="例题">例题</a></li>
+                <li>
+                    <a href="#%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b0" aria-label="代码实现">代码实现</a>
+                </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><h2 id="基础">基础<a hidden class="anchor" aria-hidden="true" href="#基础">#</a></h2>
+<h3 id="欧拉函数">欧拉函数<a hidden class="anchor" aria-hidden="true" href="#欧拉函数">#</a></h3>
+<p>• 欧拉函数是⼩于n的正整数中与n互质的数的数⽬。</p>
+<p>• 互质是公约数只有1的两个整数，叫做互质整数。</p>
+<p>• 质数是指在⼤于1的⾃然数中，除了1和它本身以外不再有其他因数的⾃然数。</p>
+<p>• 如果n可以分解成2个互质的整数之积，那么n的欧拉函数等于这两个因⼦的欧拉函数之积。</p>
+<p>• 即若n=p<em>q，且p,q互质, 则φ(n)=φ(p</em>q)=φ(p)*φ(q)。</p>
+<h3 id="模反元素乘法逆元">模反元素(乘法逆元)<a hidden class="anchor" aria-hidden="true" href="#模反元素乘法逆元">#</a></h3>
+<p>如果两个正整数 $e$ 和 $φ(n)$ 互质，那么⼀定可以找到⼀个整数 $d$ ，使得 $ed^{-1}$ 被 $φ(n)$ 整除，或者说 $ed$ 除以 $φ(n)$ 所得余数为 $1$ (即 $d*e\ mod\ φ(n)=1$)。此时，$d$ 就叫做 $e$ 的模反元素。</p>
+<h2 id="密钥生成">密钥生成<a hidden class="anchor" aria-hidden="true" href="#密钥生成">#</a></h2>
+<p>1.选择一对不相等且足够大的素数 $p , q$</p>
+<ol start="2">
+<li>计算 $p , q$ 的乘积 ，$n = p*q$</li>
+<li>计算 $n$ 的欧拉函数，$φ(n)=φ(p*q)=φ(p-1)<em>φ(q-1)=(p-1)</em>(q-1)$</li>
+<li>选一个与 $φ(n)$ 互素的整数 $e$ (即 $gcd(φ(n),e)$ ),$1&lt;e&lt;φ(n)$</li>
+<li>计算出 $e$ 对于 $φ(n)$ 的模反元素 $d$ （即 $d$ 是 $e$ 在模 $φ(n)$ 下的乘法逆元，因 $e$ 与 $φ(n)$ 互质，由模运算可知，它的乘法逆元一定存在），$d*e\ mod\ φ(n)=1$</li>
+<li>公钥 ：$KU=(e,n)$</li>
+<li>私钥 ：$KR=(d,n)$</li>
+</ol>
+<h2 id="加解密">加解密<a hidden class="anchor" aria-hidden="true" href="#加解密">#</a></h2>
+<h3 id="加密">加密：<a hidden class="anchor" aria-hidden="true" href="#加密">#</a></h3>
+<p>对于明文 $M$ ,</p>
+<p>密文 $C=M^e\ mod\ n$</p>
+<h3 id="解密">解密<a hidden class="anchor" aria-hidden="true" href="#解密">#</a></h3>
+<p>对于密文 $C$</p>
+<p>明文 $M=C^d\ mod\ n$</p>
+<h2 id="例题">例题<a hidden class="anchor" aria-hidden="true" href="#例题">#</a></h2>
+<blockquote>
+<p>在RSA加密体制中, 已知素数 p = 7, q = 11, 公钥 e = 13, 试计算私钥 d 并给出对明文 m = 5 的加密,求其密文. 已知密文 c = 15, 求其明文</p>
+</blockquote>
+<blockquote>
+<p>$n=p*q=77$</p>
+<p>$φ(n)=(p-1)*(q-1)=60$</p>
+<p>$ed≡1\ mod\ φ(n)$ 即 $13d\ mod\ 60 = 1$</p>
+<p>得 d = 37</p>
+<p>公钥 (e,n) = (13,77)</p>
+<p>密文 $C=M^e\ mod\ n=5^{13}\ mod\ 77=26$</p>
+<p>私钥 (d,n) = (37,77)</p>
+<p>明文 $M=C^d\ mod\ n=15^{37}\ mod\ 77=71$</p>
+</blockquote>
+<h2 id="代码实现">代码实现<a hidden class="anchor" aria-hidden="true" href="#代码实现">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> random <span style="color:#f92672">import</span> randint
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> datetime <span style="color:#f92672">import</span> datetime
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;判断是否是素数&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">is_sushu</span>(sushu):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">2</span>,sushu):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> sushu <span style="color:#f92672">%</span> i <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;随机生成指定范围的大素数&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">Create_Sushu</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">True</span>:
+</span></span><span style="display:flex;"><span>        sushu <span style="color:#f92672">=</span> randint(<span style="color:#ae81ff">100</span>,<span style="color:#ae81ff">1000</span> )<span style="color:#75715e">#下限越大，加密越安全，此处考虑计算时间，取值较小</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> is_sushu(sushu):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> sushu
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;计算欧拉函数&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">Oula</span>(sushu1 , sushu2):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> (sushu1<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">*</span>(sushu2<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;判断是否互质&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">Is_Huzhi</span>(int_min,int_max):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">2</span>,int_min<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> int_min <span style="color:#f92672">%</span> i <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">and</span> int_max <span style="color:#f92672">%</span> i <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;计算公钥，直接计算编程较简单，此处考虑了计算效率的优化&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">Creat_E</span>(oula):
+</span></span><span style="display:flex;"><span>    top <span style="color:#f92672">=</span> oula
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">True</span>:
+</span></span><span style="display:flex;"><span>        i <span style="color:#f92672">=</span> randint(<span style="color:#ae81ff">2</span>,top)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> e <span style="color:#f92672">in</span> range(i,top):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> Is_Huzhi(e,oula):
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> e
+</span></span><span style="display:flex;"><span>        top <span style="color:#f92672">=</span> i
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;计算私钥&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">Compute_D</span>(oula,e):
+</span></span><span style="display:flex;"><span>    k <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> ( k<span style="color:#f92672">*</span>oula<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span> )<span style="color:#f92672">%</span> e <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        k<span style="color:#f92672">+=</span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> int((k<span style="color:#f92672">*</span>oula<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>)<span style="color:#f92672">/</span>e)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">将字符串转成ASCII
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">Transfer_To_Ascii</span>(messages):
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> message <span style="color:#f92672">in</span> messages:
+</span></span><span style="display:flex;"><span>        result<span style="color:#f92672">.</span>append(  ord(message) )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">将列表转化成字符串
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">Transfer_To_String</span>(string_list):
+</span></span><span style="display:flex;"><span>    string <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">.</span>join(string_list)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> string
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    p、q为大素数
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    n=p*q
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    oula = （p-1）* （q-1）
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    e 为公钥
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    d 为私钥
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;通信开始，正在计算公钥与私钥...&#34;</span>)
+</span></span><span style="display:flex;"><span>    time_start <span style="color:#f92672">=</span> datetime<span style="color:#f92672">.</span>now()
+</span></span><span style="display:flex;"><span>    p <span style="color:#f92672">=</span> Create_Sushu()
+</span></span><span style="display:flex;"><span>    q <span style="color:#f92672">=</span> p
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> p <span style="color:#f92672">==</span>q :
+</span></span><span style="display:flex;"><span>        q <span style="color:#f92672">=</span> Create_Sushu()
+</span></span><span style="display:flex;"><span>    n <span style="color:#f92672">=</span> p <span style="color:#f92672">*</span> q
+</span></span><span style="display:flex;"><span>    oula <span style="color:#f92672">=</span> Oula(p, q)
+</span></span><span style="display:flex;"><span>    e <span style="color:#f92672">=</span> Creat_E(oula)
+</span></span><span style="display:flex;"><span>    d <span style="color:#f92672">=</span> Compute_D(oula,e)
+</span></span><span style="display:flex;"><span>    time_end <span style="color:#f92672">=</span> datetime<span style="color:#f92672">.</span>now()
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;计算完成，用时</span><span style="color:#e6db74">{</span>str(time_end <span style="color:#f92672">-</span>time_start)<span style="color:#e6db74">}</span><span style="color:#e6db74">秒 &#34;</span>)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;公钥：n = </span><span style="color:#e6db74">{</span>str(n)<span style="color:#e6db74">}</span><span style="color:#e6db74"> , e = </span><span style="color:#e6db74">{</span>str(e)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;私钥：n = </span><span style="color:#e6db74">{</span>str(n)<span style="color:#e6db74">}</span><span style="color:#e6db74"> , d = </span><span style="color:#e6db74">{</span>str(d)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#print(&#39;p=&#39;+str(p)+&#39;\n&#39;+&#39;q=&#39;+str(q)+&#39;\n&#39;+&#39;n=&#39;+str(n)+&#39;\n&#39;+&#39;oula=&#39;+str(oula)+&#39;\n&#39;+&#39;d=&#39;+str(d)+&#39;\n&#39;)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    m <span style="color:#f92672">=</span> input(<span style="color:#e6db74">&#39;待加密信息：&#39;</span>)
+</span></span><span style="display:flex;"><span>    m_list <span style="color:#f92672">=</span> Transfer_To_Ascii(m)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;正在加密...&#34;</span>)
+</span></span><span style="display:flex;"><span>    c_list <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> m <span style="color:#f92672">in</span> m_list:
+</span></span><span style="display:flex;"><span>        c <span style="color:#f92672">=</span> m<span style="color:#f92672">**</span>e<span style="color:#f92672">%</span>n
+</span></span><span style="display:flex;"><span>        c_list<span style="color:#f92672">.</span>append(c)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;密文：</span><span style="color:#e6db74">{</span>c_list<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;正在解密...&#34;</span>)
+</span></span><span style="display:flex;"><span>    decode_messages<span style="color:#f92672">=</span>[]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> c_list:
+</span></span><span style="display:flex;"><span>        decode_message <span style="color:#f92672">=</span> c<span style="color:#f92672">**</span>d<span style="color:#f92672">%</span>n
+</span></span><span style="display:flex;"><span>        decode_messages<span style="color:#f92672">.</span>append(chr(decode_message))
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;解密信息：</span><span style="color:#e6db74">{</span>Transfer_To_String(decode_messages)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div>
+
+        </div>
+        <div class="post-reward">
+            <div style="padding: 0 0 0 0; margin: 0 0 0 0; width: 100%; font-size:16px; text-align: center;">
+                <div id="QR" style="opacity: 0;">
+                    <div id="wechat" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="wechat_qr" src="https://n3bu74.github.io/img/Bilibili.png" alt="wechat_pay"></a>
+                        <p>微信</p>
+                    </div>
+                    <div id="alipay" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="alipay_qr" src="https://n3bu74.github.io/img/Github.png" alt="alipay"></a>
+                        <p>支付宝</p>
+                    </div>
+                </div>
+                <button id="rewardButton"
+                        onclick="
+                    var qr = document.getElementById('QR');
+                    if (qr.style.opacity === '0') {
+                        qr.style.opacity='1';
+                    } else {
+                        qr.style.opacity='0'
+                    }"
+                >
+                    <span>🧧 鼓励</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://n3bu74.github.io/posts/sec/knapsack-ciphers/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>背包密码</span>
+  </a>
+  <a class="next" href="https://n3bu74.github.io/posts/sec/ecc/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>ECC加密算法</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://n3bu74.github.io" style="color:#939393;">N3bu74&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "N3bu74's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>

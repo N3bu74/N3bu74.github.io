@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>序列密码 | N3bu74&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="A5-1 &amp; RC4">
+<meta name="author" content="
+🙍‍♂️&nbsp;N3bu74">
+<link rel="canonical" href="https://n3bu74.github.io/posts/sec/sequence-cipher/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f5f7976b0695bcc912cd3f9e0715cf7d38944601dc8250a8f2f117625f16e974.css" integrity="sha256-9feXawaVvMkSzT&#43;eBxXPfTiURgHcglCo8vEXYl8W6XQ=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
+        onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="apple-touch-icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<link rel="mask-icon" href="https://n3bu74.github.io/img/N3bu74.png">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css" integrity="sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js" integrity="sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          
+          
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          
+          throwOnError : false
+        });
+    });
+</script>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = ""; 
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<meta property="og:title" content="序列密码" />
+<meta property="og:description" content="A5-1 &amp; RC4" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://n3bu74.github.io/posts/sec/sequence-cipher/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-02-03T11:26:55+08:00" />
+<meta property="article:modified_time" content="2023-02-03T11:26:55+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="序列密码"/>
+<meta name="twitter:description" content="A5-1 &amp; RC4"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+
+        {
+          "@type": "ListItem",
+          "position":  2 ,
+          "name": "📚文章",
+          "item": "https://n3bu74.github.io/posts/"
+        },
+
+        {
+          "@type": "ListItem",
+          "position":  3 ,
+          "name": "💻 安全",
+          "item": "https://n3bu74.github.io/posts/sec/"
+        }, 
+    {
+      "@type": "ListItem",
+      "position":  4 ,
+      "name": "序列密码",
+      "item": "https://n3bu74.github.io/posts/sec/sequence-cipher/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "序列密码",
+  "name": "序列密码",
+  "description": "A5-1 \u0026 RC4",
+  "keywords": [
+    ""
+  ],
+  "articleBody": "A5-1序列密码 算法描述\n1、移存器描述 算法使用3个级数为19、22和23的本原移存器。\n注：A5-1算法中，LFSR的移位方式是左移方式。各寄存器的编号从第0级编号到第n-1级。\nn级左移LFSR的结构框图：\n移存器的左移和右移方式，除移位方式不同外，其工作原理完全相同。\n2、算法初始化 初始化是利用一次通话的会话密钥k和帧序号设定三个移存器的起点，即初始状态。\nStep 1：将三个LFSR的初态都设置为全零向量；\nStep 2：(密钥参与) 三个LFSR都规则动作64次，每次动作1步。在第i步动作时，三个LFSR的反馈内容都首先与密钥的第i比特模2加(即 $f_1(x)$函数的结果与 $k_i$ 异或)，并将模2加结果作为LFSR反馈的内容。（模2加即为异或运算）\n以移存器1为例的密钥参与过程：\n理解：\n以动作16步为例\n在15步后 $S_{15} =(0,0…,k_1,k_2,…,K_{14},K_1⊕K_{15})$\n根据 $f_1(x) = x_{19}⊕x_{18}⊕x_{17}⊕x_{14}⊕1$,\n其中 $x_{19} = 0, x_{18} = 0 , x_{17} = 0, x_{14} = k_2$\n所以 $f_1(x) = 0⊕0⊕0⊕k_2 ⊕k_{16}$ = $k_2 ⊕k_{16}$\n所以动作16步后的状态：\n$S_{15} =(0,0,0,k_1,k_2,…,K_{14},K_1⊕K_{15},k_2 ⊕k_{16})$\nStep 3：(帧序号参与) 三个LFSR都规则动作22次，每次动作1步。在第i 步动作时，三个LFSR的反馈内容都首先与帧序号的第i比特模2加，并将模2加的结果作为LFSR反馈的内容；帧序号比特的序号是从最低位编到最高位。\n帧序号参与方式：与密钥参与方式相同，不同的明文数据帧按顺序编号，每个编号为22比特。\n帧密钥参与的目的：对不同的帧设置不同的帧会话密钥，保证对每帧以不同的起点生成乱数，尽可能避免密钥重用。\n3、乱数生成与加脱密 A5算法中，LFSR的不规则动作采用钟控方式。\n钟控信号 $x_1 x_2 x_3$ 的采取： $x_1$ 取自LFSR-1第9级；\n$x_2$ 取自LFSR-2第11级； $x_3$ 取自LFSR-3第11级 。\n控制方式：择多原则。\n(X1,X2,X3) 000 001 010 011 100 101 110 111 LFSR-1 动 动 动 不动 不动 动 动 动 LFSR-2 动 动 不动 动 动 不动 动 动 LFSR-3 动 动 动 动 动 不动 动 关于加密\nStep 4：三个LFSR以钟控方式连续动作100次，但不输出乱数；\nStep 5：三个LFSR以钟控方式连续动作114次，在每次动作后，三个LFSR都将最高级寄存器中的值输出，这三个比特的模2和就是当前时刻输出的1比特乱数。\n连续动作114步，共输出114比特乱数，用于对用户手机到基站传送的114比特数据的加密；\n关于脱密\nStep 6：三个LFSR以钟控方式连续动作100次，但不输出乱数；\nStep 7：三个LFSR以钟控方式连续动作114次，在每次动作后，三个LFSR都将最高级寄存器中的值输出，这三个比特的模2和就是当前时刻输出的1比特乱数。\n连续动作114步，共输出114比特乱数，这114比特用于对基站到用户手机传送的114比特数据的脱密。\nA5-1算法的结构框图\n代码实现 import re def createkey(key,Fn): tem = strtobin(key) # 线性反馈移位寄存器LFSR A,B,C A = list(tem[:19]) B = list(tem[19:41]) C = list(tem[41:]) res = [] for i in range(114): resa = int(A[13]) ^ int(A[16]) ^ int(A[17]) ^ int(A[18]) resb = int(B[12]) ^ int(A[16]) ^ int(B[20]) ^ int(B[21]) resc = int(C[17]) ^ int(C[18]) ^ int(C[21]) ^ int(C[22]) if int(A[9]) ^ int(B[11]) ^ int(C[11]) == 1: if A[9] == '1' and B[11] == '1': A[1: 18] = A[0: 17] A[0] = str(resa) B[1: 21] = B[0: 20] B[0] = str(resb) elif A[9] == '1' and C[11] == '1': A[1: 18] = A[0: 17] A[0] = str(resa) C[1: 22] = C[0: 21] C[0] = str(resc) else: B[1: 21] = B[0: 20] B[0] = str(resb) C[1: 22] = C[0: 21] C[0] = str(resc) else: if A[9] == '0' and B[11] == '0': A[1: 18] = A[0: 17] A[0] = str(resa) B[1: 21] = B[0: 20] B[0] = str(resb) elif A[9] == '0' and C[11] == '0': A[1: 18] = A[0: 17] A[0] = str(resa) C[1: 22] = C[0: 21] C[0] = str(resc) else: B[1: 21] = B[0: 20] B[0] = str(resb) C[1: 22] = C[0: 21] C[0] = str(resc) res.append(int(A[18]) ^ int(B[21]) ^ int(C[22])) Fn = list(Fn) for i in range(22): B[i] = int(B[i]) ^ int(Fn[i]) for i in range(114): resa = int(A[13]) ^ int(A[16]) ^ int(A[17]) ^ int(A[18]) resb = int(B[12]) ^ int(A[16]) ^ int(B[20]) ^ int(B[21]) resc = int(C[17]) ^ int(C[18]) ^ int(C[21]) ^ int(C[22]) if int(A[9]) ^ int(B[11]) ^ int(C[11]) == 1: if A[9] == '1' and B[11] == '1': A[1: 18] = A[0: 17] A[0] = str(resa) B[1: 21] = B[0: 20] B[0] = str(resb) elif A[9] == '1' and C[11] == '1': A[1: 18] = A[0: 17] A[0] = str(resa) C[1: 22] = C[0: 21] C[0] = str(resc) else: B[1: 21] = B[0: 20] B[0] = str(resb) C[1: 22] = C[0: 21] C[0] = str(resc) else: if A[9] == '0' and B[11] == '0': A[1: 18] = A[0: 17] A[0] = str(resa) B[1: 21] = B[0: 20] B[0] = str(resb) elif A[9] == '0' and C[11] == '0': A[1: 18] = A[0: 17] A[0] = str(resa) C[1: 22] = C[0: 21] C[0] = str(resc) else: B[1: 21] = B[0: 20] B[0] = str(resb) C[1: 22] = C[0: 21] C[0] = str(resc) res.append(int(A[18]) ^ int(B[21]) ^ int(C[22])) return res # 字符串转换为二进制字符串 def strtobin(s): res = [] for c in s: tem = bin(ord(c)).replace('b', '') # 转为字符串时，后7位中，如果存在前面为0，会自动去掉，需要加回来，使之满足8位 if len(tem) \u003c 8: tem = \"0\" + tem res.append(tem) return ''.join(res) # 二进制转字符串 def bintostr(s): tem = \"\" for i in s: tem += str(chr(int(i, base=2))) return tem # 将明文字符串分割为指定长度字符串并存于列表中 def cut_text(text, lenth): tem = re.findall('.{' + str(lenth) + '}', text) tem.append(text[(len(tem) * lenth):]) # 由于分割后，末尾出现一个空字符，故去掉 result = [i for i in tem if i != ''] return result if __name__ == \"__main__\": # 明文 plaintext = \"ifnottothesunforsmilingwarmisstillinthesuntherebutwewilllaughmoreconfidentcalmifturnedtofoundhisownshadowappropriateescapethesunwillbethroughtheheartwarmeachplacebehindthecornerifanoutstretchedpalmcannotfallbutterflythenclenchedwavingarmsgivenpowerificanthavebrightsmileitwillfacetothesunshineandsunshinesmiletogetherinfullbloom\" # 秘钥 key = \"asdfghjk\" # 转换成二进制 mtext = strtobin(plaintext) key = strtobin(key) # 帧号码Fn 22位 Fn = \"0101101000110101010101\" # 生成密钥流 keystream = createkey(key, Fn) # 加密 mlist = cut_text(mtext, 228) ciphertext = \"\" for t in mlist: # 对每组明文分别加密 for i in range(len(t)): ciphertext += str(int(keystream[i]) ^ int(t[i])) print(\"加密后得到的密文为： \\n\" + hex(int(ciphertext,2)).upper()[2:]) # 解密 clist = cut_text(ciphertext, 228) res = \"\" for t in clist: for i in range(len(t)): res += str(int(keystream[i]) ^ int(t[i])) result = cut_text(res, 8) end = bintostr(result) print(\"解密后得到的明文为： \\n\" + end) RC4序列密码 基本原理 RC4属于对称密码算法中的流密码加密算法。 密钥⻓度可变，⾯向字节操作。 它以⼀个⾜够⼤的表S为基础，对表进⾏⾮线性变换，产⽣密钥流。\n明文 ⊕ 密钥 ——\u003e 密文\n密文 ⊕ 密钥 ——\u003e 明文\n加密方式：m+K=c（以字节为单位，按位异或）\n加密过程 ⼀、初始化S表 Step1:对S表进⾏线性填充（0-255），⼀般为256个字节；\n以 7 字节为例\nStep2:⽤种⼦密钥填充另⼀个256字节的K表；（不够则重复填充直到填满）\n假设种子密钥为 345\nStep3:⽤K表对S表进⾏初始置换。\n即 $从S_0 开始到 S_{255} ,对每个S_i根据 K_i 确定的一个方案，将S_i置换为S中的另一个字节$\n例如这个算法：\n置换后\n⼆、密钥流的⽣成 为每个待加密的字节⽣成⼀个伪随机数，⽤来异或。注：表S⼀旦完成初始化，种⼦密钥就不再被使⽤。\n密钥流生成算法伪代码：\n根据上面置换后的S表和密钥流生成算法 $$ i = (i+1) mod\\ 7=0+1=1; $$\n$$ j = (j+S[i])mod\\ 7 =0+S[1]=0+0=0; $$\n$$ Swap(S[0],S[1]) $$\n$$ t =S[0]+S[1]mod\\ 7=3; $$\n$$ S[3]=4; $$\n$$ K[0]=S[3]=4 $$\nRC4目前使用在：\nSSL（安全套接字）中广泛使用\nWEP(Wired Equivalent Privacy:有线对等保密) IEEE802.11(http://biz.chinabyte.com/159/2027659_1.shtml)\n代码实现 #encoding = utf-8 import random # 初始化向量 S def init_S(): global S for i in range(256): S.append(i) # 初始化向量 T def init_T(): global Key,T keylen = random.randint(1,256) for i in range(keylen): index = random.randint(0,61) #获取随机的临时密钥Key Key.append(WordList[index]) for i in range(256): tmp = Key[i % keylen] #初始化向量T T.append(tmp) # 初始置换 S[i] def swap_S(): global S,T j = 0 for i in range(256): j = (j+S[i]+ord(T[i])) % 256 tmp = S[i] S[i] = S[j] S[j] = tmp # 密钥流生成 def Get_KeyStream(): global S,text,KeyStream txtlen = len(text) j,t = 0,0 for i in range(txtlen): i = i % 256 j = (j+S[i]) % 256 tmp = S[i] S[i] = S[j] S[j] = tmp t = (S[i] + S[j]) % 256 KeyStream.append(S[t]) # 加密 \u0026 解密 def Get_code(): global PlainText,CryptoText,KeyStream,text for i in range(len(text)): CryptoText += chr(ord(text[i]) ^ KeyStream[i]) # 加密 for i in range(len(text)): PlainText += chr(ord(CryptoText[i]) ^ KeyStream[i]) # 解密 print('''[+]=================开始加密==================''') print(\"[+]你的密文----------\u003e\",CryptoText) print('''[+]=================开始解密==================''') print(\"[+]你的明文----------\u003e\",PlainText) if __name__ == '__main__' : T,S,Key = [],[],[] PlainText,CryptoText,KeyStream = '','',[] WordList = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\" # 用于生成临时密钥 Key print(''' ——————— ———————— —————— | —— \\ / _____| / | | | |__) | | / / —— | | | __ / | | / |_| | | ^__^ is easy ~, that right ? | | \\ \\ | |_____ |______| | |__| \\__\\ \\________| |_| ██████╗ ██████╗██╗ ██╗ ███╗ ███╗ ██╗███████╗ ███████╗ █████╗ ███████╗██╗ ██╗ ██╔══██╗██╔════╝██║ ██║ ██╔██╗ ██╔██╗ ██║██╔════╝ ██╔════╝██╔══██╗██╔════╝╚██╗ ██╔╝ ██████╔╝██║ ███████║ ╚═╝╚═╝ ╚═╝╚═╝ ██║███████╗ █████╗ ███████║███████╗ ╚████╔╝ ██╔══██╗██║ ╚════██║ ██║╚════██║ ██╔══╝ ██╔══██║╚════██║ ╚██╔╝ ██║ ██║╚██████╗ ██║ ███████╗ ██║███████║ ███████╗██║ ██║███████║ ██║ ╚═╝ ╚═╝ ╚═════╝ ╚═╝ ╚══════╝ ╚═╝╚══════╝ ╚══════╝╚═╝ ╚═╝╚══════╝ ╚═╝ ''') text = input(\"[+]please input you Plaintext here : \") init_S() init_T() swap_S() Get_KeyStream() Get_code() ",
+  "wordCount" : "3317",
+  "inLanguage": "en",
+  "datePublished": "2023-02-03T11:26:55+08:00",
+  "dateModified": "2023-02-03T11:26:55+08:00",
+  "author":[{
+    "@type": "Person",
+    "name": "N3bu74"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://n3bu74.github.io/posts/sec/sequence-cipher/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "N3bu74's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://n3bu74.github.io/img/N3bu74.png"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+
+
+<script async src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://n3bu74.github.io" accesskey="h" title="N3bu74&#39;s Blog (Alt + H)">
+            <img src="https://n3bu74.github.io/img/Q.gif" alt="logo" aria-label="logo"
+                 height="35">N3bu74&#39;s Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://n3bu74.github.io/search" title="🔍 搜索 (Alt &#43; /)" accesskey=/>
+                <span>🔍 搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/posts" title="📚 文章">
+                <span>📚 文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/categories/" title="📦 分类">
+                <span>📦 分类</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/tags" title="🧩 标签">
+                <span>🧩 标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://n3bu74.github.io/archives/" title="⏱️ 时间轴">
+                <span>⏱️ 时间轴</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main page">
+<article class="post-single">
+    <div id="single-content">
+        <header class="post-header">
+            <div class="breadcrumbs"><a href="https://n3bu74.github.io">主页</a>&nbsp;»&nbsp;<a href="https://n3bu74.github.io/posts/">📚文章</a>&nbsp;»&nbsp;<a href="https://n3bu74.github.io/posts/sec/">💻 安全</a></div>
+            <h1 class="post-title">
+                序列密码
+            </h1>
+            <div class="post-description">
+                A5-1 &amp; RC4
+            </div>
+            <div class="post-meta">📅&nbsp;<span title='2023-02-03 11:26:55 +0800 CST'>2023-02-03</span>&nbsp; &nbsp;⏰&nbsp;2023-02-03&nbsp; &nbsp;📃:&nbsp;3317字&nbsp; &nbsp;⏳&nbsp;7分钟&nbsp; &nbsp;
+🙍‍♂️&nbsp;N3bu74
+
+
+
+                &nbsp; &nbsp; 🧩 &nbsp;
+                <ul class="post-tags-meta">
+                    <a href="https://n3bu74.github.io/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/">密码学</a>
+                </ul>
+
+                
+                <span id="busuanzi_container_page_pv">
+                &nbsp; 👁‍🗨 <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+</div>
+        </header> 
+        <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">文章目录</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#a5-1%e5%ba%8f%e5%88%97%e5%af%86%e7%a0%81" aria-label="A5-1序列密码">A5-1序列密码</a><ul>
+                        
+                <li>
+                    <a href="#1%e7%a7%bb%e5%ad%98%e5%99%a8%e6%8f%8f%e8%bf%b0" aria-label="1、移存器描述">1、移存器描述</a></li>
+                <li>
+                    <a href="#2%e7%ae%97%e6%b3%95%e5%88%9d%e5%a7%8b%e5%8c%96" aria-label="2、算法初始化">2、算法初始化</a></li>
+                <li>
+                    <a href="#3%e4%b9%b1%e6%95%b0%e7%94%9f%e6%88%90%e4%b8%8e%e5%8a%a0%e8%84%b1%e5%af%86" aria-label="3、乱数生成与加脱密">3、乱数生成与加脱密</a></li>
+                <li>
+                    <a href="#%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b0" aria-label="代码实现">代码实现</a></li></ul>
+                </li>
+                <li>
+                    <a href="#rc4%e5%ba%8f%e5%88%97%e5%af%86%e7%a0%81" aria-label="RC4序列密码">RC4序列密码</a><ul>
+                        
+                <li>
+                    <a href="#%e5%9f%ba%e6%9c%ac%e5%8e%9f%e7%90%86" aria-label="基本原理">基本原理</a></li>
+                <li>
+                    <a href="#%e5%8a%a0%e5%af%86%e8%bf%87%e7%a8%8b" aria-label="加密过程">加密过程</a><ul>
+                        
+                <li>
+                    <a href="#%e5%88%9d%e5%a7%8b%e5%8c%96s%e8%a1%a8" aria-label="⼀、初始化S表">⼀、初始化S表</a></li>
+                <li>
+                    <a href="#%e5%af%86%e9%92%a5%e6%b5%81%e7%9a%84%e6%88%90" aria-label="⼆、密钥流的⽣成">⼆、密钥流的⽣成</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b0-1" aria-label="代码实现">代码实现</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    window.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        
+        activeElement = elements[0];
+        const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+        document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+    }, false);
+
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+
+    window.addEventListener('scroll', () => {
+        
+        activeElement = Array.from(elements).find((element) => {
+            if ((getOffsetTop(element) - window.pageYOffset) > 0 &&
+                (getOffsetTop(element) - window.pageYOffset) < window.innerHeight/2) {
+                return element;
+            }
+        }) || activeElement
+
+        elements.forEach(element => {
+            const id = encodeURI(element.getAttribute('id')).toLowerCase();
+            if (element === activeElement){
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+            } else {
+                document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
+            }
+        })
+    }, false);
+
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;
+    }
+</script>
+        
+        <div class="post-content"><h2 id="a5-1序列密码">A5-1序列密码<a hidden class="anchor" aria-hidden="true" href="#a5-1序列密码">#</a></h2>
+<p>算法描述</p>
+<h3 id="1移存器描述">1、移存器描述<a hidden class="anchor" aria-hidden="true" href="#1移存器描述">#</a></h3>
+<p>算法使用3个级数为19、22和23的本原移存器。</p>
+<p><img loading="lazy" src="image-20221103203204569.png" alt="image-20221103203204569"  />
+</p>
+<p>注：A5-1算法中，LFSR的移位方式是左移方式。各寄存器的编号从第0级编号到第<em>n</em>-1级。</p>
+<p><em>n</em>级左移LFSR的结构框图：</p>
+<p><img loading="lazy" src="image-20221103203253239.png" alt="image-20221103203253239"  />
+</p>
+<p>移存器的左移和右移方式，除移位方式不同外，其工作原理完全相同。</p>
+<h3 id="2算法初始化">2、算法初始化<a hidden class="anchor" aria-hidden="true" href="#2算法初始化">#</a></h3>
+<p>初始化是利用一次通话的会话密钥<em>k</em>和帧序号设定三个移存器的起点，即初始状态。</p>
+<p>Step 1：将三个LFSR的初态都设置为全零向量；</p>
+<p>Step 2：(密钥参与) 三个LFSR都规则动作64次，每次动作1步。在第i步动作时，三个LFSR的反馈内容都首先与密钥的第i比特模2加(即 $f_1(x)$函数的结果与 $k_i$ 异或)，并将模2加结果作为LFSR反馈的内容。（模2加即为异或运算）</p>
+<p>以移存器1为例的密钥参与过程：</p>
+<p><img loading="lazy" src="image-20221103203542527.png" alt="image-20221103203542527"  />
+</p>
+<p>理解：</p>
+<blockquote>
+<p>以动作16步为例</p>
+<p>在15步后 $S_{15} =(0,0&hellip;,k_1,k_2,&hellip;,K_{14},K_1⊕K_{15})$</p>
+<p>根据 $f_1(x) = x_{19}⊕x_{18}⊕x_{17}⊕x_{14}⊕1$,</p>
+<p>其中 $x_{19} = 0, x_{18} = 0 , x_{17} = 0, x_{14} = k_2$</p>
+<p>所以 $f_1(x) = 0⊕0⊕0⊕k_2 ⊕k_{16}$ = $k_2 ⊕k_{16}$</p>
+<p>所以动作16步后的状态：</p>
+<p>$S_{15} =(0,0,0,k_1,k_2,&hellip;,K_{14},K_1⊕K_{15},k_2 ⊕k_{16})$</p>
+</blockquote>
+<p>Step 3：(帧序号参与) 三个LFSR都规则动作22次，每次动作1步。在第i 步动作时，三个LFSR的反馈内容都首先与帧序号的第i比特模2加，并将模2加的结果作为LFSR反馈的内容；帧序号比特的序号是从最低位编到最高位。</p>
+<p>帧序号参与方式：与密钥参与方式相同，不同的明文数据帧按顺序编号，每个编号为22比特。</p>
+<p><img loading="lazy" src="image-20221103205337694.png" alt="image-20221103205337694"  />
+</p>
+<p>帧密钥参与的目的：对不同的帧设置不同的帧会话密钥，保证对每帧以不同的起点生成乱数，尽可能避免密钥重用。</p>
+<h3 id="3乱数生成与加脱密">3、乱数生成与加脱密<a hidden class="anchor" aria-hidden="true" href="#3乱数生成与加脱密">#</a></h3>
+<p>A5算法中，LFSR的不规则动作采用钟控方式。</p>
+<p>钟控信号 $x_1 x_2 x_3$ 的采取： $x_1$ 取自LFSR-1第9级；</p>
+<p>$x_2$ 取自LFSR-2第11级； $x_3$ 取自LFSR-3第11级 。</p>
+<p>控制方式：<strong>择多原则</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>(X1,X2,X3)</th>
+<th>000</th>
+<th>001</th>
+<th>010</th>
+<th>011</th>
+<th>100</th>
+<th>101</th>
+<th>110</th>
+<th>111</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LFSR-1</td>
+<td>动</td>
+<td>动</td>
+<td>动</td>
+<td>不动</td>
+<td>不动</td>
+<td>动</td>
+<td>动</td>
+<td>动</td>
+</tr>
+<tr>
+<td>LFSR-2</td>
+<td>动</td>
+<td>动</td>
+<td>不动</td>
+<td>动</td>
+<td>动</td>
+<td>不动</td>
+<td>动</td>
+<td>动</td>
+</tr>
+<tr>
+<td>LFSR-3</td>
+<td>动</td>
+<td></td>
+<td>动</td>
+<td>动</td>
+<td>动</td>
+<td>动</td>
+<td>不动</td>
+<td>动</td>
+</tr>
+</tbody>
+</table>
+<p>关于加密</p>
+<p>Step 4：三个LFSR以钟控方式连续动作100次，但不输出乱数；</p>
+<p>Step 5：三个LFSR以钟控方式连续动作114次，在每次动作后，三个LFSR都将最高级寄存器中的值输出，这三个比特的模2和就是当前时刻输出的1比特乱数。</p>
+<p>连续动作114步，共输出114比特乱数，用于对用户手机到基站传送的114比特数据的加密；</p>
+<p><img loading="lazy" src="image-20221103205834996.png" alt="image-20221103205834996"  />
+</p>
+<p>关于脱密</p>
+<p>Step 6：三个LFSR以钟控方式连续动作100次，但不输出乱数；</p>
+<p>Step 7：三个LFSR以钟控方式连续动作114次，在每次动作后，三个LFSR都将最高级寄存器中的值输出，这三个比特的模2和就是当前时刻输出的1比特乱数。</p>
+<p>连续动作114步，共输出114比特乱数，这114比特用于对基站到用户手机传送的114比特数据的脱密。</p>
+<p><img loading="lazy" src="image-20221103205919217.png" alt="image-20221103205919217"  />
+</p>
+<p>A5-1算法的结构框图</p>
+<p><img loading="lazy" src="image-20221103210001832.png" alt="image-20221103210001832"  />
+</p>
+<h3 id="代码实现">代码实现<a hidden class="anchor" aria-hidden="true" href="#代码实现">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> re
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">createkey</span>(key,Fn):
+</span></span><span style="display:flex;"><span>    tem <span style="color:#f92672">=</span> strtobin(key)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 线性反馈移位寄存器LFSR A,B,C</span>
+</span></span><span style="display:flex;"><span>    A <span style="color:#f92672">=</span> list(tem[:<span style="color:#ae81ff">19</span>])
+</span></span><span style="display:flex;"><span>    B <span style="color:#f92672">=</span> list(tem[<span style="color:#ae81ff">19</span>:<span style="color:#ae81ff">41</span>])
+</span></span><span style="display:flex;"><span>    C <span style="color:#f92672">=</span> list(tem[<span style="color:#ae81ff">41</span>:])
+</span></span><span style="display:flex;"><span>    res <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">114</span>):
+</span></span><span style="display:flex;"><span>        resa <span style="color:#f92672">=</span> int(A[<span style="color:#ae81ff">13</span>]) <span style="color:#f92672">^</span> int(A[<span style="color:#ae81ff">16</span>]) <span style="color:#f92672">^</span> int(A[<span style="color:#ae81ff">17</span>]) <span style="color:#f92672">^</span> int(A[<span style="color:#ae81ff">18</span>])
+</span></span><span style="display:flex;"><span>        resb <span style="color:#f92672">=</span> int(B[<span style="color:#ae81ff">12</span>]) <span style="color:#f92672">^</span> int(A[<span style="color:#ae81ff">16</span>]) <span style="color:#f92672">^</span> int(B[<span style="color:#ae81ff">20</span>]) <span style="color:#f92672">^</span> int(B[<span style="color:#ae81ff">21</span>])
+</span></span><span style="display:flex;"><span>        resc <span style="color:#f92672">=</span> int(C[<span style="color:#ae81ff">17</span>]) <span style="color:#f92672">^</span> int(C[<span style="color:#ae81ff">18</span>]) <span style="color:#f92672">^</span> int(C[<span style="color:#ae81ff">21</span>]) <span style="color:#f92672">^</span> int(C[<span style="color:#ae81ff">22</span>])
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> int(A[<span style="color:#ae81ff">9</span>]) <span style="color:#f92672">^</span> int(B[<span style="color:#ae81ff">11</span>]) <span style="color:#f92672">^</span> int(C[<span style="color:#ae81ff">11</span>]) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span>  A[<span style="color:#ae81ff">9</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;1&#39;</span> <span style="color:#f92672">and</span> B[<span style="color:#ae81ff">11</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;1&#39;</span>:
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">18</span>] <span style="color:#f92672">=</span> A[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">17</span>]
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resa)
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">21</span>] <span style="color:#f92672">=</span> B[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">20</span>]
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resb)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">elif</span> A[<span style="color:#ae81ff">9</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;1&#39;</span> <span style="color:#f92672">and</span> C[<span style="color:#ae81ff">11</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;1&#39;</span>:
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">18</span>] <span style="color:#f92672">=</span> A[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">17</span>]
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resa)
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">22</span>] <span style="color:#f92672">=</span> C[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">21</span>]
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resc)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">21</span>] <span style="color:#f92672">=</span> B[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">20</span>]
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resb)
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">22</span>] <span style="color:#f92672">=</span> C[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">21</span>]
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resc)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> A[<span style="color:#ae81ff">9</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;0&#39;</span> <span style="color:#f92672">and</span> B[<span style="color:#ae81ff">11</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;0&#39;</span>:
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">18</span>] <span style="color:#f92672">=</span> A[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">17</span>]
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resa)
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">21</span>] <span style="color:#f92672">=</span> B[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">20</span>]
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resb)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">elif</span> A[<span style="color:#ae81ff">9</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;0&#39;</span> <span style="color:#f92672">and</span> C[<span style="color:#ae81ff">11</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;0&#39;</span>:
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">18</span>] <span style="color:#f92672">=</span> A[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">17</span>]
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resa)
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">22</span>] <span style="color:#f92672">=</span> C[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">21</span>]
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resc)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">21</span>] <span style="color:#f92672">=</span> B[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">20</span>]
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resb)
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">22</span>] <span style="color:#f92672">=</span> C[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">21</span>]
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resc)
+</span></span><span style="display:flex;"><span>        res<span style="color:#f92672">.</span>append(int(A[<span style="color:#ae81ff">18</span>]) <span style="color:#f92672">^</span> int(B[<span style="color:#ae81ff">21</span>]) <span style="color:#f92672">^</span> int(C[<span style="color:#ae81ff">22</span>]))
+</span></span><span style="display:flex;"><span>    Fn <span style="color:#f92672">=</span> list(Fn)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">22</span>):
+</span></span><span style="display:flex;"><span>        B[i] <span style="color:#f92672">=</span> int(B[i]) <span style="color:#f92672">^</span> int(Fn[i])
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">114</span>):
+</span></span><span style="display:flex;"><span>        resa <span style="color:#f92672">=</span> int(A[<span style="color:#ae81ff">13</span>]) <span style="color:#f92672">^</span> int(A[<span style="color:#ae81ff">16</span>]) <span style="color:#f92672">^</span> int(A[<span style="color:#ae81ff">17</span>]) <span style="color:#f92672">^</span> int(A[<span style="color:#ae81ff">18</span>])
+</span></span><span style="display:flex;"><span>        resb <span style="color:#f92672">=</span> int(B[<span style="color:#ae81ff">12</span>]) <span style="color:#f92672">^</span> int(A[<span style="color:#ae81ff">16</span>]) <span style="color:#f92672">^</span> int(B[<span style="color:#ae81ff">20</span>]) <span style="color:#f92672">^</span> int(B[<span style="color:#ae81ff">21</span>])
+</span></span><span style="display:flex;"><span>        resc <span style="color:#f92672">=</span> int(C[<span style="color:#ae81ff">17</span>]) <span style="color:#f92672">^</span> int(C[<span style="color:#ae81ff">18</span>]) <span style="color:#f92672">^</span> int(C[<span style="color:#ae81ff">21</span>]) <span style="color:#f92672">^</span> int(C[<span style="color:#ae81ff">22</span>])
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> int(A[<span style="color:#ae81ff">9</span>]) <span style="color:#f92672">^</span> int(B[<span style="color:#ae81ff">11</span>]) <span style="color:#f92672">^</span> int(C[<span style="color:#ae81ff">11</span>]) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> A[<span style="color:#ae81ff">9</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;1&#39;</span> <span style="color:#f92672">and</span> B[<span style="color:#ae81ff">11</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;1&#39;</span>:
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">18</span>] <span style="color:#f92672">=</span> A[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">17</span>]
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resa)
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">21</span>] <span style="color:#f92672">=</span> B[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">20</span>]
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resb)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">elif</span> A[<span style="color:#ae81ff">9</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;1&#39;</span> <span style="color:#f92672">and</span> C[<span style="color:#ae81ff">11</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;1&#39;</span>:
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">18</span>] <span style="color:#f92672">=</span> A[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">17</span>]
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resa)
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">22</span>] <span style="color:#f92672">=</span> C[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">21</span>]
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resc)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">21</span>] <span style="color:#f92672">=</span> B[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">20</span>]
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resb)
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">22</span>] <span style="color:#f92672">=</span> C[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">21</span>]
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resc)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> A[<span style="color:#ae81ff">9</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;0&#39;</span> <span style="color:#f92672">and</span> B[<span style="color:#ae81ff">11</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;0&#39;</span>:
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">18</span>] <span style="color:#f92672">=</span> A[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">17</span>]
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resa)
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">21</span>] <span style="color:#f92672">=</span> B[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">20</span>]
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resb)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">elif</span> A[<span style="color:#ae81ff">9</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;0&#39;</span> <span style="color:#f92672">and</span> C[<span style="color:#ae81ff">11</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;0&#39;</span>:
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">18</span>] <span style="color:#f92672">=</span> A[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">17</span>]
+</span></span><span style="display:flex;"><span>                A[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resa)
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">22</span>] <span style="color:#f92672">=</span> C[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">21</span>]
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resc)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">21</span>] <span style="color:#f92672">=</span> B[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">20</span>]
+</span></span><span style="display:flex;"><span>                B[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resb)
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">1</span>: <span style="color:#ae81ff">22</span>] <span style="color:#f92672">=</span> C[<span style="color:#ae81ff">0</span>: <span style="color:#ae81ff">21</span>]
+</span></span><span style="display:flex;"><span>                C[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> str(resc)
+</span></span><span style="display:flex;"><span>        res<span style="color:#f92672">.</span>append(int(A[<span style="color:#ae81ff">18</span>]) <span style="color:#f92672">^</span> int(B[<span style="color:#ae81ff">21</span>]) <span style="color:#f92672">^</span> int(C[<span style="color:#ae81ff">22</span>]))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> res
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 字符串转换为二进制字符串</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">strtobin</span>(s):
+</span></span><span style="display:flex;"><span>    res <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> s:
+</span></span><span style="display:flex;"><span>        tem <span style="color:#f92672">=</span> bin(ord(c))<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#39;b&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 转为字符串时，后7位中，如果存在前面为0，会自动去掉，需要加回来，使之满足8位</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> len(tem) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">8</span>:
+</span></span><span style="display:flex;"><span>            tem <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;0&#34;</span> <span style="color:#f92672">+</span> tem
+</span></span><span style="display:flex;"><span>        res<span style="color:#f92672">.</span>append(tem)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">.</span>join(res)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 二进制转字符串</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">bintostr</span>(s):
+</span></span><span style="display:flex;"><span>    tem <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> s:
+</span></span><span style="display:flex;"><span>        tem <span style="color:#f92672">+=</span> str(chr(int(i, base<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>)))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> tem
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 将明文字符串分割为指定长度字符串并存于列表中</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">cut_text</span>(text, lenth):
+</span></span><span style="display:flex;"><span>    tem <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>findall(<span style="color:#e6db74">&#39;.{&#39;</span> <span style="color:#f92672">+</span> str(lenth) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;}&#39;</span>, text)
+</span></span><span style="display:flex;"><span>    tem<span style="color:#f92672">.</span>append(text[(len(tem) <span style="color:#f92672">*</span> lenth):])
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 由于分割后，末尾出现一个空字符，故去掉</span>
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> [i <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> tem <span style="color:#66d9ef">if</span> i <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#39;&#39;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 明文</span>
+</span></span><span style="display:flex;"><span>    plaintext <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ifnottothesunforsmilingwarmisstillinthesuntherebutwewilllaughmoreconfidentcalmifturnedtofoundhisownshadowappropriateescapethesunwillbethroughtheheartwarmeachplacebehindthecornerifanoutstretchedpalmcannotfallbutterflythenclenchedwavingarmsgivenpowerificanthavebrightsmileitwillfacetothesunshineandsunshinesmiletogetherinfullbloom&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 秘钥</span>
+</span></span><span style="display:flex;"><span>    key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;asdfghjk&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 转换成二进制</span>
+</span></span><span style="display:flex;"><span>    mtext <span style="color:#f92672">=</span> strtobin(plaintext)
+</span></span><span style="display:flex;"><span>    key <span style="color:#f92672">=</span> strtobin(key)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 帧号码Fn 22位</span>
+</span></span><span style="display:flex;"><span>    Fn <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;0101101000110101010101&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 生成密钥流</span>
+</span></span><span style="display:flex;"><span>    keystream <span style="color:#f92672">=</span> createkey(key, Fn)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 加密</span>
+</span></span><span style="display:flex;"><span>    mlist <span style="color:#f92672">=</span> cut_text(mtext, <span style="color:#ae81ff">228</span>)
+</span></span><span style="display:flex;"><span>    ciphertext <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> t <span style="color:#f92672">in</span> mlist:
+</span></span><span style="display:flex;"><span>         <span style="color:#75715e"># 对每组明文分别加密</span>
+</span></span><span style="display:flex;"><span>         <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(t)):
+</span></span><span style="display:flex;"><span>             ciphertext <span style="color:#f92672">+=</span> str(int(keystream[i]) <span style="color:#f92672">^</span> int(t[i]))
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;加密后得到的密文为： </span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">+</span> hex(int(ciphertext,<span style="color:#ae81ff">2</span>))<span style="color:#f92672">.</span>upper()[<span style="color:#ae81ff">2</span>:])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 解密</span>
+</span></span><span style="display:flex;"><span>    clist <span style="color:#f92672">=</span> cut_text(ciphertext, <span style="color:#ae81ff">228</span>)
+</span></span><span style="display:flex;"><span>    res <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> t <span style="color:#f92672">in</span> clist:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(t)):
+</span></span><span style="display:flex;"><span>            res <span style="color:#f92672">+=</span> str(int(keystream[i]) <span style="color:#f92672">^</span> int(t[i]))
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> cut_text(res, <span style="color:#ae81ff">8</span>)
+</span></span><span style="display:flex;"><span>    end <span style="color:#f92672">=</span> bintostr(result)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;解密后得到的明文为： </span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">+</span> end)
+</span></span></code></pre></div><h2 id="rc4序列密码">RC4序列密码<a hidden class="anchor" aria-hidden="true" href="#rc4序列密码">#</a></h2>
+<h3 id="基本原理">基本原理<a hidden class="anchor" aria-hidden="true" href="#基本原理">#</a></h3>
+<p>RC4属于对称密码算法中的流密码加密算法。
+密钥⻓度可变，⾯向字节操作。
+它以⼀个⾜够⼤的表S为基础，对表进⾏⾮线性变换，产⽣密钥流。</p>
+<blockquote>
+<p>明文 ⊕ 密钥 &mdash;&mdash;&gt; 密文</p>
+<p>密文 ⊕ 密钥 &mdash;&mdash;&gt; 明文</p>
+</blockquote>
+<p><img loading="lazy" src="image-20221103211702571.png" alt="image-20221103211702571"  />
+</p>
+<p>加密方式：<em>m</em>+<em>K</em>=<em>c</em>（以字节为单位，按位异或）</p>
+<h3 id="加密过程">加密过程<a hidden class="anchor" aria-hidden="true" href="#加密过程">#</a></h3>
+<h4 id="初始化s表">⼀、初始化S表<a hidden class="anchor" aria-hidden="true" href="#初始化s表">#</a></h4>
+<p>Step1:对S表进⾏线性填充（0-255），⼀般为256个字节；</p>
+<blockquote>
+<p>以 7 字节为例</p>
+<p><img loading="lazy" src="image-20221104000333553.png" alt="image-20221104000333553"  />
+</p>
+</blockquote>
+<p>Step2:⽤种⼦密钥填充另⼀个256字节的K表；（不够则重复填充直到填满）</p>
+<blockquote>
+<p>假设种子密钥为 345</p>
+<p><img loading="lazy" src="image-20221104000520133.png" alt="image-20221104000520133"  />
+</p>
+</blockquote>
+<p>Step3:⽤K表对S表进⾏初始置换。</p>
+<blockquote>
+<p>即 $从S_0 开始到 S_{255} ,对每个S_i根据 K_i 确定的一个方案，将S_i置换为S中的另一个字节$</p>
+<p>例如这个算法：</p>
+<p><img loading="lazy" src="image-20221104001549562.png" alt="image-20221104001549562"  />
+</p>
+<p>置换后</p>
+<p><img loading="lazy" src="image-20221104001603763.png" alt="image-20221104001603763"  />
+</p>
+</blockquote>
+<h4 id="密钥流的成">⼆、密钥流的⽣成<a hidden class="anchor" aria-hidden="true" href="#密钥流的成">#</a></h4>
+<p>为每个待加密的字节⽣成⼀个伪随机数，⽤来异或。注：表S⼀旦完成初始化，种⼦密钥就不再被使⽤。</p>
+<blockquote>
+<p>密钥流生成算法伪代码：</p>
+<p><img loading="lazy" src="image-20221104002448029.png" alt="image-20221104002448029"  />
+</p>
+<p>根据上面置换后的S表和密钥流生成算法
+$$
+i = (i+1) mod\ 7=0+1=1;
+$$</p>
+<p>$$
+j = (j+S[i])mod\ 7 =0+S[1]=0+0=0;
+$$</p>
+<p>$$
+Swap(S[0],S[1])
+$$</p>
+<p>$$
+t =S[0]+S[1]mod\ 7=3;
+$$</p>
+<p>$$
+S[3]=4;
+$$</p>
+<p>$$
+K[0]=S[3]=4
+$$</p>
+</blockquote>
+<p>RC4目前使用在：</p>
+<blockquote>
+<p>SSL（安全套接字）中广泛使用</p>
+<p>WEP(Wired Equivalent Privacy:有线对等保密) IEEE802.11(<a href="http://biz.chinabyte.com/159/2027659_1.shtml">http://biz.chinabyte.com/159/2027659_1.shtml</a>)</p>
+</blockquote>
+<h3 id="代码实现-1">代码实现<a hidden class="anchor" aria-hidden="true" href="#代码实现-1">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#encoding = utf-8</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> random
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 初始化向量 S</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">init_S</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">global</span> S
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">256</span>):
+</span></span><span style="display:flex;"><span>        S<span style="color:#f92672">.</span>append(i)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 初始化向量 T</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">init_T</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">global</span> Key,T
+</span></span><span style="display:flex;"><span>    keylen <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">256</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(keylen):
+</span></span><span style="display:flex;"><span>        index <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">61</span>)    <span style="color:#75715e">#获取随机的临时密钥Key</span>
+</span></span><span style="display:flex;"><span>        Key<span style="color:#f92672">.</span>append(WordList[index])
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">256</span>):
+</span></span><span style="display:flex;"><span>        tmp <span style="color:#f92672">=</span> Key[i <span style="color:#f92672">%</span> keylen]           <span style="color:#75715e">#初始化向量T</span>
+</span></span><span style="display:flex;"><span>        T<span style="color:#f92672">.</span>append(tmp)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 初始置换 S[i]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">swap_S</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">global</span> S,T
+</span></span><span style="display:flex;"><span>    j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">256</span>):
+</span></span><span style="display:flex;"><span>        j <span style="color:#f92672">=</span> (j<span style="color:#f92672">+</span>S[i]<span style="color:#f92672">+</span>ord(T[i])) <span style="color:#f92672">%</span> <span style="color:#ae81ff">256</span>
+</span></span><span style="display:flex;"><span>        tmp <span style="color:#f92672">=</span> S[i]
+</span></span><span style="display:flex;"><span>        S[i] <span style="color:#f92672">=</span> S[j]
+</span></span><span style="display:flex;"><span>        S[j] <span style="color:#f92672">=</span> tmp
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 密钥流生成</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">Get_KeyStream</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">global</span> S,text,KeyStream
+</span></span><span style="display:flex;"><span>    txtlen <span style="color:#f92672">=</span> len(text)
+</span></span><span style="display:flex;"><span>    j,t <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(txtlen):
+</span></span><span style="display:flex;"><span>        i <span style="color:#f92672">=</span> i <span style="color:#f92672">%</span> <span style="color:#ae81ff">256</span>
+</span></span><span style="display:flex;"><span>        j <span style="color:#f92672">=</span> (j<span style="color:#f92672">+</span>S[i]) <span style="color:#f92672">%</span> <span style="color:#ae81ff">256</span>
+</span></span><span style="display:flex;"><span>        tmp <span style="color:#f92672">=</span> S[i]
+</span></span><span style="display:flex;"><span>        S[i] <span style="color:#f92672">=</span> S[j]
+</span></span><span style="display:flex;"><span>        S[j] <span style="color:#f92672">=</span> tmp
+</span></span><span style="display:flex;"><span>        t <span style="color:#f92672">=</span> (S[i] <span style="color:#f92672">+</span> S[j]) <span style="color:#f92672">%</span> <span style="color:#ae81ff">256</span>
+</span></span><span style="display:flex;"><span>        KeyStream<span style="color:#f92672">.</span>append(S[t])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 加密 &amp; 解密</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">Get_code</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">global</span> PlainText,CryptoText,KeyStream,text
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(text)):
+</span></span><span style="display:flex;"><span>        CryptoText <span style="color:#f92672">+=</span> chr(ord(text[i]) <span style="color:#f92672">^</span> KeyStream[i])  <span style="color:#75715e"># 加密</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(text)):
+</span></span><span style="display:flex;"><span>        PlainText <span style="color:#f92672">+=</span> chr(ord(CryptoText[i]) <span style="color:#f92672">^</span> KeyStream[i]) <span style="color:#75715e"># 解密</span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;&#39;&#39;[+]=================开始加密==================&#39;&#39;&#39;</span>)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;[+]你的密文----------&gt;&#34;</span>,CryptoText)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;&#39;&#39;[+]=================开始解密==================&#39;&#39;&#39;</span>)
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;[+]你的明文----------&gt;&#34;</span>,PlainText)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span> :
+</span></span><span style="display:flex;"><span>    T,S,Key <span style="color:#f92672">=</span> [],[],[]
+</span></span><span style="display:flex;"><span>    PlainText,CryptoText,KeyStream <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>,<span style="color:#e6db74">&#39;&#39;</span>,[]
+</span></span><span style="display:flex;"><span>    WordList <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&#34;</span>    <span style="color:#75715e"># 用于生成临时密钥 Key</span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;&#39;&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">         ———————        ————————          ——————
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        |    ——  \     /   _____|        /   | |
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        |   |__)  |   |   /             / —— | |
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        |   __   /    |   |            / |_| | |  ^__^ is easy ~, that right ?
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        |  |  \  \    |   |_____      |______| |
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        |__|   \__\    \________|            |_|
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        ██████╗  ██████╗██╗  ██╗     ███╗          ███╗     ██╗███████╗    ███████╗ █████╗ ███████╗██╗   ██╗
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        ██╔══██╗██╔════╝██║  ██║    ██╔██╗        ██╔██╗    ██║██╔════╝    ██╔════╝██╔══██╗██╔════╝╚██╗ ██╔╝
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        ██████╔╝██║     ███████║    ╚═╝╚═╝        ╚═╝╚═╝    ██║███████╗    █████╗  ███████║███████╗ ╚████╔╝ 
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        ██╔══██╗██║     ╚════██║                            ██║╚════██║    ██╔══╝  ██╔══██║╚════██║  ╚██╔╝  
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        ██║  ██║╚██████╗     ██║          ███████╗          ██║███████║    ███████╗██║  ██║███████║   ██║   
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        ╚═╝  ╚═╝ ╚═════╝     ╚═╝          ╚══════╝          ╚═╝╚══════╝    ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝   
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                                                                                                            
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#39;&#39;&#39;</span>)
+</span></span><span style="display:flex;"><span>    text <span style="color:#f92672">=</span> input(<span style="color:#e6db74">&#34;[+]please input you Plaintext here : &#34;</span>)
+</span></span><span style="display:flex;"><span>    init_S()
+</span></span><span style="display:flex;"><span>    init_T()
+</span></span><span style="display:flex;"><span>    swap_S()
+</span></span><span style="display:flex;"><span>    Get_KeyStream()
+</span></span><span style="display:flex;"><span>    Get_code()
+</span></span><span style="display:flex;"><span>    
+</span></span></code></pre></div>
+
+        </div>
+        <div class="post-reward">
+            <div style="padding: 0 0 0 0; margin: 0 0 0 0; width: 100%; font-size:16px; text-align: center;">
+                <div id="QR" style="opacity: 0;">
+                    <div id="wechat" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="wechat_qr" src="https://n3bu74.github.io/img/Bilibili.png" alt="wechat_pay"></a>
+                        <p>微信</p>
+                    </div>
+                    <div id="alipay" style="display: inline-block">
+                        <a class="fancybox" rel="group">
+                            <img id="alipay_qr" src="https://n3bu74.github.io/img/Github.png" alt="alipay"></a>
+                        <p>支付宝</p>
+                    </div>
+                </div>
+                <button id="rewardButton"
+                        onclick="
+                    var qr = document.getElementById('QR');
+                    if (qr.style.opacity === '0') {
+                        qr.style.opacity='1';
+                    } else {
+                        qr.style.opacity='0'
+                    }"
+                >
+                    <span>🧧 鼓励</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="post-footer">
+            
+<nav class="paginav">
+  <a class="prev" href="https://n3bu74.github.io/posts/sec/chinese-remainder-theorem/">
+    <span class="title">« 上一页</span>
+    <br>
+    <span>中国剩余定理</span>
+  </a>
+  <a class="next" href="https://n3bu74.github.io/posts/sec/classical-cipher/">
+    <span class="title">下一页 »</span>
+    <br>
+    <span>经典密码</span>
+  </a>
+</nav>
+
+        </footer>
+    </div>
+
+
+
+<div>
+    <div class="pagination__title">
+        <span class="pagination__title-h" style="font-size: 20px;">💬评论</span>
+        <hr />
+    </div>
+
+    <div id="tcomment"></div>
+
+    <script src="https://cdn.staticfile.org/twikoo/1.5.8/twikoo.all.min.js">
+    </script>
+    
+
+    
+
+    <script>
+        twikoo.init({
+            envId:  null , 
+            el: "#tcomment",
+            lang: 'zh-CN',
+            region:  null ,
+            path: window.TWIKOO_MAGIC_PATH||window.location.pathname,
+            
+            
+            
+            
+            
+            
+            
+        });
+    </script>
+
+</div>
+</article>
+</main>
+
+
+<script async src="https://unpkg.com/mermaid@8.8.1/dist/mermaid.min.js"></script>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+<footer class="footer">
+    <span>
+        Copyright
+        &copy;
+        2022-2023
+        <a href="https://n3bu74.github.io" style="color:#939393;">N3bu74&#39;s Blog</a>
+        All Rights Reserved
+    </span>
+
+    <a href="https://beian.miit.gov.cn/" target="_blank" style="color:#939393;"></a>&nbsp;
+
+    <span>
+        <a target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=null"
+           style="display:inline-block;text-decoration:none;height:20px;color:#939393;">
+            <img src="" style="float:left;margin: 0px 5px 0px 0px;"/>
+            
+        </a>
+    </span>
+
+    <span id="busuanzi_container">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        总访客数: <span id="busuanzi_value_site_uv"></span>
+        总访问量: <span id="busuanzi_value_site_pv"></span>
+    </span>
+
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <span class="topInner">
+        <svg class="topSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z"/>
+        </svg>
+        <span id="read_progress"></span>
+    </span>
+</a>
+
+<script>
+    document.addEventListener('scroll', function (e) {
+        const readProgress = document.getElementById("read_progress");
+        const scrollHeight = document.documentElement.scrollHeight;
+        const clientHeight = document.documentElement.clientHeight;
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        
+        readProgress.innerText = ((scrollTop / (scrollHeight - clientHeight)).toFixed(2) * 100).toFixed(0);
+    })
+</script>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    let mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 400 || document.documentElement.scrollTop > 400) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+
+<script>
+    document.body.addEventListener('copy', function (e) {
+        if (window.getSelection().toString() && window.getSelection().toString().length > 50) {
+            let clipboardData = e.clipboardData || window.clipboardData;
+            if (clipboardData) {
+                e.preventDefault();
+                let htmlData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                let textData = window.getSelection().toString() +
+                    '\r\n\n————————————————\r\n' +
+                    '版权声明：本文为「' + {
+                { .
+                    Site.Title
+                }
+            }
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                clipboardData.setData('text/html', htmlData);
+                clipboardData.setData('text/plain', textData);
+            }
+        }
+    });
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerText = '📄复制';
+
+        function copyingDone() {
+            copybutton.innerText = '👌🏻已复制!';
+            setTimeout(() => {
+                copybutton.innerText = '📄复制';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                let text = codeblock.textContent +
+                    '\r\n————————————————\r\n' +
+                    '版权声明：本文为「' + "N3bu74's Blog"
+                +'」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。' +
+                '\r\n原文链接：' + location.href;
+                navigator.clipboard.writeText(text);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) {
+            }
+            ;
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild === container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName === "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script>
+    $("code[class^=language] ").on("mouseover", function () {
+        if (this.clientWidth < this.scrollWidth) {
+            $(this).css("width", "135%")
+        }
+    }).on("mouseout", function () {
+        $(this).css("width", "100%")
+    })
+</script>
+</body>
+
+</html>
